@@ -1,0 +1,8 @@
+{
+  "name": "CADLink",
+  "description": "The ultimate hub for CAD professionals. Connect, find freelance or permanent work, collaborate in real-time, and learn with AI-powered assistance.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
