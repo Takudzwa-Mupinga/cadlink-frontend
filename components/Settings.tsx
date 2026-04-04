@@ -231,7 +231,7 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'dark', onToggleTheme }) =>
               </div>
               <div>
                 <h4 className="font-bold text-cad-text text-lg">System Compatibility Check</h4>
-                <p className="text-sm text-cad-muted mt-1 leading-relaxed">Your system is optimized for WebGL 2.0 rendering. Large assemblies (>500MB) may require more memory.</p>
+                <p className="text-sm text-cad-muted mt-1 leading-relaxed">Your system is optimized for WebGL 2.0 rendering. Large assemblies (&gt;500MB) may require more memory.</p>
               </div>
             </div>
 
