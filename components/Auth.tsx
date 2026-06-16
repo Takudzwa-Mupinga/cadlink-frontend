@@ -1,24 +1,99 @@
-import React, { useState } from 'react';
-import { Box, Mail, Lock, ArrowRight, Github, Chrome, CheckCircle2, Loader2 } from 'lucide-react';
+import React, { useState } from "react";
+import {
+  Box,
+  Mail,
+  Lock,
+  ArrowRight,
+  Github,
+  Chrome,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
 
 interface AuthProps {
-  onLogin: () => void;
+  onLogin: (role: string) => void;
 }
 
 const Auth: React.FC<AuthProps> = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("CLIENT");
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setError("");
+    setSuccess("");
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+
+    try {
+      const endpoint = isLogin
+        ? "http://localhost:8080/api/auth/login"
+        : "http://localhost:8080/api/auth/register";
+
+      const payload = isLogin
+        ? {
+            email,
+            password,
+          }
+        : {
+            email,
+            password,
+            role,
+          };
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Authentication failed");
+      }
+
+      // Save auth data
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+
+      if (data.email) {
+        localStorage.setItem("email", data.email);
+      }
+
+      if (data.role) {
+        localStorage.setItem("role", data.role);
+      }
+
+      // Save full auth payload
+      localStorage.setItem("auth", JSON.stringify(data));
+
+      setSuccess(
+        isLogin
+          ? "Login successful! Redirecting..."
+          : "Account created successfully!",
+      );
+
+      // Pass role back to App.tsx
+      setTimeout(() => {
+        onLogin(data.role);
+      }, 1000);
+    } catch (err: any) {
+      setError(err.message || "Something went wrong");
+    } finally {
       setIsLoading(false);
-      onLogin();
-    }, 1500);
+    }
   };
 
   return (
@@ -26,125 +101,213 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
       {/* Background Ambience */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[120px] animate-blob"></div>
+
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-600/20 rounded-full blur-[120px] animate-blob animation-delay-2000"></div>
       </div>
 
-      {/* Left Side - Visuals (Hidden on mobile) */}
+      {/* Left Side */}
       <div className="hidden lg:flex w-1/2 relative items-center justify-center p-20 z-10">
         <div className="relative w-full max-w-lg">
-           <div className="absolute -top-20 -left-20 w-40 h-40 bg-cad-accent/10 rounded-full blur-3xl"></div>
-           
-           <div className="relative z-10 space-y-8">
-              <div className="w-20 h-20 bg-gradient-to-br from-cad-accent to-blue-600 rounded-3xl flex items-center justify-center shadow-[0_0_40px_rgba(56,189,248,0.3)]">
-                <Box className="w-10 h-10 text-white fill-white/20" />
-              </div>
-              
-              <h1 className="text-6xl font-bold tracking-tight leading-tight">
-                Build the <span className="text-transparent bg-clip-text bg-gradient-to-r from-cad-accent to-purple-400">Future</span> of Engineering.
-              </h1>
-              
-              <p className="text-xl text-slate-400 leading-relaxed max-w-md">
-                The ultimate ecosystem for CAD professionals. Connect, collaborate, and create with AI-powered tools.
-              </p>
+          <div className="absolute -top-20 -left-20 w-40 h-40 bg-cad-accent/10 rounded-full blur-3xl"></div>
 
-              <div className="flex gap-4 pt-4">
-                  <div className="glass-panel px-5 py-3 rounded-xl flex items-center gap-3 border border-white/10">
-                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                      <span className="text-sm font-bold">12k+ Engineers Online</span>
-                  </div>
-                  <div className="glass-panel px-5 py-3 rounded-xl flex items-center gap-3 border border-white/10">
-                      <div className="w-2 h-2 rounded-full bg-cad-accent animate-pulse"></div>
-                      <span className="text-sm font-bold">500+ Active Jobs</span>
-                  </div>
-              </div>
-           </div>
+          <div className="relative z-10 space-y-8">
+            <div className="w-20 h-20 bg-gradient-to-br from-cad-accent to-blue-600 rounded-3xl flex items-center justify-center shadow-[0_0_40px_rgba(56,189,248,0.3)]">
+              <Box className="w-10 h-10 text-white fill-white/20" />
+            </div>
 
-           {/* decorative grid */}
-           <div className="absolute inset-0 bg-grid-pattern opacity-20 pointer-events-none -z-10 mask-gradient"></div>
+            <h1 className="text-6xl font-bold tracking-tight leading-tight">
+              Build the{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cad-accent to-purple-400">
+                Future
+              </span>{" "}
+              of Engineering.
+            </h1>
+
+            <p className="text-xl text-slate-400 leading-relaxed max-w-md">
+              The ultimate ecosystem for CAD professionals. Connect,
+              collaborate, and create with AI-powered tools.
+            </p>
+
+            <div className="flex gap-4 pt-4">
+              <div className="glass-panel px-5 py-3 rounded-xl flex items-center gap-3 border border-white/10">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+
+                <span className="text-sm font-bold">12k+ Engineers Online</span>
+              </div>
+
+              <div className="glass-panel px-5 py-3 rounded-xl flex items-center gap-3 border border-white/10">
+                <div className="w-2 h-2 rounded-full bg-cad-accent animate-pulse"></div>
+
+                <span className="text-sm font-bold">500+ Active Jobs</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="absolute inset-0 bg-grid-pattern opacity-20 pointer-events-none -z-10 mask-gradient"></div>
         </div>
       </div>
 
-      {/* Right Side - Form */}
+      {/* Right Side */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative z-10">
         <div className="w-full max-w-md glass-panel p-8 md:p-12 rounded-[40px] border border-white/10 shadow-2xl relative overflow-hidden">
-            {/* Top Glow */}
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-cad-accent via-purple-500 to-cad-accent opacity-50"></div>
+          {/* Top Glow */}
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-cad-accent via-purple-500 to-cad-accent opacity-50"></div>
 
-            <div className="mb-10 text-center">
-                <div className="lg:hidden w-16 h-16 bg-gradient-to-br from-cad-accent to-blue-600 rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-6">
-                    <Box className="w-8 h-8 text-white fill-white/20" />
-                </div>
-                <h2 className="text-3xl font-bold text-white mb-2">{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
-                <p className="text-slate-400">
-                    {isLogin ? 'Enter your credentials to access your workspace.' : 'Join the world\'s largest CAD network.'}
-                </p>
+          <div className="mb-10 text-center">
+            <div className="lg:hidden w-16 h-16 bg-gradient-to-br from-cad-accent to-blue-600 rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-6">
+              <Box className="w-8 h-8 text-white fill-white/20" />
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-4">
-                    <div className="relative group">
-                        <Mail className="absolute left-4 top-4 w-5 h-5 text-slate-500 group-focus-within:text-cad-accent transition-colors" />
-                        <input 
-                            type="email" 
-                            placeholder="Email address" 
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:outline-none focus:border-cad-accent transition-all placeholder-slate-500 font-medium"
-                            required
-                        />
-                    </div>
-                    <div className="relative group">
-                        <Lock className="absolute left-4 top-4 w-5 h-5 text-slate-500 group-focus-within:text-cad-accent transition-colors" />
-                        <input 
-                            type="password" 
-                            placeholder="Password" 
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:outline-none focus:border-cad-accent transition-all placeholder-slate-500 font-medium"
-                            required
-                        />
-                    </div>
+            <h2 className="text-3xl font-bold text-white mb-2">
+              {isLogin ? "Welcome Back" : "Create Account"}
+            </h2>
+
+            <p className="text-slate-400">
+              {isLogin
+                ? "Enter your credentials to access your workspace."
+                : "Join the world's largest CAD network."}
+            </p>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="mb-6 flex items-center gap-3 bg-red-500/10 border border-red-500/20 text-red-300 px-4 py-3 rounded-xl">
+              <AlertCircle className="w-5 h-5" />
+              <span className="text-sm font-medium">{error}</span>
+            </div>
+          )}
+
+          {/* Success */}
+          {success && (
+            <div className="mb-6 flex items-center gap-3 bg-green-500/10 border border-green-500/20 text-green-300 px-4 py-3 rounded-xl">
+              <CheckCircle2 className="w-5 h-5" />
+              <span className="text-sm font-medium">{success}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              {/* Email */}
+              <div className="relative group">
+                <Mail className="absolute left-4 top-4 w-5 h-5 text-slate-500 group-focus-within:text-cad-accent transition-colors" />
+
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:outline-none focus:border-cad-accent transition-all placeholder-slate-500 font-medium"
+                  required
+                />
+              </div>
+
+              {/* Password */}
+              <div className="relative group">
+                <Lock className="absolute left-4 top-4 w-5 h-5 text-slate-500 group-focus-within:text-cad-accent transition-colors" />
+
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:outline-none focus:border-cad-accent transition-all placeholder-slate-500 font-medium"
+                  required
+                />
+              </div>
+
+              {/* Role Selector */}
+              {!isLogin && (
+                <div className="relative group">
+                  <select
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-cad-accent transition-all font-medium"
+                  >
+                    <option value="CLIENT" className="bg-slate-900">
+                      Client
+                    </option>
+
+                    <option value="DESIGNER" className="bg-slate-900">
+                      Designer/Freelancer
+                    </option>
+                  </select>
                 </div>
+              )}
+            </div>
 
-                {isLogin && (
-                    <div className="flex justify-end">
-                        <button type="button" className="text-sm font-bold text-cad-accent hover:text-white transition-colors">Forgot Password?</button>
-                    </div>
-                )}
-
-                <button 
-                    type="submit" 
-                    disabled={isLoading}
-                    className="w-full bg-cad-accent hover:bg-sky-400 text-cad-dark font-bold py-4 rounded-xl shadow-lg shadow-cad-accent/20 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+            {/* Forgot Password */}
+            {isLogin && (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  className="text-sm font-bold text-cad-accent hover:text-white transition-colors"
                 >
-                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isLogin ? 'Sign In' : 'Create Account')} 
-                    {!isLoading && <ArrowRight className="w-5 h-5" />}
+                  Forgot Password?
                 </button>
-            </form>
+              </div>
+            )}
 
-            <div className="my-8 flex items-center gap-4">
-                <div className="h-px bg-white/10 flex-1"></div>
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Or continue with</span>
-                <div className="h-px bg-white/10 flex-1"></div>
-            </div>
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-cad-accent hover:bg-sky-400 text-cad-dark font-bold py-4 rounded-xl shadow-lg shadow-cad-accent/20 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : isLogin ? (
+                "Sign In"
+              ) : (
+                "Create Account"
+              )}
 
-            <div className="grid grid-cols-2 gap-4">
-                <button type="button" className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl py-3 text-sm font-bold transition-colors">
-                    <Chrome className="w-5 h-5" /> Google
-                </button>
-                <button type="button" className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl py-3 text-sm font-bold transition-colors">
-                    <Github className="w-5 h-5" /> GitHub
-                </button>
-            </div>
+              {!isLoading && <ArrowRight className="w-5 h-5" />}
+            </button>
+          </form>
 
-            <div className="mt-8 text-center">
-                <p className="text-slate-400">
-                    {isLogin ? "Don't have an account? " : "Already have an account? "}
-                    <button onClick={() => setIsLogin(!isLogin)} className="text-white font-bold hover:underline">
-                        {isLogin ? 'Sign up' : 'Log in'}
-                    </button>
-                </p>
-            </div>
+          {/* Divider */}
+          <div className="my-8 flex items-center gap-4">
+            <div className="h-px bg-white/10 flex-1"></div>
+
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Or continue with
+            </span>
+
+            <div className="h-px bg-white/10 flex-1"></div>
+          </div>
+
+          {/* Social Buttons */}
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              type="button"
+              className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl py-3 text-sm font-bold transition-colors"
+            >
+              <Chrome className="w-5 h-5" /> Google
+            </button>
+
+            <button
+              type="button"
+              className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl py-3 text-sm font-bold transition-colors"
+            >
+              <Github className="w-5 h-5" /> GitHub
+            </button>
+          </div>
+
+          {/* Switch Auth Mode */}
+          <div className="mt-8 text-center">
+            <p className="text-slate-400">
+              {isLogin
+                ? "Don't have an account? "
+                : "Already have an account? "}
+
+              <button
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-white font-bold hover:underline"
+              >
+                {isLogin ? "Sign up" : "Log in"}
+              </button>
+            </p>
+          </div>
         </div>
       </div>
     </div>
