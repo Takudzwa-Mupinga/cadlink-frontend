@@ -35,8 +35,8 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
 
     try {
       const endpoint = isLogin
-        ? "http://localhost:8080/api/auth/login"
-        : "http://localhost:8080/api/auth/register";
+        ? "https://backend-2xp1.onrender.com/api/auth/login"
+        : "https://backend-2xp1.onrender.com/api/auth/register";
 
       const payload = isLogin
         ? {
