@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -28,20 +27,46 @@ import { HelpCircle } from 'lucide-react';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Default tab
   const [activeTab, setActiveTab] = useState('dashboard');
+
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [dmTarget, setDmTarget] = useState<string | null>(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
-  const [studioMode, setStudioMode] = useState<'chat' | 'meeting' | 'board' | 'files' | 'dream' | 'whiteboard'>('files');
-  
+
+  const [studioMode, setStudioMode] = useState<
+    'chat' | 'meeting' | 'board' | 'files' | 'dream' | 'whiteboard'
+  >('files');
+
   // Theme State
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
+  // Restore auth session on refresh
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+
+    if (token) {
+      setIsAuthenticated(true);
+
+      // Role-based landing page
+      if (role === 'DESIGNER') {
+        setActiveTab('studio');
+      } else if (role === 'ADMIN') {
+        setActiveTab('admin');
+      } else {
+        setActiveTab('dashboard');
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const root = document.documentElement;
+
     if (theme === 'dark') {
       root.classList.add('dark');
     } else {
@@ -49,73 +74,97 @@ const App: React.FC = () => {
     }
   }, [theme]);
 
-  // Check for first time user
+  // First time user onboarding
   useEffect(() => {
-      if (isAuthenticated) {
-          const hasSeenTour = localStorage.getItem('cadlink_tour_seen');
-          if (!hasSeenTour) {
-              setTimeout(() => setShowTour(true), 1000);
-          }
+    if (isAuthenticated) {
+      const hasSeenTour = localStorage.getItem('cadlink_tour_seen');
+
+      if (!hasSeenTour) {
+        setTimeout(() => setShowTour(true), 1000);
       }
+    }
   }, [isAuthenticated]);
 
   const handleCloseTour = () => {
-      setShowTour(false);
-      localStorage.setItem('cadlink_tour_seen', 'true');
+    setShowTour(false);
+    localStorage.setItem('cadlink_tour_seen', 'true');
   };
 
   const handleRestartTour = () => {
-      setIsHelpOpen(false);
-      setShowTour(true);
+    setIsHelpOpen(false);
+    setShowTour(true);
   };
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
-  
+
   // Toast State
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
 
-  const addToast = (type: 'success' | 'error' | 'info', message: string) => {
-    const newToast = { id: Date.now().toString(), type, message };
-    setToasts(prev => [...prev, newToast]);
+  const addToast = (
+    type: 'success' | 'error' | 'info',
+    message: string
+  ) => {
+    const newToast = {
+      id: Date.now().toString(),
+      type,
+      message,
+    };
+
+    setToasts((prev) => [...prev, newToast]);
   };
 
   const removeToast = (id: string) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
+    setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Lifted Timer State
+  // Timer State
   const [timerState, setTimerState] = useState({
     isRunning: false,
     elapsedTime: 0,
-    project: 'HVAC Layout - BuildTech'
+    project: 'HVAC Layout - BuildTech',
   });
 
   // Global Timer Logic
   useEffect(() => {
     let interval: number;
+
     if (timerState.isRunning) {
       interval = window.setInterval(() => {
-        setTimerState(prev => ({ ...prev, elapsedTime: prev.elapsedTime + 1 }));
+        setTimerState((prev) => ({
+          ...prev,
+          elapsedTime: prev.elapsedTime + 1,
+        }));
       }, 1000);
     }
+
     return () => window.clearInterval(interval);
   }, [timerState.isRunning]);
 
-  // Global Key Listener
+  // Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        if (isAuthenticated) setIsPaletteOpen(prev => !prev);
+
+        if (isAuthenticated) {
+          setIsPaletteOpen((prev) => !prev);
+        }
       }
-      if (e.key === '?' && !e.target?.toString().includes('Input') && !e.target?.toString().includes('TextArea')) {
-          e.preventDefault();
-          setIsShortcutsOpen(prev => !prev);
+
+      if (
+        e.key === '?' &&
+        !e.target?.toString().includes('Input') &&
+        !e.target?.toString().includes('TextArea')
+      ) {
+        e.preventDefault();
+        setIsShortcutsOpen((prev) => !prev);
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
+
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isAuthenticated]);
 
@@ -123,8 +172,9 @@ const App: React.FC = () => {
     setTimerState({
       isRunning: true,
       elapsedTime: 0,
-      project
+      project,
     });
+
     addToast('success', `Started tracking: ${project}`);
     setActiveTab('dashboard');
   };
@@ -135,112 +185,222 @@ const App: React.FC = () => {
   };
 
   const handleStartCall = () => {
-      setStudioMode('meeting');
-      setActiveTab('studio');
-      addToast('info', 'Starting secure video session...');
+    setStudioMode('meeting');
+    setActiveTab('studio');
+
+    addToast('info', 'Starting secure video session...');
+  };
+
+  // LOGOUT
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('email');
+    localStorage.removeItem('role');
+    localStorage.removeItem('auth');
+
+    setIsAuthenticated(false);
+    setActiveTab('dashboard');
+
+    addToast('success', 'Logged out successfully');
   };
 
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard 
-          timerState={timerState} 
-          onToggleTimer={() => setTimerState(prev => ({ ...prev, isRunning: !prev.isRunning }))}
-          onProjectChange={(p) => setTimerState(prev => ({ ...prev, project: p }))}
-          onNavigate={setActiveTab}
-        />;
+        return (
+          <Dashboard
+            timerState={timerState}
+            onToggleTimer={() =>
+              setTimerState((prev) => ({
+                ...prev,
+                isRunning: !prev.isRunning,
+              }))
+            }
+            onProjectChange={(p) =>
+              setTimerState((prev) => ({
+                ...prev,
+                project: p,
+              }))
+            }
+            onNavigate={setActiveTab}
+          />
+        );
+
       case 'messages':
-        return <Messages 
-            initialUserId={dmTarget} 
-            onClearInitialUser={() => setDmTarget(null)} 
+        return (
+          <Messages
+            initialUserId={dmTarget}
+            onClearInitialUser={() => setDmTarget(null)}
             onStartCall={handleStartCall}
-        />;
+          />
+        );
+
       case 'market':
         return <JobMarket onStartProject={handleStartProject} />;
+
       case 'network':
         return <Network onMessage={handleNavigateToMessage} />;
+
       case 'community':
         return <Community />;
+
       case 'studio':
         return <Studio initialMode={studioMode} />;
+
       case 'schedule':
         return <Calendar />;
+
       case 'finance':
         return <Finance />;
+
       case 'resources':
         return <Resources />;
+
       case 'learn':
         return <Academy />;
+
       case 'profile':
         return <Profile />;
+
       case 'drive':
         return <CloudDrive />;
+
       case 'settings':
-        return <Settings theme={theme} onToggleTheme={toggleTheme} />;
+        return (
+          <Settings
+            theme={theme}
+            onToggleTheme={toggleTheme}
+          />
+        );
+
       case 'notifications':
         return <Notifications />;
+
       case 'projects':
         return <ProjectHub onNavigate={setActiveTab} />;
+
       case 'admin':
         return <Admin />;
+
       default:
-        return <Dashboard 
-           timerState={timerState} 
-           onToggleTimer={() => setTimerState(prev => ({ ...prev, isRunning: !prev.isRunning }))}
-           onProjectChange={(p) => setTimerState(prev => ({ ...prev, project: p }))}
-           onNavigate={setActiveTab}
-        />;
+        return (
+          <Dashboard
+            timerState={timerState}
+            onToggleTimer={() =>
+              setTimerState((prev) => ({
+                ...prev,
+                isRunning: !prev.isRunning,
+              }))
+            }
+            onProjectChange={(p) =>
+              setTimerState((prev) => ({
+                ...prev,
+                project: p,
+              }))
+            }
+            onNavigate={setActiveTab}
+          />
+        );
     }
   };
 
+  // AUTH SCREEN
   if (!isAuthenticated) {
-    return <Auth onLogin={() => setIsAuthenticated(true)} />;
+    return (
+      <Auth
+        onLogin={(role: string) => {
+          setIsAuthenticated(true);
+
+          // Role-based redirect
+          if (role === 'DESIGNER') {
+            setActiveTab('studio');
+          } else if (role === 'ADMIN') {
+            setActiveTab('admin');
+          } else {
+            setActiveTab('dashboard');
+          }
+
+          addToast('success', `Welcome back ${role}`);
+        }}
+      />
+    );
   }
 
   return (
     <div className="h-[100dvh] w-screen bg-cad-dark text-cad-text flex overflow-hidden selection:bg-cad-accent/30 transition-colors duration-300 relative font-sans">
-      
-      {/* PROFESSIONAL AMBIENT BACKGROUND */}
+      {/* BACKGROUND */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-blue-900/10 rounded-full blur-[150px] animate-pulse-slow"></div>
-          <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-violet-900/10 rounded-full blur-[150px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
-          <div className="bg-noise absolute inset-0 opacity-[0.03]"></div>
+        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-blue-900/10 rounded-full blur-[150px] animate-pulse-slow"></div>
+
+        <div
+          className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-violet-900/10 rounded-full blur-[150px] animate-pulse-slow"
+          style={{ animationDelay: '2s' }}
+        ></div>
+
+        <div className="bg-noise absolute inset-0 opacity-[0.03]"></div>
       </div>
 
-      <Sidebar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
         isCollapsed={isSidebarCollapsed}
-        toggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        toggleCollapse={() =>
+          setIsSidebarCollapsed(!isSidebarCollapsed)
+        }
       />
-      
-      {/* Main Content Area */}
-      <main 
+
+      {/* MAIN CONTENT */}
+      <main
         className={`flex-1 relative h-full overflow-hidden bg-transparent transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] z-10 ${
           isSidebarCollapsed ? 'ml-0' : 'ml-0 md:ml-72'
         }`}
       >
         {renderContent()}
-        
-        {/* Floating Help Button */}
-        <button 
-            onClick={() => setIsHelpOpen(true)}
-            className="fixed bottom-6 right-6 z-[50] w-10 h-10 bg-cad-panel border border-cad-border rounded-full shadow-2xl flex items-center justify-center text-cad-muted hover:text-white hover:border-cad-accent hover:shadow-glow-accent transition-all active:scale-95"
-            title="Help & Support"
+
+        {/* HELP BUTTON */}
+        <button
+          onClick={() => setIsHelpOpen(true)}
+          className="fixed bottom-6 right-6 z-[50] w-10 h-10 bg-cad-panel border border-cad-border rounded-full shadow-2xl flex items-center justify-center text-cad-muted hover:text-white hover:border-cad-accent hover:shadow-glow-accent transition-all active:scale-95"
+          title="Help & Support"
         >
-            <HelpCircle className="w-5 h-5" />
+          <HelpCircle className="w-5 h-5" />
+        </button>
+
+        {/* OPTIONAL LOGOUT BUTTON */}
+        <button
+          onClick={handleLogout}
+          className="fixed top-6 right-6 z-[50] px-4 py-2 rounded-xl bg-red-500 text-white font-bold hover:bg-red-400 transition-all"
+        >
+          Logout
         </button>
       </main>
-      
-      <CommandPalette 
-        isOpen={isPaletteOpen} 
-        onClose={() => setIsPaletteOpen(false)} 
-        onNavigate={setActiveTab} 
+
+      <CommandPalette
+        isOpen={isPaletteOpen}
+        onClose={() => setIsPaletteOpen(false)}
+        onNavigate={setActiveTab}
       />
-      <ToastContainer notifications={toasts} removeNotification={removeToast} />
-      <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} onRestartTour={handleRestartTour} />
-      <ShortcutsModal isOpen={isShortcutsOpen} onClose={() => setIsShortcutsOpen(false)} />
-      <OnboardingTour isOpen={showTour} onClose={handleCloseTour} />
+
+      <ToastContainer
+        notifications={toasts}
+        removeNotification={removeToast}
+      />
+
+      <HelpModal
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
+        onRestartTour={handleRestartTour}
+      />
+
+      <ShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
+      />
+
+      <OnboardingTour
+        isOpen={showTour}
+        onClose={handleCloseTour}
+      />
     </div>
   );
 };
