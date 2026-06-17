@@ -392,7 +392,7 @@ const Dashboard: React.FC<DashboardProps> = ({ timerState, onToggleTimer, onProj
                              <div className="grid grid-cols-2 gap-4">
                                  <div className="glass-card p-5 rounded-2xl border border-cad-border relative overflow-hidden group">
                                     <p className="text-[10px] text-cad-muted font-bold uppercase tracking-wider mb-2">Weekly Earnings</p>
-                                    <p className="text-2xl font-bold text-cad-text tracking-tight group-hover:text-cad-success transition-colors">$2,450</p>
+                                    <p className="text-2xl font-bold text-cad-text tracking-tight group-hover:text-cad-success transition-colors">R7,350</p>
                                     <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cad-success/50 to-transparent"></div>
                                  </div>
                                  <div className="glass-card p-5 rounded-2xl border border-cad-border relative overflow-hidden group">

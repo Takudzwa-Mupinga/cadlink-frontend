@@ -439,7 +439,7 @@ const Academy: React.FC = () => {
                               <p className="text-slate-400 mb-10">This certifies that</p>
                               
                               <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-200 mb-4 font-serif italic">
-                                  Alex Drafter
+                                  Takudzwa Mupinga
                               </div>
                               
                               <p className="text-slate-400 mb-8 max-w-md mx-auto">

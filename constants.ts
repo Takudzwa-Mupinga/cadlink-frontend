@@ -9,7 +9,7 @@ export const MOCK_JOBS: Job[] = [
     client: 'BuildTech Solutions',
     type: JobType.FREELANCE,
     experienceLevel: ExperienceLevel.INTERMEDIATE,
-    budget: '$500 - $1000',
+    budget: 'R1500 - R3000',
     software: [Software.REVIT, Software.AUTOCAD],
     description: 'Need a detailed HVAC layout for a 3-story office building. Must comply with ASHRAE standards.',
     postedAt: '2h ago'
@@ -20,7 +20,7 @@ export const MOCK_JOBS: Job[] = [
     client: 'Tesla Dynamics',
     type: JobType.PERMANENT,
     experienceLevel: ExperienceLevel.EXPERT,
-    budget: '$110k - $140k/yr',
+    budget: 'R330k - R420k/yr',
     software: [Software.SOLIDWORKS, Software.FUSION360],
     description: 'Looking for an experienced engineer to lead our chassis design team. 5+ years experience required.',
     postedAt: '1d ago'
@@ -31,7 +31,7 @@ export const MOCK_JOBS: Job[] = [
     client: 'ArchViz Studio',
     type: JobType.FREELANCE,
     experienceLevel: ExperienceLevel.INTERMEDIATE,
-    budget: '$300 fixed',
+    budget: 'R900 fixed',
     software: [Software.SKETCHUP, Software.BLENDER],
     description: 'Need photorealistic exterior renders for a client presentation this Friday.',
     postedAt: '4h ago'
@@ -42,7 +42,7 @@ export const MOCK_JOBS: Job[] = [
     client: 'GoldSmiths & Co',
     type: JobType.CONTRACT,
     experienceLevel: ExperienceLevel.EXPERT,
-    budget: '$45/hr',
+    budget: 'R135/hr',
     software: [Software.RHINO],
     description: 'Creating complex grasshopper scripts for customizable jewelry designs.',
     postedAt: '6h ago'
@@ -53,7 +53,7 @@ export const MOCK_JOBS: Job[] = [
     client: 'FastPlans Inc',
     type: JobType.FREELANCE,
     experienceLevel: ExperienceLevel.ENTRY,
-    budget: '$20/hr',
+    budget: 'R60/hr',
     software: [Software.AUTOCAD],
     description: 'Converting hand sketches of residential floor plans into clean CAD drawings.',
     postedAt: '1h ago'
@@ -143,7 +143,7 @@ export const MOCK_USERS: UserProfile[] = [
 
 export const CURRENT_USER: UserProfile = {
   id: 'me',
-  name: 'Alex Drafter',
+  name: 'Takudzwa Mupinga',
   role: 'Senior Mechanical Engineer',
   hourlyRate: 85,
   skills: [Software.SOLIDWORKS, Software.AUTOCAD, Software.FUSION360],
@@ -300,7 +300,7 @@ export const MOCK_POSTS: ForumPost[] = [
 export const MOCK_GALLERY: GalleryItem[] = [
     { id: 'g1', authorName: 'Elena Silva', authorAvatar: 'https://picsum.photos/200/200?random=3', title: 'Cyberpunk City Block', image: 'https://picsum.photos/600/600?random=200', likes: 156, software: Software.BLENDER },
     { id: 'g2', authorName: 'Mike Ross', authorAvatar: 'https://picsum.photos/200/200?random=2', title: 'V8 Engine Assembly', image: 'https://picsum.photos/600/600?random=201', likes: 89, software: Software.SOLIDWORKS },
-    { id: 'g3', authorName: 'Alex Drafter', authorAvatar: 'https://picsum.photos/200/200?random=100', title: 'Minimalist Interior', image: 'https://picsum.photos/600/600?random=202', likes: 230, software: Software.SKETCHUP },
+    { id: 'g3', authorName: 'Takudzwa Mupinga', authorAvatar: 'https://picsum.photos/200/200?random=100', title: 'Minimalist Interior', image: 'https://picsum.photos/600/600?random=202', likes: 230, software: Software.SKETCHUP },
     { id: 'g4', authorName: 'Sarah Chen', authorAvatar: 'https://picsum.photos/200/200?random=1', title: 'High-Rise Structure', image: 'https://picsum.photos/600/600?random=203', likes: 112, software: Software.REVIT },
 ];
 
@@ -354,7 +354,7 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
         unreadCount: 2,
         messages: [
             { id: 'm1', text: 'Hi Sarah, are you available for a quick consult?', sender: 'me', timestamp: '10:00 AM', isRead: true },
-            { id: 'm2', text: 'Hey Alex! Yes, absolutely. What do you need?', sender: 'them', timestamp: '10:05 AM', isRead: true },
+            { id: 'm2', text: 'Hey Takudzwa! Yes, absolutely. What do you need?', sender: 'them', timestamp: '10:05 AM', isRead: true },
             { id: 'm3', text: 'I need some custom HVAC families for the new project.', sender: 'me', timestamp: '10:06 AM', isRead: true },
             { id: 'm4', text: 'Sure, I can send over the Revit families by 5 PM.', sender: 'them', timestamp: '10:15 AM', isRead: false },
         ]
@@ -408,7 +408,7 @@ export const MOCK_DISPUTES: Dispute[] = [
         id: 'd1',
         contract: 'Commercial Complex HVAC',
         client: 'BuildTech Solutions',
-        freelancer: 'Alex Drafter',
+        freelancer: 'Takudzwa Mupinga',
         amount: 500,
         reason: 'Client claims deliverables do not meet ASHRAE standards as specified in the contract.',
         status: 'Open',

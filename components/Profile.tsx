@@ -52,7 +52,7 @@ const Profile: React.FC = () => {
     const resumeData: ResumeData = {
         fullName: user.name,
         title: user.role,
-        email: 'alex@cadlink.com',
+        email: 'takudzwam@cadlink.com',
         phone: '+1 (555) 123-4567',
         location: 'San Francisco, CA',
         summary: user.bio,
@@ -175,7 +175,7 @@ const Profile: React.FC = () => {
                             <div className="flex flex-wrap gap-6 pt-2 text-sm text-slate-400 font-medium">
                                 <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5"><MapPin className="w-4 h-4 text-cad-accent"/> San Francisco, CA</span>
                                 <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5"><Mail className="w-4 h-4 text-cad-accent"/> {user.name.toLowerCase().replace(' ', '.')}@cadlink.com</span>
-                                <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5 hover:text-white cursor-pointer transition-colors"><LinkIcon className="w-4 h-4 text-cad-accent"/> portfolio.com/alex</span>
+                                <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5 hover:text-white cursor-pointer transition-colors"><LinkIcon className="w-4 h-4 text-cad-accent"/> portfolio.com/takudzwa</span>
                             </div>
                         </div>
                     </div>
@@ -207,7 +207,7 @@ const Profile: React.FC = () => {
                                     </div>
                                     <div>
                                         <p className="text-xs text-cad-muted font-bold uppercase tracking-wider">Earnings</p>
-                                        <p className="font-bold text-white text-lg">$142k</p>
+                                        <p className="font-bold text-white text-lg">R426k</p>
                                     </div>
                                 </div>
                             </div>

@@ -6,7 +6,7 @@ const MOCK_NOTIFICATIONS = [
     { id: '2', type: 'message', title: 'New Message', message: 'Sarah Chen: "Can you send over the STEP files?"', time: '1 hour ago', read: false },
     { id: '3', type: 'system', title: 'System Alert', message: 'Scheduled maintenance: Tonight at 02:00 UTC.', time: '4 hours ago', read: true },
     { id: '4', type: 'deadline', title: 'Upcoming Deadline', message: 'Submission for "Villa Rendering" due in 24 hours.', time: '5 hours ago', read: true },
-    { id: '5', type: 'payment', title: 'Payment Received', message: 'You received $850.00 from BuildTech Solutions.', time: '1 day ago', read: true },
+    { id: '5', type: 'payment', title: 'Payment Received', message: 'You received R2550.00 from BuildTech Solutions.', time: '1 day ago', read: true },
 ];
 
 const Notifications: React.FC = () => {

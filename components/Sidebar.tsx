@@ -160,7 +160,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isCollapsed,
                 <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-[#0B1121] rounded-full"></div>
              </div>
              <div className="overflow-hidden">
-                 <p className="text-xs font-bold text-white truncate">Alex Drafter</p>
+                 <p className="text-xs font-bold text-white truncate">Takudzwa Mupinga</p>
                  <p className="text-[10px] text-slate-500 truncate">Pro Account</p>
              </div>
           </div>

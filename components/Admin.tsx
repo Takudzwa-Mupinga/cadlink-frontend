@@ -435,11 +435,11 @@ export interface Dispute { id: string; contract: string; client: string; freelan
     { name: 'src/constants.ts', language: 'typescript', content: `import { Job, JobType, Software, UserProfile, Course, ServiceGig, ExperienceLevel, CalendarEvent, ForumPost, GalleryItem, ProjectContract, Conversation, CloudFile, Dispute } from './types';
 
 export const MOCK_JOBS: Job[] = [
-  { id: '1', title: 'HVAC Ductwork Design for Commercial Complex', client: 'BuildTech Solutions', type: JobType.FREELANCE, experienceLevel: ExperienceLevel.INTERMEDIATE, budget: '$500 - $1000', software: [Software.REVIT, Software.AUTOCAD], description: 'Need a detailed HVAC layout for a 3-story office building. Must comply with ASHRAE standards.', postedAt: '2h ago' },
-  { id: '2', title: 'Senior Mechanical Design Engineer', client: 'Tesla Dynamics', type: JobType.PERMANENT, experienceLevel: ExperienceLevel.EXPERT, budget: '$110k - $140k/yr', software: [Software.SOLIDWORKS, Software.FUSION360], description: 'Looking for an experienced engineer to lead our chassis design team. 5+ years experience required.', postedAt: '1d ago' },
-  { id: '3', title: '3D Rendering of Modern Villa', client: 'ArchViz Studio', type: JobType.FREELANCE, experienceLevel: ExperienceLevel.INTERMEDIATE, budget: '$300 fixed', software: [Software.SKETCHUP, Software.BLENDER], description: 'Need photorealistic exterior renders for a client presentation this Friday.', postedAt: '4h ago' },
-  { id: '4', title: 'Parametric Modeling for Jewelry', client: 'GoldSmiths & Co', type: JobType.CONTRACT, experienceLevel: ExperienceLevel.EXPERT, budget: '$45/hr', software: [Software.RHINO], description: 'Creating complex grasshopper scripts for customizable jewelry designs.', postedAt: '6h ago' },
-  { id: '5', title: 'Junior Drafter - Floor Plans', client: 'FastPlans Inc', type: JobType.FREELANCE, experienceLevel: ExperienceLevel.ENTRY, budget: '$20/hr', software: [Software.AUTOCAD], description: 'Converting hand sketches of residential floor plans into clean CAD drawings.', postedAt: '1h ago' }
+  { id: '1', title: 'HVAC Ductwork Design for Commercial Complex', client: 'BuildTech Solutions', type: JobType.FREELANCE, experienceLevel: ExperienceLevel.INTERMEDIATE, budget: 'R1500 - R3000', software: [Software.REVIT, Software.AUTOCAD], description: 'Need a detailed HVAC layout for a 3-story office building. Must comply with ASHRAE standards.', postedAt: '2h ago' },
+  { id: '2', title: 'Senior Mechanical Design Engineer', client: 'Tesla Dynamics', type: JobType.PERMANENT, experienceLevel: ExperienceLevel.EXPERT, budget: 'R330k - R420k/yr', software: [Software.SOLIDWORKS, Software.FUSION360], description: 'Looking for an experienced engineer to lead our chassis design team. 5+ years experience required.', postedAt: '1d ago' },
+  { id: '3', title: '3D Rendering of Modern Villa', client: 'ArchViz Studio', type: JobType.FREELANCE, experienceLevel: ExperienceLevel.INTERMEDIATE, budget: 'R900 fixed', software: [Software.SKETCHUP, Software.BLENDER], description: 'Need photorealistic exterior renders for a client presentation this Friday.', postedAt: '4h ago' },
+  { id: '4', title: 'Parametric Modeling for Jewelry', client: 'GoldSmiths & Co', type: JobType.CONTRACT, experienceLevel: ExperienceLevel.EXPERT, budget: 'R135/hr', software: [Software.RHINO], description: 'Creating complex grasshopper scripts for customizable jewelry designs.', postedAt: '6h ago' },
+  { id: '5', title: 'Junior Drafter - Floor Plans', client: 'FastPlans Inc', type: JobType.FREELANCE, experienceLevel: ExperienceLevel.ENTRY, budget: 'R60/hr', software: [Software.AUTOCAD], description: 'Converting hand sketches of residential floor plans into clean CAD drawings.', postedAt: '1h ago' }
 ];
 
 export const MOCK_SERVICES: ServiceGig[] = [
@@ -1029,14 +1029,14 @@ const Admin: React.FC = () => {
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><DollarSign className="w-16 h-16" /></div>
                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Platform Revenue</p>
                                 <h3 className="text-3xl font-bold text-white flex items-baseline gap-2">
-                                    $42.8k <span className="text-sm font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded">+12%</span>
+                                    R128.4k <span className="text-sm font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded">+12%</span>
                                 </h3>
                                 <p className="text-xs text-slate-500 mt-2">Net profit from commissions</p>
                             </div>
                             <div className="glass-panel p-6 rounded-2xl border border-white/10 relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Activity className="w-16 h-16" /></div>
                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Marketplace Volume</p>
-                                <h3 className="text-3xl font-bold text-white">$3.2M</h3>
+                                <h3 className="text-3xl font-bold text-white">R9.6M</h3>
                                 <p className="text-xs text-slate-500 mt-2">Total transaction value</p>
                             </div>
                             <div className="glass-panel p-6 rounded-2xl border border-white/10 relative overflow-hidden group">
@@ -1115,7 +1115,7 @@ const Admin: React.FC = () => {
                                 <div className="space-y-4 text-sm">
                                     <div className="flex gap-4 items-start p-3 hover:bg-white/5 rounded-xl transition-colors">
                                         <span className="text-[10px] font-mono text-slate-500 mt-1">10:42 AM</span>
-                                        <p className="text-slate-300"><span className="text-white font-bold">System</span> automatically released payment #9921 ($850.00)</p>
+                                        <p className="text-slate-300"><span className="text-white font-bold">System</span> automatically released payment #9921 (R2550.00)</p>
                                     </div>
                                     <div className="flex gap-4 items-start p-3 hover:bg-white/5 rounded-xl transition-colors">
                                         <span className="text-[10px] font-mono text-slate-500 mt-1">10:15 AM</span>
@@ -1321,21 +1321,21 @@ const Admin: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="glass-panel p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-[#121214] to-black">
                                 <h3 className="text-slate-400 font-bold text-sm uppercase tracking-wider mb-2">Commissions (10-20%)</h3>
-                                <div className="text-4xl font-bold text-white mb-2">$42,850</div>
+                                <div className="text-4xl font-bold text-white mb-2">R128,550</div>
                                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                                     <div className="h-full bg-cad-accent w-[70%]"></div>
                                 </div>
                             </div>
                             <div className="glass-panel p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-[#121214] to-black">
                                 <h3 className="text-slate-400 font-bold text-sm uppercase tracking-wider mb-2">Subscriptions</h3>
-                                <div className="text-4xl font-bold text-white mb-2">$12,400</div>
+                                <div className="text-4xl font-bold text-white mb-2">R37,200</div>
                                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                                     <div className="h-full bg-blue-500 w-[20%]"></div>
                                 </div>
                             </div>
                             <div className="glass-panel p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-[#121214] to-black">
                                 <h3 className="text-slate-400 font-bold text-sm uppercase tracking-wider mb-2">Asset Marketplace</h3>
-                                <div className="text-4xl font-bold text-white mb-2">$8,250</div>
+                                <div className="text-4xl font-bold text-white mb-2">R24,750</div>
                                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                                     <div className="h-full bg-purple-500 w-[10%]"></div>
                                 </div>
@@ -1362,7 +1362,7 @@ const Admin: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-mono font-bold text-white">$1,250.00</p>
+                                            <p className="font-mono font-bold text-white">R3,750.00</p>
                                             <p className="text-xs text-yellow-500 font-bold bg-yellow-500/10 px-2 py-0.5 rounded mt-1 inline-block">PENDING</p>
                                         </div>
                                     </div>

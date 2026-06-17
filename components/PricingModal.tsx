@@ -37,7 +37,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
         },
         {
             name: 'Pro Freelancer',
-            price: '$29',
+            price: 'R87',
             period: '/ month',
             description: 'Power tools for serious professionals.',
             features: [
@@ -59,7 +59,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
         },
         {
             name: 'Studio Team',
-            price: '$99',
+            price: 'R297',
             period: '/ month',
             description: 'Collaborative power for agencies.',
             features: [

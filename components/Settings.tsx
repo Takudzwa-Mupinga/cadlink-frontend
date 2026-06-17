@@ -12,8 +12,8 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'dark', onToggleTheme }) =>
   const [activeSection, setActiveSection] = useState('general');
   const [showPricing, setShowPricing] = useState(false);
   const [settings, setSettings] = useState({
-      displayName: 'Alex Drafter',
-      email: 'alex@cadlink.com',
+      displayName: 'Takudzwa Mupinga',
+      email: 'takudzwam@cadlink.com',
       title: 'Senior Mechanical Engineer',
       publicProfile: true,
       gpuEnabled: true,
@@ -58,7 +58,7 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'dark', onToggleTheme }) =>
     },
     {
         name: 'Pro Freelancer',
-        price: '$29',
+        price: 'R87',
         period: '/ month',
         description: 'Power tools for serious professionals.',
         features: ['Unlimited Job Bids', '1 TB Cloud Storage', 'AI DreamCanvas', '0% Withdrawal Fees', 'Verified Badge'],
@@ -67,7 +67,7 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'dark', onToggleTheme }) =>
     },
     {
         name: 'Studio Team',
-        price: '$99',
+        price: 'R297',
         period: '/ month',
         description: 'Collaborative power for agencies.',
         features: ['5 Team Seats Included', 'Shared Cloud Drive', 'SSO Authentication', 'Priority Support', 'Custom Contracts'],

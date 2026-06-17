@@ -184,7 +184,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject }) => {
       const gig: ServiceGig = {
           id: `s-${Date.now()}`,
           title: newService.title || 'Untitled Service',
-          freelancerName: 'Alex Drafter', // Current User
+          freelancerName: 'Takudzwa Mupinga', // Current User
           freelancerAvatar: 'https://picsum.photos/200/200?random=100',
           price: newService.price || 0,
           deliveryTime: newService.deliveryTime || 'TBD',
@@ -468,7 +468,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject }) => {
                              <div>
                                 <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Budget Range</label>
                                 <input 
-                                    required type="text" placeholder="e.g. $500 - $1000" 
+                                    required type="text" placeholder="e.g. R1500 - R3000" 
                                     className="w-full bg-cad-panel border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium"
                                     value={newJob.budget} onChange={e => setNewJob({...newJob, budget: e.target.value})}
                                 />

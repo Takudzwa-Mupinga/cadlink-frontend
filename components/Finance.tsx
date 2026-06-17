@@ -307,7 +307,7 @@ export default function Finance() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <SparklineCard 
                     title="Total Balance" 
-                    value="$14,250.00" 
+                    value="R42,750.00" 
                     subtext="+12% from last month"
                     data={[12000, 12500, 11800, 13200, 14250]}
                     colorClass={{ bg: 'bg-green-500/10', text: 'text-green-500' }}
@@ -315,7 +315,7 @@ export default function Finance() {
                 />
                 <SparklineCard 
                     title="Monthly Expenses" 
-                    value="$2,450.00" 
+                    value="R7,350.00" 
                     subtext="Software & Assets"
                     data={[800, 1200, 900, 2450]}
                     colorClass={{ bg: 'bg-red-500/10', text: 'text-red-500' }}
@@ -323,7 +323,7 @@ export default function Finance() {
                 />
                 <SparklineCard 
                     title="Pending Clearance" 
-                    value="$850.00" 
+                    value="R2550.00" 
                     subtext="Available in 3 days"
                     data={[500, 800, 650, 850]}
                     colorClass={{ bg: 'bg-yellow-500/10', text: 'text-yellow-500' }}
@@ -435,11 +435,11 @@ export default function Finance() {
                         <div className="flex items-center gap-3 mb-6">
                             <img src="https://picsum.photos/200/200?random=99" className="w-10 h-10 rounded-full border border-cad-border" alt="Me" />
                             <div className="flex-1">
-                                <p className="text-sm font-bold text-cad-text">Alex Drafter</p>
+                                <p className="text-sm font-bold text-cad-text">Takudzwa Mupinga</p>
                                 <p className="text-[10px] text-cad-muted">**** 4242</p>
                             </div>
                             <div className="text-right">
-                                <p className="text-cad-success font-bold">$2,450</p>
+                                <p className="text-cad-success font-bold">R7,350</p>
                                 <p className="text-[10px] text-cad-muted">Available</p>
                             </div>
                         </div>
