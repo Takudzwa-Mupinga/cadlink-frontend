@@ -42,8 +42,12 @@ const App: React.FC = () => {
     'chat' | 'meeting' | 'board' | 'files' | 'dream' | 'whiteboard'
   >('files');
 
-  // Theme State
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  // Theme State — persisted to localStorage, defaults to system preference
+  const [theme, setTheme] = useState<'dark' | 'light' | 'system'>(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'light' || saved === 'system') return saved;
+    return 'system';
+  });
 
   // Restore auth session on refresh
   useEffect(() => {
@@ -66,12 +70,18 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const root = document.documentElement;
+    localStorage.setItem('theme', theme);
 
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+    if (theme === 'system') {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      const apply = (dark: boolean) => dark ? root.classList.add('dark') : root.classList.remove('dark');
+      apply(mq.matches);
+      const handler = (e: MediaQueryListEvent) => apply(e.matches);
+      mq.addEventListener('change', handler);
+      return () => mq.removeEventListener('change', handler);
     }
+
+    theme === 'dark' ? root.classList.add('dark') : root.classList.remove('dark');
   }, [theme]);
 
   // First time user onboarding
@@ -95,9 +105,6 @@ const App: React.FC = () => {
     setShowTour(true);
   };
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
-  };
 
   // Toast State
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
@@ -269,7 +276,7 @@ const App: React.FC = () => {
         return (
           <Settings
             theme={theme}
-            onToggleTheme={toggleTheme}
+            onSetTheme={setTheme}
           />
         );
 

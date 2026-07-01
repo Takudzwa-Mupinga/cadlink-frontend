@@ -1,14 +1,17 @@
 
 import React, { useState } from 'react';
-import { User, Bell, Shield, CreditCard, Monitor, Cpu, HardDrive, Check, ToggleLeft, ToggleRight, Save, Lock, Sun, Moon, Palette, Layers, Github, Hash, Cloud, Database, Link as LinkIcon, ExternalLink, Zap, Star, Crown } from 'lucide-react';
+import { User, Bell, Shield, CreditCard, Monitor, Cpu, HardDrive, Check, ToggleLeft, ToggleRight, Save, Lock, Sun, Moon, Layers, Github, Hash, Cloud, Database, Link as LinkIcon, ExternalLink, Zap, Globe } from 'lucide-react';
 import PricingModal from './PricingModal';
+import { useCurrency } from '../contexts/CurrencyContext';
+import { SUPPORTED_CURRENCIES, CurrencyCode } from '../lib/currency';
 
 interface SettingsProps {
-  theme?: 'dark' | 'light';
-  onToggleTheme?: () => void;
+  theme?: 'dark' | 'light' | 'system';
+  onSetTheme?: (t: 'dark' | 'light' | 'system') => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ theme = 'dark', onToggleTheme }) => {
+const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme }) => {
+  const { currency, setCurrency, format } = useCurrency();
   const [activeSection, setActiveSection] = useState('general');
   const [showPricing, setShowPricing] = useState(false);
   const [settings, setSettings] = useState({
@@ -49,7 +52,8 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'dark', onToggleTheme }) =>
   const PLANS = [
     {
         name: 'Starter',
-        price: 'Free',
+        price: 0,
+        isFree: true,
         period: 'Forever',
         description: 'Essential tools for casual designers.',
         features: ['Public Profile', '5 Job Bids / Month', '1 GB Cloud Storage', 'Basic 3D Viewer', 'Community Access'],
@@ -58,7 +62,7 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'dark', onToggleTheme }) =>
     },
     {
         name: 'Pro Freelancer',
-        price: 'R87',
+        price: 87,
         period: '/ month',
         description: 'Power tools for serious professionals.',
         features: ['Unlimited Job Bids', '1 TB Cloud Storage', 'AI DreamCanvas', '0% Withdrawal Fees', 'Verified Badge'],
@@ -67,7 +71,7 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'dark', onToggleTheme }) =>
     },
     {
         name: 'Studio Team',
-        price: 'R297',
+        price: 297,
         period: '/ month',
         description: 'Collaborative power for agencies.',
         features: ['5 Team Seats Included', 'Shared Cloud Drive', 'SSO Authentication', 'Priority Support', 'Custom Contracts'],
@@ -127,18 +131,64 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'dark', onToggleTheme }) =>
                   </button>
                </div>
 
-               {/* Appearance Toggle */}
-               <div className="flex items-center justify-between p-5 bg-cad-panel rounded-2xl border border-cad-border">
+               {/* Appearance */}
+               <div className="p-5 bg-cad-panel rounded-2xl border border-cad-border space-y-4">
                   <div>
                     <div className="font-bold text-cad-text flex items-center gap-2">
-                        {theme === 'dark' ? <Moon className="w-4 h-4 text-cad-accent"/> : <Sun className="w-4 h-4 text-cad-accent"/>}
-                        Appearance
+                      <Monitor className="w-4 h-4 text-cad-accent" />
+                      Appearance
                     </div>
-                    <div className="text-sm text-cad-muted mt-1">Switch between Black/Violet and White/Violet themes</div>
+                    <div className="text-sm text-cad-muted mt-1">Choose a theme or follow your system setting</div>
                   </div>
-                  <button onClick={onToggleTheme} className={`transition-colors ${theme === 'dark' ? 'text-cad-accent' : 'text-slate-400'}`}>
-                    {theme === 'dark' ? <ToggleRight className="w-10 h-10 fill-current" /> : <ToggleLeft className="w-10 h-10" />}
-                  </button>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([
+                      { value: 'light', label: 'Light', icon: Sun },
+                      { value: 'system', label: 'System', icon: Monitor },
+                      { value: 'dark',  label: 'Dark',   icon: Moon },
+                    ] as const).map(({ value, label, icon: Icon }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => onSetTheme?.(value)}
+                        className={`flex flex-col items-center gap-2 py-3 rounded-xl border text-sm font-bold transition-all ${
+                          theme === value
+                            ? 'bg-cad-accent text-cad-dark border-cad-accent shadow-lg shadow-cad-accent/20'
+                            : 'bg-cad-surface text-cad-muted border-cad-border hover:border-cad-accent/50 hover:text-cad-text'
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+               </div>
+
+               {/* Currency */}
+               <div className="p-5 bg-cad-panel rounded-2xl border border-cad-border space-y-4">
+                  <div>
+                    <div className="font-bold text-cad-text flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-cad-accent" />
+                      Currency
+                    </div>
+                    <div className="text-sm text-cad-muted mt-1">Choose the currency used across the app</div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {SUPPORTED_CURRENCIES.map(c => (
+                      <button
+                        key={c.code}
+                        type="button"
+                        onClick={() => setCurrency(c.code as CurrencyCode)}
+                        className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-bold transition-all ${
+                          currency === c.code
+                            ? 'bg-cad-accent text-cad-dark border-cad-accent shadow-lg shadow-cad-accent/20'
+                            : 'bg-cad-surface text-cad-muted border-cad-border hover:border-cad-accent/50 hover:text-cad-text'
+                        }`}
+                      >
+                        <span className="text-base">{c.symbol}</span>
+                        <span>{c.label}</span>
+                      </button>
+                    ))}
+                  </div>
                </div>
             </div>
           </div>
@@ -329,7 +379,7 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'dark', onToggleTheme }) =>
                                 <div className="mb-4">
                                     <h4 className="text-lg font-bold text-cad-text">{plan.name}</h4>
                                     <div className="flex items-baseline gap-1 mt-1">
-                                        <span className="text-2xl font-bold text-white">{plan.price}</span>
+                                        <span className="text-2xl font-bold text-white">{(plan as any).isFree ? 'Free' : format(plan.price)}</span>
                                         <span className="text-xs text-cad-muted">{plan.period}</span>
                                     </div>
                                     <p className="text-xs text-cad-muted mt-2 h-8">{plan.description}</p>

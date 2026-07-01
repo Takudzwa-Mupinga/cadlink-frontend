@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
 import { Bell, Briefcase, MessageSquare, AlertCircle, Check, Filter, Calendar } from 'lucide-react';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const MOCK_NOTIFICATIONS = [
     { id: '1', type: 'job_invite', title: 'New Job Invitation', message: 'Tesla Dynamics invited you to apply for "Chassis Design Lead".', time: '10 mins ago', read: false },
     { id: '2', type: 'message', title: 'New Message', message: 'Sarah Chen: "Can you send over the STEP files?"', time: '1 hour ago', read: false },
     { id: '3', type: 'system', title: 'System Alert', message: 'Scheduled maintenance: Tonight at 02:00 UTC.', time: '4 hours ago', read: true },
     { id: '4', type: 'deadline', title: 'Upcoming Deadline', message: 'Submission for "Villa Rendering" due in 24 hours.', time: '5 hours ago', read: true },
-    { id: '5', type: 'payment', title: 'Payment Received', message: 'You received R2550.00 from BuildTech Solutions.', time: '1 day ago', read: true },
+    { id: '5', type: 'payment', title: 'Payment Received', message: 'You received {amount} from BuildTech Solutions.', amount: 2550, time: '1 day ago', read: true },
 ];
 
 const Notifications: React.FC = () => {
+    const { format } = useCurrency();
     const [filter, setFilter] = useState<'all' | 'unread'>('all');
     const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+
+    const formatMessage = (notif: typeof MOCK_NOTIFICATIONS[0]) =>
+        notif.amount !== undefined
+            ? notif.message.replace('{amount}', format(notif.amount))
+            : notif.message;
 
     const markAsRead = (id: string) => {
         setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
@@ -97,7 +104,7 @@ const Notifications: React.FC = () => {
                                         </h4>
                                         <span className="text-xs text-slate-500 font-medium whitespace-nowrap">{notif.time}</span>
                                     </div>
-                                    <p className="text-slate-400 leading-relaxed text-sm">{notif.message}</p>
+                                    <p className="text-slate-400 leading-relaxed text-sm">{formatMessage(notif)}</p>
                                     
                                     <div className="mt-4 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                         {notif.type === 'job_invite' && (

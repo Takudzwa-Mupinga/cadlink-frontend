@@ -33,6 +33,9 @@ export interface Job {
   description: string;
   postedAt: string;
   requirements?: string[];
+  discipline?: string;
+  deliverables?: string[];
+  deadline?: string;
 }
 
 export interface ServiceGig {

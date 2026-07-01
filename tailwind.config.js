@@ -14,14 +14,14 @@ export default {
       },
       colors: {
         cad: {
-          dark: '#09090b', // Zinc 950
-          panel: '#121214', // Custom dark panel
-          surface: '#1e293b', // Slate 800
-          accent: '#8b5cf6', // Violet 500
-          success: '#10b981', // Emerald 500
-          text: '#e4e4e7', // Zinc 200
-          muted: '#a1a1aa', // Zinc 400
-          border: 'rgba(255, 255, 255, 0.1)'
+          dark:    'rgb(var(--cad-dark)    / <alpha-value>)',
+          panel:   'rgb(var(--cad-panel)   / <alpha-value>)',
+          surface: 'rgb(var(--cad-surface) / <alpha-value>)',
+          accent:  'rgb(var(--cad-accent)  / <alpha-value>)',
+          success: 'rgb(var(--cad-success) / <alpha-value>)',
+          text:    'rgb(var(--cad-text)    / <alpha-value>)',
+          muted:   'rgb(var(--cad-muted)   / <alpha-value>)',
+          border:  'var(--cad-border)',
         }
       },
       boxShadow: {

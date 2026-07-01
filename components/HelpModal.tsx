@@ -20,7 +20,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onRestartTour })
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const installCommand = "npm install lucide-react @google/genai clsx tailwind-merge";
+    const installCommand = "npm install lucide-react clsx tailwind-merge";
 
     const fileStructure = `
 /src
@@ -30,7 +30,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onRestartTour })
   ├── types.ts
   ├── constants.ts
   ├── services/
-  │     └── geminiService.ts
+  │     └── aiService.ts
   └── components/
         ├── Academy.tsx
         ├── Admin.tsx

@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Check, X, Zap, Crown, Building2, Star, ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 interface PricingModalProps {
     isOpen: boolean;
@@ -8,6 +9,7 @@ interface PricingModalProps {
 }
 
 const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
+    const { format } = useCurrency();
     const [openFaq, setOpenFaq] = useState<number | null>(null);
 
     if (!isOpen) return null;
@@ -15,7 +17,8 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
     const plans = [
         {
             name: 'Starter',
-            price: 'Free',
+            price: 0,
+            isFree: true,
             period: 'Forever',
             description: 'Essential tools for casual designers.',
             features: [
@@ -37,7 +40,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
         },
         {
             name: 'Pro Freelancer',
-            price: 'R87',
+            price: 87,
             period: '/ month',
             description: 'Power tools for serious professionals.',
             features: [
@@ -59,7 +62,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
         },
         {
             name: 'Studio Team',
-            price: 'R297',
+            price: 297,
             period: '/ month',
             description: 'Collaborative power for agencies.',
             features: [
@@ -138,7 +141,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
                                     <div className="p-8 text-left">
                                         <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
                                         <div className="flex items-baseline gap-1 mb-4">
-                                            <span className="text-4xl font-bold text-white tracking-tight">{plan.price}</span>
+                                            <span className="text-4xl font-bold text-white tracking-tight">{(plan as any).isFree ? 'Free' : format(plan.price)}</span>
                                             <span className="text-slate-500 font-medium">{plan.period}</span>
                                         </div>
                                         <p className="text-sm text-slate-400 h-10">{plan.description}</p>

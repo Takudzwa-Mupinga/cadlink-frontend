@@ -1,15 +1,17 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Filter, Plus, Briefcase, Calculator, Star, ChevronDown, Pencil, Sparkles, Loader2, Zap, Clock, DollarSign, Send, CheckCircle2, Bot, X, Image as ImageIcon, Bookmark, BookmarkCheck } from 'lucide-react';
+import { Search, Filter, Plus, Briefcase, Calculator, Star, ChevronDown, Pencil, Sparkles, Loader2, Zap, Clock, DollarSign, Send, CheckCircle2, Bot, X, Image as ImageIcon, Bookmark, BookmarkCheck, UploadCloud, FileText, Paperclip } from 'lucide-react';
 import { MOCK_JOBS, MOCK_SERVICES } from '../constants';
 import { JobType, Software, Job, ServiceGig, ExperienceLevel, Recommendation, InterviewMessage } from '../types';
 import { generateCoverLetter, enhanceServiceDescription, recommendJobs, conductInterviewTurn } from '../services/geminiService';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 interface JobMarketProps {
     onStartProject?: (project: string) => void;
 }
 
 const JobMarket: React.FC<JobMarketProps> = ({ onStartProject }) => {
+  const { format, symbol } = useCurrency();
   const [viewMode, setViewMode] = useState<'jobs' | 'services'>('jobs');
   const [jobs, setJobs] = useState<Job[]>(MOCK_JOBS);
   const [services, setServices] = useState<ServiceGig[]>(MOCK_SERVICES);
@@ -40,13 +42,75 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject }) => {
   // Post Job Form State
   const [newJob, setNewJob] = useState<Partial<Job>>({
       title: '',
-      client: 'My Company Inc.', // Default for demo
+      client: 'My Company Inc.',
       budget: '',
       description: '',
       type: JobType.FREELANCE,
       experienceLevel: ExperienceLevel.INTERMEDIATE,
-      software: []
+      software: [],
+      discipline: '',
+      deliverables: [],
+      deadline: '',
   });
+
+  // File upload state for Post Job form
+  const [jobAttachments, setJobAttachments] = useState<File[]>([]);
+  const [attachmentError, setAttachmentError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const ALLOWED_TYPES: Record<string, string> = {
+    'application/pdf': 'PDF',
+    'image/png': 'PNG',
+    'image/jpeg': 'JPG',
+    'image/jpg': 'JPG',
+    'image/svg+xml': 'SVG',
+  };
+  const ALLOWED_EXTENSIONS = ['.pdf', '.png', '.jpg', '.jpeg', '.svg', '.dwg', '.dxf'];
+  const MAX_FILE_SIZE_MB = 10;
+  const MAX_FILES = 5;
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAttachmentError('');
+    const incoming = Array.from(e.target.files || []);
+    const errors: string[] = [];
+    const valid: File[] = [];
+
+    for (const file of incoming) {
+      const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+      const isAllowedType = ALLOWED_TYPES[file.type] || ['.dwg', '.dxf'].includes(ext);
+      const isAllowedExt = ALLOWED_EXTENSIONS.includes(ext);
+      const isUnderLimit = file.size <= MAX_FILE_SIZE_MB * 1024 * 1024;
+
+      if (!isAllowedType && !isAllowedExt) {
+        errors.push(`"${file.name}" — unsupported file type.`);
+      } else if (!isUnderLimit) {
+        errors.push(`"${file.name}" — exceeds ${MAX_FILE_SIZE_MB}MB limit.`);
+      } else {
+        valid.push(file);
+      }
+    }
+
+    const combined = [...jobAttachments, ...valid];
+    if (combined.length > MAX_FILES) {
+      errors.push(`Maximum ${MAX_FILES} files allowed.`);
+      valid.splice(MAX_FILES - jobAttachments.length);
+    }
+
+    if (errors.length) setAttachmentError(errors.join(' '));
+    setJobAttachments(prev => [...prev, ...valid].slice(0, MAX_FILES));
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeAttachment = (index: number) => {
+    setJobAttachments(prev => prev.filter((_, i) => i !== index));
+    setAttachmentError('');
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   // Post Service Form State
   const [newService, setNewService] = useState<Partial<ServiceGig>>({
@@ -175,7 +239,9 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject }) => {
       };
       setJobs([job, ...jobs]);
       setIsPostingJob(false);
-      setNewJob({ title: '', client: 'My Company Inc.', budget: '', description: '', type: JobType.FREELANCE, experienceLevel: ExperienceLevel.INTERMEDIATE, software: [] });
+      setJobAttachments([]);
+      setAttachmentError('');
+      setNewJob({ title: '', client: 'My Company Inc.', budget: '', description: '', type: JobType.FREELANCE, experienceLevel: ExperienceLevel.INTERMEDIATE, software: [], discipline: '', deliverables: [], deadline: '' });
   };
 
   // --- Post Service Handlers ---
@@ -359,7 +425,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject }) => {
                                     <div className="flex items-center gap-1 text-amber-400 text-xs font-bold">
                                         <Star className="w-3.5 h-3.5 fill-current" /> {service.rating || 'New'}
                                     </div>
-                                    <p className="text-cad-text font-bold text-sm">From ${service.price}</p>
+                                    <p className="text-cad-text font-bold text-sm">From {format(service.price)}</p>
                                 </div>
                             </div>
                         </div>
@@ -393,7 +459,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject }) => {
                             <h4 className="text-cad-text font-bold mb-4 text-sm uppercase tracking-wider">Submit Proposal</h4>
                             <div className="grid grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label className="text-xs font-bold text-slate-500 block mb-1.5">Rate ($)</label>
+                                    <label className="text-xs font-bold text-slate-500 block mb-1.5">Rate ({symbol})</label>
                                     <input type="number" className="w-full bg-cad-panel border border-cad-border rounded-xl px-4 py-3 text-cad-text text-sm focus:border-cad-accent outline-none" placeholder="1000" value={bidRate} onChange={e => setBidRate(e.target.value)} />
                                 </div>
                                 <div>
@@ -416,16 +482,16 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject }) => {
                                 <div className="bg-cad-panel rounded-xl p-4 border border-cad-border space-y-2">
                                     <div className="flex justify-between text-sm text-cad-muted">
                                         <span>Bid Amount</span>
-                                        <span>${parseFloat(bidRate).toFixed(2)}</span>
+                                        <span>{format(parseFloat(bidRate))}</span>
                                     </div>
                                     <div className="flex justify-between text-sm text-cad-muted">
                                         <span>Service Fee (10%)</span>
-                                        <span>-${(parseFloat(bidRate) * 0.10).toFixed(2)}</span>
+                                        <span>-{format(parseFloat(bidRate) * 0.10)}</span>
                                     </div>
                                     <div className="border-t border-cad-border my-2"></div>
                                     <div className="flex justify-between text-base font-bold text-cad-text">
                                         <span>You'll Receive</span>
-                                        <span className="text-cad-success">${(parseFloat(bidRate) * 0.90).toFixed(2)}</span>
+                                        <span className="text-cad-success">{format(parseFloat(bidRate) * 0.90)}</span>
                                     </div>
                                 </div>
                             )}
@@ -465,17 +531,22 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject }) => {
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                             <div>
-                                <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Budget Range</label>
-                                <input 
-                                    required type="text" placeholder="e.g. R1500 - R3000" 
-                                    className="w-full bg-cad-panel border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium"
-                                    value={newJob.budget} onChange={e => setNewJob({...newJob, budget: e.target.value})}
-                                />
+                            <div>
+                                <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Discipline</label>
+                                <select
+                                    required
+                                    className="w-full bg-cad-panel border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium appearance-none"
+                                    value={newJob.discipline} onChange={e => setNewJob({...newJob, discipline: e.target.value})}
+                                >
+                                    <option value="">Select discipline...</option>
+                                    {['Architecture', 'Mechanical Engineering', 'Structural Engineering', 'MEP', 'Civil / Infrastructure', 'Industrial Design', 'Interior Design', 'Other'].map(d => (
+                                        <option key={d} value={d}>{d}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Job Type</label>
-                                <select 
+                                <select
                                     className="w-full bg-cad-panel border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium appearance-none"
                                     value={newJob.type} onChange={e => setNewJob({...newJob, type: e.target.value as JobType})}
                                 >
@@ -483,38 +554,151 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject }) => {
                                 </select>
                             </div>
                         </div>
-                         <div>
-                            <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Required Software</label>
-                            <div className="flex flex-wrap gap-2 p-3 bg-cad-panel rounded-xl border border-cad-border">
-                                {Object.values(Software).map(s => (
-                                    <button 
-                                        key={s} type="button"
-                                        onClick={() => {
-                                            const current = newJob.software || [];
-                                            setNewJob({...newJob, software: current.includes(s) ? current.filter(x => x !== s) : [...current, s]});
-                                        }}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-                                            newJob.software?.includes(s) 
-                                            ? 'bg-cad-accent text-cad-dark border-cad-accent' 
-                                            : 'bg-cad-surface text-slate-400 border-transparent hover:bg-cad-border'
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Budget Range</label>
+                                <input
+                                    required type="text" placeholder="e.g. R1500 - R3000"
+                                    className="w-full bg-cad-panel border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium"
+                                    value={newJob.budget} onChange={e => setNewJob({...newJob, budget: e.target.value})}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Deadline</label>
+                                <select
+                                    required
+                                    className="w-full bg-cad-panel border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium appearance-none"
+                                    value={newJob.deadline} onChange={e => setNewJob({...newJob, deadline: e.target.value})}
+                                >
+                                    <option value="">Select timeline...</option>
+                                    {['1–2 weeks', '2–4 weeks', '1–3 months', '3–6 months', 'Flexible'].map(d => (
+                                        <option key={d} value={d}>{d}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Experience Level</label>
+                            <div className="flex gap-3">
+                                {Object.values(ExperienceLevel).map(lvl => (
+                                    <button
+                                        key={lvl} type="button"
+                                        onClick={() => setNewJob({...newJob, experienceLevel: lvl})}
+                                        className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all border ${
+                                            newJob.experienceLevel === lvl
+                                            ? 'bg-cad-accent text-cad-dark border-cad-accent'
+                                            : 'bg-cad-surface text-slate-400 border-cad-border hover:border-cad-accent/50'
                                         }`}
                                     >
-                                        {s}
+                                        {lvl}
                                     </button>
                                 ))}
                             </div>
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Description</label>
-                            <textarea 
-                                required rows={5} placeholder="Describe the project deliverables, timeline, and requirements..." 
+                            <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Deliverables</label>
+                            <div className="flex flex-wrap gap-2 p-3 bg-cad-panel rounded-xl border border-cad-border">
+                                {['2D Drawings', '3D Model', 'Construction Documents', 'Shop Drawings', 'Renders / Visualizations', 'BIM Model', 'Technical Report'].map(d => (
+                                    <button
+                                        key={d} type="button"
+                                        onClick={() => {
+                                            const current = newJob.deliverables || [];
+                                            setNewJob({...newJob, deliverables: current.includes(d) ? current.filter(x => x !== d) : [...current, d]});
+                                        }}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                                            newJob.deliverables?.includes(d)
+                                            ? 'bg-cad-accent text-cad-dark border-cad-accent'
+                                            : 'bg-cad-surface text-slate-400 border-transparent hover:bg-cad-border'
+                                        }`}
+                                    >
+                                        {d}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Project Description</label>
+                            <textarea
+                                required rows={5} placeholder="Describe the project background, site conditions, standards to follow, and any other context the designer needs..."
                                 className="w-full bg-cad-panel border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none leading-relaxed"
                                 value={newJob.description} onChange={e => setNewJob({...newJob, description: e.target.value})}
                             />
                         </div>
-                        <div className="pt-4 border-t border-cad-border flex justify-end gap-3">
-                            <button type="button" onClick={() => setIsPostingJob(false)} className="px-6 py-3 rounded-xl font-bold text-slate-400 hover:text-cad-text transition-colors">Cancel</button>
-                            <button type="submit" className="px-8 py-3 bg-cad-accent text-cad-dark rounded-xl font-bold hover:bg-violet-400 shadow-lg shadow-cad-accent/20">Post Contract</button>
+                        {/* File Upload */}
+                        <div>
+                            <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">
+                                Reference Files <span className="normal-case font-normal text-slate-500">(optional · max {MAX_FILES} files · {MAX_FILE_SIZE_MB}MB each)</span>
+                            </label>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                multiple
+                                accept=".pdf,.png,.jpg,.jpeg,.svg,.dwg,.dxf"
+                                className="hidden"
+                                onChange={handleFileSelect}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-full flex flex-col items-center justify-center gap-2 px-4 py-6 rounded-xl border-2 border-dashed border-cad-border hover:border-cad-accent/60 hover:bg-cad-accent/5 transition-all group"
+                            >
+                                <UploadCloud className="w-7 h-7 text-cad-muted group-hover:text-cad-accent transition-colors" />
+                                <span className="text-sm font-medium text-cad-muted group-hover:text-cad-text transition-colors">
+                                    Click to upload sketches, drawings, or specs
+                                </span>
+                                <span className="text-xs text-slate-500">PDF · PNG · JPG · SVG · DWG · DXF</span>
+                            </button>
+
+                            {/* Error message */}
+                            {attachmentError && (
+                                <p className="mt-2 text-xs text-red-400 flex items-start gap-1.5">
+                                    <X className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                                    {attachmentError}
+                                </p>
+                            )}
+
+                            {/* File list */}
+                            {jobAttachments.length > 0 && (
+                                <ul className="mt-3 space-y-2">
+                                    {jobAttachments.map((file, i) => {
+                                        const ext = file.name.split('.').pop()?.toUpperCase() || '';
+                                        return (
+                                            <li key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-cad-surface border border-cad-border">
+                                                <div className="w-8 h-8 rounded-lg bg-cad-accent/10 border border-cad-accent/20 flex items-center justify-center shrink-0">
+                                                    {['PNG', 'JPG', 'JPEG', 'SVG'].includes(ext)
+                                                        ? <ImageIcon className="w-4 h-4 text-cad-accent" />
+                                                        : <FileText className="w-4 h-4 text-cad-accent" />
+                                                    }
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium text-cad-text truncate">{file.name}</p>
+                                                    <p className="text-xs text-slate-500">{ext} · {formatFileSize(file.size)}</p>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeAttachment(i)}
+                                                    className="text-slate-500 hover:text-red-400 transition-colors shrink-0"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            )}
+                        </div>
+
+                        <div className="pt-4 border-t border-cad-border flex justify-between items-center">
+                            {jobAttachments.length > 0 && (
+                                <span className="text-xs text-cad-muted flex items-center gap-1.5">
+                                    <Paperclip className="w-3.5 h-3.5" />
+                                    {jobAttachments.length} file{jobAttachments.length > 1 ? 's' : ''} attached
+                                </span>
+                            )}
+                            <div className="flex gap-3 ml-auto">
+                                <button type="button" onClick={() => setIsPostingJob(false)} className="px-6 py-3 rounded-xl font-bold text-slate-400 hover:text-cad-text transition-colors">Cancel</button>
+                                <button type="submit" className="px-8 py-3 bg-cad-accent text-cad-dark rounded-xl font-bold hover:bg-violet-400 shadow-lg shadow-cad-accent/20">Post Contract</button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -543,7 +727,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject }) => {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                              <div>
-                                <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Starting Price ($)</label>
+                                <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Starting Price ({symbol})</label>
                                 <input 
                                     required type="number" placeholder="100" 
                                     className="w-full bg-cad-panel border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium"

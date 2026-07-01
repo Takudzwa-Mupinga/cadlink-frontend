@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { DollarSign, ArrowUpRight, ArrowDownLeft, Clock, Download, CreditCard, TrendingUp, Filter, Wallet, PieChart, Activity, Building2 } from 'lucide-react';
 import { Transaction } from '../types';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const MOCK_TRANSACTIONS: Transaction[] = [
     { id: 't1', description: 'Payment for Job: HVAC Design', amount: 850.00, date: 'Oct 24, 2023', status: 'Completed', type: 'Credit' },
@@ -70,6 +71,7 @@ const generatePath = (points: number[][]) => {
 // --- SUB-COMPONENTS ---
 
 const FinancialChart = () => {
+    const { format, symbol } = useCurrency();
     const [timeRange, setTimeRange] = useState<'1W' | '1M' | '1Y'>('1Y');
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
     const [isVisible, setIsVisible] = useState(false);
@@ -178,7 +180,7 @@ const FinancialChart = () => {
                         return (
                             <g key={t}>
                                 <line x1={50} y1={y} x2={width} y2={y} stroke="currentColor" className="text-cad-border opacity-30" strokeDasharray="4 4" />
-                                <text x={40} y={y + 4} textAnchor="end" className="fill-cad-muted text-[10px] font-mono">${Math.round(t * maxVal / 1000)}k</text>
+                                <text x={40} y={y + 4} textAnchor="end" className="fill-cad-muted text-[10px] font-mono">{symbol}{Math.round(t * maxVal / 1000)}k</text>
                             </g>
                         )
                     })}
@@ -214,16 +216,16 @@ const FinancialChart = () => {
                                     <p className="text-cad-muted font-bold uppercase tracking-wider mb-2">{activeData[hoveredIndex].label}</p>
                                     <div className="flex justify-between items-center">
                                         <span className="text-cad-success font-bold">Income</span>
-                                        <span className="text-cad-text font-mono">${activeData[hoveredIndex].income.toLocaleString()}</span>
+                                        <span className="text-cad-text font-mono">{format(activeData[hoveredIndex].income)}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-red-400 font-bold">Expense</span>
-                                        <span className="text-cad-text font-mono">${activeData[hoveredIndex].expense.toLocaleString()}</span>
+                                        <span className="text-cad-text font-mono">{format(activeData[hoveredIndex].expense)}</span>
                                     </div>
                                     <div className="border-t border-cad-border pt-2 flex justify-between items-center font-bold">
                                         <span className="text-cad-text">Net Profit</span>
                                         <span className={(activeData[hoveredIndex].income - activeData[hoveredIndex].expense) >= 0 ? 'text-cad-accent' : 'text-red-500'}>
-                                            ${(activeData[hoveredIndex].income - activeData[hoveredIndex].expense).toLocaleString()}
+                                            {format(activeData[hoveredIndex].income - activeData[hoveredIndex].expense)}
                                         </span>
                                     </div>
                                 </div>
@@ -284,8 +286,9 @@ const SparklineCard = ({ title, value, subtext, data, colorClass, icon: Icon }: 
 };
 
 export default function Finance() {
+    const { format } = useCurrency();
     const [filterType, setFilterType] = useState<'All' | 'Credit' | 'Debit'>('All');
-    
+
     const filteredTransactions = useMemo(() => {
         return MOCK_TRANSACTIONS.filter(tx => filterType === 'All' || tx.type === filterType);
     }, [filterType]);
@@ -305,25 +308,25 @@ export default function Finance() {
 
             {/* Smart Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <SparklineCard 
-                    title="Total Balance" 
-                    value="R42,750.00" 
+                <SparklineCard
+                    title="Total Balance"
+                    value={format(42750)}
                     subtext="+12% from last month"
                     data={[12000, 12500, 11800, 13200, 14250]}
                     colorClass={{ bg: 'bg-green-500/10', text: 'text-green-500' }}
                     icon={Wallet}
                 />
-                <SparklineCard 
-                    title="Monthly Expenses" 
-                    value="R7,350.00" 
+                <SparklineCard
+                    title="Monthly Expenses"
+                    value={format(7350)}
                     subtext="Software & Assets"
                     data={[800, 1200, 900, 2450]}
                     colorClass={{ bg: 'bg-red-500/10', text: 'text-red-500' }}
                     icon={CreditCard}
                 />
-                <SparklineCard 
-                    title="Pending Clearance" 
-                    value="R2550.00" 
+                <SparklineCard
+                    title="Pending Clearance"
+                    value={format(2550)}
                     subtext="Available in 3 days"
                     data={[500, 800, 650, 850]}
                     colorClass={{ bg: 'bg-yellow-500/10', text: 'text-yellow-500' }}
@@ -384,7 +387,7 @@ export default function Finance() {
                                             </span>
                                         </td>
                                         <td className={`px-6 py-4 text-right font-bold font-mono text-sm ${tx.type === 'Credit' ? 'text-cad-success' : 'text-cad-text'}`}>
-                                            {tx.type === 'Credit' ? '+' : ''}{tx.amount.toFixed(2)}
+                                            {tx.type === 'Credit' ? '+' : ''}{format(Math.abs(tx.amount))}
                                         </td>
                                     </tr>
                                 ))}

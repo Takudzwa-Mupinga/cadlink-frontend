@@ -3,12 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle2, Circle, Clock, DollarSign, FileText, MessageSquare, Shield, Upload, Video, Zap, AlertCircle, Download, Briefcase, Calendar, Check, Loader2, ArrowDown, Wallet, Building2 } from 'lucide-react';
 import { MOCK_CONTRACTS } from '../constants';
 import { Milestone, ProjectContract } from '../types';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 interface ProjectHubProps {
     onNavigate: (tab: string) => void;
 }
 
 const ProjectHub: React.FC<ProjectHubProps> = ({ onNavigate }) => {
+    const { format } = useCurrency();
     // Local state to manage contract updates
     const [contracts, setContracts] = useState<ProjectContract[]>(MOCK_CONTRACTS);
     const [activeContractId, setActiveContractId] = useState<string>(MOCK_CONTRACTS[0]?.id || '');
@@ -124,18 +126,18 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onNavigate }) => {
                                     </div>
                                     <div className="text-left md:text-right">
                                         <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Value</p>
-                                        <p className="text-3xl font-mono text-white font-bold">${activeContract.totalBudget.toLocaleString()}</p>
+                                        <p className="text-3xl font-mono text-white font-bold">{format(activeContract.totalBudget)}</p>
                                     </div>
                                 </div>
                                 
                                 <div className="grid grid-cols-3 gap-4 border-t border-white/5 pt-6">
                                     <div className="bg-white/5 rounded-xl p-4 border border-white/5">
                                         <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">In Escrow</p>
-                                        <p className="text-xl font-bold text-blue-400">${activeContract.escrowAmount.toLocaleString()}</p>
+                                        <p className="text-xl font-bold text-blue-400">{format(activeContract.escrowAmount)}</p>
                                     </div>
                                     <div className="bg-white/5 rounded-xl p-4 border border-white/5">
                                         <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Paid</p>
-                                        <p className="text-xl font-bold text-green-400">${activeContract.paidAmount.toLocaleString()}</p>
+                                        <p className="text-xl font-bold text-green-400">{format(activeContract.paidAmount)}</p>
                                     </div>
                                     <div className="bg-white/5 rounded-xl p-4 border border-white/5">
                                         <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Deadline</p>
@@ -167,7 +169,7 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onNavigate }) => {
                                         }`}>
                                             <div className="flex justify-between items-center mb-2">
                                                 <h5 className={`font-bold text-lg ${ms.status === 'Pending' ? 'text-slate-500' : 'text-white'}`}>{ms.title}</h5>
-                                                <span className="font-mono text-sm font-bold text-slate-400 bg-black/30 px-2 py-1 rounded">${ms.amount}</span>
+                                                <span className="font-mono text-sm font-bold text-slate-400 bg-black/30 px-2 py-1 rounded">{format(ms.amount)}</span>
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
@@ -286,7 +288,7 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onNavigate }) => {
                             <div className="flex justify-center mb-8 relative z-10">
                                 <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl text-center min-w-[180px]">
                                     <div className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Released</div>
-                                    <div className="text-2xl font-mono text-white font-bold">${funnelMilestone.amount}</div>
+                                    <div className="text-2xl font-mono text-white font-bold">{format(funnelMilestone.amount)}</div>
                                 </div>
                             </div>
 
@@ -306,7 +308,7 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onNavigate }) => {
                                         <Building2 className="w-5 h-5" />
                                     </div>
                                     <div className="text-[10px] text-purple-300 font-bold uppercase tracking-wider">Platform Fee</div>
-                                    <div className="text-lg font-bold text-white mt-1">-${(funnelMilestone.amount * 0.10).toFixed(0)}</div>
+                                    <div className="text-lg font-bold text-white mt-1">-{format(funnelMilestone.amount * 0.10)}</div>
                                     <div className="text-[10px] text-slate-500 mt-1">10% Commission</div>
                                 </div>
 
@@ -316,7 +318,7 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onNavigate }) => {
                                         <Wallet className="w-5 h-5" />
                                     </div>
                                     <div className="text-[10px] text-green-300 font-bold uppercase tracking-wider">Net Payout</div>
-                                    <div className="text-lg font-bold text-white mt-1">+${(funnelMilestone.amount * 0.90).toFixed(0)}</div>
+                                    <div className="text-lg font-bold text-white mt-1">+{format(funnelMilestone.amount * 0.90)}</div>
                                     <div className="text-[10px] text-slate-500 mt-1">Sent to Wallet</div>
                                 </div>
                             </div>

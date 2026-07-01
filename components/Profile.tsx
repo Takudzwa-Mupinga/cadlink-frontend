@@ -3,8 +3,10 @@ import { Camera, MapPin, Mail, Link as LinkIcon, Edit2, Save, Award, Briefcase, 
 import { CURRENT_USER } from '../constants';
 import { Software, PortfolioItem, ResumeData } from '../types';
 import ResumeBuilder from './ResumeBuilder';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const Profile: React.FC = () => {
+    const { format, symbol } = useCurrency();
     const [isEditing, setIsEditing] = useState(false);
     const [user, setUser] = useState(CURRENT_USER);
     const [showResumeBuilder, setShowResumeBuilder] = useState(false);
@@ -150,7 +152,7 @@ const Profile: React.FC = () => {
                                         <p className="text-[10px] text-cad-muted uppercase tracking-wider font-bold mb-1">Hourly Rate</p>
                                         {isEditing ? (
                                              <div className="flex items-center gap-1">
-                                                <span className="text-cad-success font-bold">$</span>
+                                                <span className="text-cad-success font-bold">{symbol}</span>
                                                 <input 
                                                     type="number" 
                                                     value={rate} 
@@ -159,7 +161,7 @@ const Profile: React.FC = () => {
                                                 />
                                              </div>
                                         ) : (
-                                            <p className="text-2xl font-bold text-cad-success">${user.hourlyRate}/hr</p>
+                                            <p className="text-2xl font-bold text-cad-success">{format(user.hourlyRate)}/hr</p>
                                         )}
                                     </div>
                                     <div className="bg-white/5 px-5 py-3 rounded-2xl border border-white/5 backdrop-blur-sm">

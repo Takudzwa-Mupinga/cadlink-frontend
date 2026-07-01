@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Shield, Users, DollarSign, AlertTriangle, Search, Activity, Lock, Unlock, Eye, Gavel, FileText, TrendingUp, CreditCard, Download, Code, Copy, Check } from 'lucide-react';
 import { MOCK_USERS, MOCK_DISPUTES } from '../constants';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 // --- FULL SOURCE CODE REPOSITORY ---
 // These strings contain the actual full code of the application files.
@@ -141,19 +142,6 @@ const INDEX_HTML = `<!DOCTYPE html>
       .face-top    { transform: rotateX(90deg) translateZ(20px); }
       .face-bottom { transform: rotateX(-90deg) translateZ(20px); }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "vite": "https://esm.sh/vite@^7.2.7",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
-  }
-}
-</script>
 </head>
   <body>
     <div id="root"></div>
@@ -172,7 +160,6 @@ const PACKAGE_JSON = `{
     "preview": "vite preview"
   },
   "dependencies": {
-    "@google/genai": "^1.30.0",
     "clsx": "^2.1.0",
     "lucide-react": "^0.344.0",
     "react": "^18.2.0",
@@ -510,136 +497,31 @@ export const MOCK_DISPUTES: Dispute[] = [
     { id: 'd2', contract: 'Tesla Chassis Design', client: 'Tesla Dynamics', freelancer: 'Mike Ross', amount: 1500, reason: 'Freelancer missed final deadline by 3 days. Client requesting partial refund.', status: 'Open', evidence: [{ user: 'System', time: 'Yesterday', text: 'Deadline missed.' }, { user: 'Freelancer', time: 'Today', text: 'I had a family emergency, please check messages.' }] }
 ];` },
 
-    { name: 'src/services/geminiService.ts', language: 'typescript', content: `import { GoogleGenAI, Type } from "@google/genai";
+    { name: 'src/services/aiService.ts', language: 'typescript', content: `// Placeholder AI service — replace with your own backend/AI integration.
 import { Recommendation, Task, PrioritySuggestion, QuizQuestion } from "../types";
 
-const apiKey = process.env.API_KEY || '';
-const ai = new GoogleGenAI({ apiKey });
-
-export const generateAIResponse = async (prompt: string, context: string = ''): Promise<string> => {
-  if (!apiKey) return "API Key is missing.";
-  try {
-    const fullPrompt = \`\${context}\\n\\nUser Query: \${prompt}\`;
-    const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: fullPrompt });
-    return response.text || "I couldn't generate a response.";
-  } catch (error) { console.error(error); return "Error communicating with AI."; }
+export const generateAIResponse = async (_prompt: string, _context: string = ''): Promise<string> => {
+  return "AI responses coming soon. Connect your own AI backend to enable this feature.";
 };
 
-export const generateCourseOutline = async (topic: string): Promise<string> => {
-    if (!apiKey) return "API Key missing.";
-    try {
-        const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: \`Create a 5-module outline for learning "\${topic}". Bullet points.\` });
-        return response.text || "No outline generated.";
-    } catch (e) { console.error(e); return "Failed to generate outline."; }
-}
+export const generateCourseOutline = async (_topic: string): Promise<string> => {
+  return "• Module 1: Introduction\\n• Module 2: Core Concepts\\n• Module 3: Practical Application\\n• Module 4: Advanced Techniques\\n• Module 5: Final Project\\n\\n(AI-generated outlines coming soon)";
+};
 
-export const generateCoverLetter = async (jobTitle: string, clientName: string, skills: string[]): Promise<string> => {
-    if (!apiKey) return "I am a passionate CAD designer...";
-    try {
-        const prompt = \`Write a freelance cover letter for "\${jobTitle}" by "\${clientName}". Skills: \${skills.join(', ')}. Max 150 words.\`;
-        const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
-        return response.text?.trim() || "Could not generate proposal.";
-    } catch (e) { return "Error generating proposal."; }
-}
+export const generateCoverLetter = async (_jobTitle: string, _clientName: string, _skills: string[]): Promise<string> => {
+  return "I am a passionate CAD professional with experience in delivering high-quality design work on time.\\n\\n(AI-generated proposals coming soon)";
+};
 
-export const enhanceServiceDescription = async (title: string, currentDesc: string): Promise<string> => {
-    if (!apiKey) return currentDesc;
-    try {
-        const prompt = \`Rewrite this service description to be persuasive: Title: "\${title}", Desc: "\${currentDesc}". Max 100 words.\`;
-        const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
-        return response.text?.trim() || currentDesc;
-    } catch (e) { return currentDesc; }
-}
-
-export const recommendJobs = async (userSkills: string[], userRole: string, pastActivity: string, allJobs: any[]): Promise<Recommendation[]> => {
-    if (!apiKey) return [];
-    try {
-        const jobSummaries = allJobs.map((j: any) => ({id: j.id, title: j.title, skills: j.software, description: j.description}));
-        const prompt = \`Recruiter Task. Profile: \${userRole}, \${userSkills.join(', ')}. Activity: \${pastActivity}. Jobs: \${JSON.stringify(jobSummaries)}. Return top 3 matches as JSON array of objects {jobId, score, reason}.\`;
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash', contents: prompt,
-            config: { responseMimeType: "application/json", responseSchema: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { jobId: { type: Type.STRING }, score: { type: Type.NUMBER }, reason: { type: Type.STRING } } } } }
-        });
-        return JSON.parse(response.text || '[]') as Recommendation[];
-    } catch (e) { return []; }
-}
-
-export const solveTechnicalQuestion = async (title: string, content: string, software: string[]): Promise<string> => {
-    if (!apiKey) return "AI unavailable.";
-    try {
-        const prompt = \`Support Engineer. Q: "\${title}". Context: "\${content}". Tags: \${software.join(', ')}. Provide concise solution.\`;
-        const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
-        return response.text?.trim() || "Could not generate solution.";
-    } catch (e) { return "Failed to process request."; }
-}
-
-export const generateDesignImage = async (prompt: string): Promise<string | null> => {
-    if (!apiKey) return null;
-    try {
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image', contents: { parts: [{ text: prompt }] }, config: { imageConfig: { aspectRatio: "16:9" } }
-        });
-        for (const part of response.candidates?.[0]?.content?.parts || []) {
-            if (part.inlineData) return \`data:\${part.inlineData.mimeType};base64,\${part.inlineData.data}\`;
-        }
-        return null;
-    } catch (e) { return null; }
-}
-
-export const analyzeTaskPriorities = async (tasks: Task[]): Promise<PrioritySuggestion[]> => {
-    if (!apiKey) return [];
-    try {
-        const taskList = tasks.map(t => ({ id: t.id, title: t.title, currentPriority: t.priority, deadline: t.deadline, dependencies: t.dependencies }));
-        const prompt = \`PM AI. Analyze tasks: \${JSON.stringify(taskList)}. Suggest priority changes based on deadlines/deps. Return JSON array {taskId, newPriority, reason}.\`;
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash', contents: prompt,
-            config: { responseMimeType: "application/json", responseSchema: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { taskId: { type: Type.STRING }, newPriority: { type: Type.STRING }, reason: { type: Type.STRING } } } } }
-        });
-        return JSON.parse(response.text || '[]') as PrioritySuggestion[];
-    } catch (e) { return []; }
-}
-
-export const generateCourseQuiz = async (courseTitle: string, description: string): Promise<QuizQuestion[]> => {
-    if (!apiKey) return [];
-    try {
-        const prompt = \`Create 3-question MCQ quiz for course "\${courseTitle}". Context: \${description}. Return JSON array {question, options, correctAnswer (index)}.\`;
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash', contents: prompt,
-            config: { responseMimeType: "application/json", responseSchema: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { question: { type: Type.STRING }, options: { type: Type.ARRAY, items: { type: Type.STRING } }, correctAnswer: { type: Type.INTEGER } } } } }
-        });
-        return JSON.parse(response.text || '[]') as QuizQuestion[];
-    } catch (e) { return []; }
-}
-
-export const askCourseTutor = async (question: string, courseTitle: string): Promise<string> => {
-    if (!apiKey) return "Tutor unavailable.";
-    try {
-        const prompt = \`AI Tutor for "\${courseTitle}". Student asks: "\${question}". Concise answer.\`;
-        const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
-        return response.text?.trim() || "No answer generated.";
-    } catch (e) { return "Error."; }
-}
-
-export const conductInterviewTurn = async (jobTitle: string, jobDesc: string, history: any[]): Promise<{ question: string; feedback?: string }> => {
-    if (!apiKey) return { question: "Tell me about your experience." };
-    try {
-        const prompt = \`Hiring Manager for "\${jobTitle}". Desc: "\${jobDesc}". History: \${JSON.stringify(history)}. 1. Feedback on last answer. 2. Next question. JSON {feedback, question}.\`;
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash', contents: prompt,
-            config: { responseMimeType: "application/json", responseSchema: { type: Type.OBJECT, properties: { feedback: { type: Type.STRING, nullable: true }, question: { type: Type.STRING } } } }
-        });
-        return JSON.parse(response.text || '{}');
-    } catch (e) { return { question: "Tell me about a project." }; }
-}
-
-export const optimizeResumeSection = async (section: string, currentText: string): Promise<string> => {
-    if (!apiKey) return currentText;
-    try {
-        const prompt = \`Resume Writer. Rewrite "\${section}" for ATS. Original: "\${currentText}". Return rewritten text.\`;
-        const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
-        return response.text?.trim() || currentText;
-    } catch (e) { return currentText; }
-}` },
+export const enhanceServiceDescription = async (_title: string, currentDesc: string): Promise<string> => currentDesc;
+export const recommendJobs = async (): Promise<Recommendation[]> => [];
+export const solveTechnicalQuestion = async (): Promise<string> => "AI-powered support coming soon.";
+export const generateDesignImage = async (): Promise<string | null> => null;
+export const analyzeTaskPriorities = async (_tasks: Task[]): Promise<PrioritySuggestion[]> => [];
+export const generateCourseQuiz = async (): Promise<QuizQuestion[]> => [];
+export const askCourseTutor = async (): Promise<string> => "AI tutoring coming soon!";
+export const conductInterviewTurn = async (): Promise<{ question: string; feedback?: string }> => ({ question: "Can you walk me through a recent project you're proud of?" });
+export const optimizeResumeSection = async (_section: string, currentText: string): Promise<string> => currentText;
+` },
 
     // Components
     { name: 'src/components/Sidebar.tsx', language: 'typescript', content: `import React, { useState } from 'react';
@@ -903,6 +785,7 @@ export default Network;` },
 ];
 
 const Admin: React.FC = () => {
+    const { format } = useCurrency();
     const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'financials' | 'disputes' | 'source'>('overview');
     const [disputes, setDisputes] = useState(MOCK_DISPUTES);
     const [selectedDisputeId, setSelectedDisputeId] = useState<string | null>(null);
@@ -1115,7 +998,7 @@ const Admin: React.FC = () => {
                                 <div className="space-y-4 text-sm">
                                     <div className="flex gap-4 items-start p-3 hover:bg-white/5 rounded-xl transition-colors">
                                         <span className="text-[10px] font-mono text-slate-500 mt-1">10:42 AM</span>
-                                        <p className="text-slate-300"><span className="text-white font-bold">System</span> automatically released payment #9921 (R2550.00)</p>
+                                        <p className="text-slate-300"><span className="text-white font-bold">System</span> automatically released payment #9921 ({format(2550)})</p>
                                     </div>
                                     <div className="flex gap-4 items-start p-3 hover:bg-white/5 rounded-xl transition-colors">
                                         <span className="text-[10px] font-mono text-slate-500 mt-1">10:15 AM</span>
@@ -1150,7 +1033,7 @@ const Admin: React.FC = () => {
                                         <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded ${dispute.status === 'Resolved' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                                             {dispute.status}
                                         </span>
-                                        <span className="text-white font-mono font-bold">${dispute.amount}</span>
+                                        <span className="text-white font-mono font-bold">{format(dispute.amount)}</span>
                                     </div>
                                     <h4 className="font-bold text-white mb-1">{dispute.contract}</h4>
                                     <p className="text-xs text-slate-400 line-clamp-2">{dispute.reason}</p>
@@ -1172,7 +1055,7 @@ const Admin: React.FC = () => {
                                         </div>
                                         <div className="text-right">
                                             <p className="text-xs text-slate-500 uppercase font-bold">Escrow Amount</p>
-                                            <p className="text-2xl font-bold text-white font-mono">${selectedDispute.amount.toFixed(2)}</p>
+                                            <p className="text-2xl font-bold text-white font-mono">{format(selectedDispute.amount)}</p>
                                         </div>
                                     </div>
 
@@ -1362,7 +1245,7 @@ const Admin: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-mono font-bold text-white">R3,750.00</p>
+                                            <p className="font-mono font-bold text-white">{format(3750)}</p>
                                             <p className="text-xs text-yellow-500 font-bold bg-yellow-500/10 px-2 py-0.5 rounded mt-1 inline-block">PENDING</p>
                                         </div>
                                     </div>

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Star, MessageSquare, UserPlus, X, MapPin, Briefcase, ExternalLink, Award, Search, Filter, UserCheck, Loader2 } from 'lucide-react';
 import { MOCK_USERS } from '../constants';
 import { UserProfile } from '../types';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 interface NetworkProps {
     onMessage?: (userId: string) => void;
@@ -20,6 +21,7 @@ const ENRICHED_USERS: UserProfile[] = MOCK_USERS.map(u => ({
 }));
 
 const Network: React.FC<NetworkProps> = ({ onMessage }) => {
+    const { format } = useCurrency();
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -196,7 +198,7 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
                                 <span className="w-1 h-1 bg-slate-600 rounded-full"></span>
                                 <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-cad-accent"/> Remote</span>
                                 <span className="w-1 h-1 bg-slate-600 rounded-full"></span>
-                                <span className="text-green-400 font-bold bg-green-900/20 px-2 py-0.5 rounded border border-green-500/10">${selectedUser.hourlyRate}/hr</span>
+                                <span className="text-green-400 font-bold bg-green-900/20 px-2 py-0.5 rounded border border-green-500/10">{format(selectedUser.hourlyRate)}/hr</span>
                             </div>
                         </div>
                         <div className="flex gap-3">
