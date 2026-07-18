@@ -126,15 +126,15 @@ const Academy: React.FC = () => {
       return (
           <div className="h-full flex flex-col bg-black animate-in fade-in zoom-in-95 duration-300">
               {/* Header */}
-              <div className="h-18 border-b border-white/10 bg-[#0B1121] flex items-center justify-between px-6 z-20 shrink-0">
+              <div className="h-18 border-b border-cad-border bg-cad-dark flex items-center justify-between px-6 z-20 shrink-0">
                   <div className="flex items-center gap-4">
-                      <button onClick={() => setViewMode('browse')} className="p-2 hover:bg-white/10 rounded-full text-slate-400 hover:text-white transition-colors">
+                      <button onClick={() => setViewMode('browse')} className="p-2 hover:bg-cad-surface/50 rounded-full text-slate-400 hover:text-cad-text transition-colors">
                           <ChevronLeft className="w-5 h-5" />
                       </button>
                       <div>
-                          <h2 className="text-lg font-bold text-white leading-tight">{selectedCourse.title}</h2>
+                          <h2 className="text-lg font-bold text-cad-text leading-tight">{selectedCourse.title}</h2>
                           <div className="flex items-center gap-3 text-xs text-slate-400 mt-0.5">
-                               <span className="bg-white/5 px-2 py-0.5 rounded border border-white/5">{selectedCourse.instructor}</span>
+                               <span className="bg-cad-surface/30 px-2 py-0.5 rounded border border-cad-border">{selectedCourse.instructor}</span>
                                <span className="text-slate-600">/</span>
                                <span className="text-cad-accent">{selectedCourse.modules.find(m => m.id === activeModuleId)?.title}</span>
                           </div>
@@ -144,14 +144,14 @@ const Academy: React.FC = () => {
                       {selectedCourse.progress === 100 && (
                           <button 
                             onClick={() => setShowCertificate(true)}
-                            className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg shadow-amber-900/20 hover:scale-105 transition-transform"
+                            className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-cad-text px-4 py-1.5 rounded-full text-xs font-bold shadow-lg shadow-amber-900/20 hover:scale-105 transition-transform"
                           >
                               <Award className="w-3.5 h-3.5" /> Claim Certificate
                           </button>
                       )}
                       <div className="hidden md:flex flex-col items-end mr-4">
                           <span className="text-[10px] text-slate-400 mb-1 uppercase tracking-wider font-bold">Course Progress</span>
-                          <div className="w-40 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                          <div className="w-40 h-1.5 bg-cad-surface rounded-full overflow-hidden">
                               <div className="h-full bg-cad-accent rounded-full shadow-[0_0_10px_rgba(56,189,248,0.5)]" style={{ width: `${selectedCourse.progress}%` }}></div>
                           </div>
                       </div>
@@ -163,11 +163,11 @@ const Academy: React.FC = () => {
                   {/* Left: Video Player */}
                   <div className="flex-1 bg-black relative group flex flex-col justify-center">
                        {/* Mock Video Container */}
-                       <div className="w-full h-full bg-slate-900 relative flex items-center justify-center overflow-hidden">
+                       <div className="w-full h-full bg-cad-surface relative flex items-center justify-center overflow-hidden">
                            {/* Cinematic Glow */}
                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 flex flex-col justify-end p-8">
                                 {/* Controls */}
-                                <div className="flex items-center gap-6 text-white">
+                                <div className="flex items-center gap-6 text-cad-text">
                                     <button className="hover:text-cad-accent hover:scale-110 transition-all"><Play className="w-8 h-8 fill-white" /></button>
                                     <div className="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden cursor-pointer group/slider">
                                         <div className="w-1/3 h-full bg-cad-accent relative">
@@ -187,18 +187,18 @@ const Academy: React.FC = () => {
                   </div>
 
                   {/* Right: Sidebar (Curriculum/Tutor/Quiz/Resources/Notes) */}
-                  <div className="w-full lg:w-[400px] bg-[#0f172a] border-l border-white/5 flex flex-col shadow-2xl z-10">
+                  <div className="w-full lg:w-[400px] bg-cad-dark border-l border-cad-border flex flex-col shadow-2xl z-10">
                       {/* Tabs */}
-                      <div className="flex border-b border-white/5 bg-slate-900/50 overflow-x-auto custom-scrollbar">
-                          <button onClick={() => setActiveTab('curriculum')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'curriculum' ? 'text-white border-cad-accent bg-white/5' : 'text-slate-400 border-transparent hover:text-white hover:bg-white/5'}`}>Lessons</button>
-                          <button onClick={() => setActiveTab('resources')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'resources' ? 'text-blue-300 border-blue-500 bg-blue-500/10' : 'text-slate-400 border-transparent hover:text-white hover:bg-white/5'}`}>Files</button>
-                          <button onClick={() => setActiveTab('notes')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'notes' ? 'text-yellow-300 border-yellow-500 bg-yellow-500/10' : 'text-slate-400 border-transparent hover:text-white hover:bg-white/5'}`}>Notes</button>
-                          <button onClick={() => setActiveTab('tutor')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'tutor' ? 'text-purple-300 border-purple-500 bg-purple-500/10' : 'text-slate-400 border-transparent hover:text-white hover:bg-white/5'}`}>AI Tutor</button>
-                          <button onClick={() => setActiveTab('quiz')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'quiz' ? 'text-green-300 border-green-500 bg-green-500/10' : 'text-slate-400 border-transparent hover:text-white hover:bg-white/5'}`}>Quiz</button>
+                      <div className="flex border-b border-cad-border bg-cad-surface/50 overflow-x-auto custom-scrollbar">
+                          <button onClick={() => setActiveTab('curriculum')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'curriculum' ? 'text-cad-text border-cad-accent bg-cad-surface/30' : 'text-slate-400 border-transparent hover:text-cad-text hover:bg-cad-surface/30'}`}>Lessons</button>
+                          <button onClick={() => setActiveTab('resources')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'resources' ? 'text-blue-300 border-blue-500 bg-blue-500/10' : 'text-slate-400 border-transparent hover:text-cad-text hover:bg-cad-surface/30'}`}>Files</button>
+                          <button onClick={() => setActiveTab('notes')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'notes' ? 'text-yellow-300 border-yellow-500 bg-yellow-500/10' : 'text-slate-400 border-transparent hover:text-cad-text hover:bg-cad-surface/30'}`}>Notes</button>
+                          <button onClick={() => setActiveTab('tutor')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'tutor' ? 'text-purple-300 border-purple-500 bg-purple-500/10' : 'text-slate-400 border-transparent hover:text-cad-text hover:bg-cad-surface/30'}`}>AI Tutor</button>
+                          <button onClick={() => setActiveTab('quiz')} className={`flex-1 min-w-[80px] py-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'quiz' ? 'text-green-300 border-green-500 bg-green-500/10' : 'text-slate-400 border-transparent hover:text-cad-text hover:bg-cad-surface/30'}`}>Quiz</button>
                       </div>
 
                       {/* Tab Content */}
-                      <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#0f172a]">
+                      <div className="flex-1 overflow-y-auto custom-scrollbar bg-cad-dark">
                           {/* 1. CURRICULUM */}
                           {activeTab === 'curriculum' && (
                               <div className="p-4 space-y-2">
@@ -209,14 +209,14 @@ const Academy: React.FC = () => {
                                         className={`p-4 rounded-xl cursor-pointer flex items-start gap-4 transition-all border ${
                                             activeModuleId === module.id 
                                             ? 'bg-cad-accent/10 border-cad-accent/30 shadow-lg' 
-                                            : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10'
+                                            : 'bg-cad-surface/30 border-cad-border hover:bg-cad-surface/50 hover:border-cad-border'
                                         }`}
                                       >
                                           <div className={`mt-0.5 ${module.isCompleted ? 'text-green-400' : 'text-slate-600'}`}>
                                               {module.isCompleted ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
                                           </div>
                                           <div>
-                                              <p className={`text-sm font-bold mb-1 ${activeModuleId === module.id ? 'text-white' : 'text-slate-300'}`}>
+                                              <p className={`text-sm font-bold mb-1 ${activeModuleId === module.id ? 'text-cad-text' : 'text-slate-300'}`}>
                                                   {idx + 1}. {module.title}
                                               </p>
                                               <p className="text-xs text-slate-500 flex items-center gap-1.5">
@@ -232,29 +232,29 @@ const Academy: React.FC = () => {
                           {activeTab === 'resources' && (
                               <div className="p-6 space-y-6">
                                   <div className="text-center mb-6">
-                                      <h3 className="text-white font-bold text-lg mb-2">Course Files</h3>
+                                      <h3 className="text-cad-text font-bold text-lg mb-2">Course Files</h3>
                                       <p className="text-sm text-slate-400">Download assets to follow along.</p>
                                   </div>
                                   <div className="space-y-3">
                                       {selectedCourse.resources && selectedCourse.resources.length > 0 ? (
                                           selectedCourse.resources.map((res) => (
-                                              <div key={res.id} className="bg-white/5 border border-white/5 p-4 rounded-xl flex items-center justify-between group hover:border-blue-500/30 transition-colors">
+                                              <div key={res.id} className="bg-cad-surface/30 border border-cad-border p-4 rounded-xl flex items-center justify-between group hover:border-blue-500/30 transition-colors">
                                                   <div className="flex items-center gap-3">
                                                       <div className="p-2 bg-blue-900/20 rounded-lg text-blue-400 group-hover:text-blue-300">
                                                           <FileText className="w-5 h-5" />
                                                       </div>
                                                       <div>
-                                                          <p className="text-sm font-bold text-white">{res.title}</p>
+                                                          <p className="text-sm font-bold text-cad-text">{res.title}</p>
                                                           <p className="text-xs text-slate-500 uppercase">{res.type} • {res.size}</p>
                                                       </div>
                                                   </div>
-                                                  <button className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                                                  <button className="p-2 text-slate-400 hover:text-cad-text hover:bg-cad-surface/50 rounded-lg transition-colors">
                                                       <Download className="w-5 h-5" />
                                                   </button>
                                               </div>
                                           ))
                                       ) : (
-                                          <div className="text-center py-10 text-slate-500 border-2 border-dashed border-white/5 rounded-2xl">
+                                          <div className="text-center py-10 text-slate-500 border-2 border-dashed border-cad-border rounded-2xl">
                                               No resources available for this course.
                                           </div>
                                       )}
@@ -265,17 +265,17 @@ const Academy: React.FC = () => {
                           {/* 3. NOTES */}
                           {activeTab === 'notes' && (
                               <div className="flex flex-col h-full">
-                                  <div className="p-4 border-b border-white/5 bg-slate-900/30">
+                                  <div className="p-4 border-b border-cad-border bg-cad-surface/30">
                                       <div className="relative">
                                           <input 
                                             type="text" 
-                                            className="w-full bg-black/30 border border-white/10 rounded-xl pl-4 pr-10 py-3 text-sm text-white focus:outline-none focus:border-yellow-500/50"
+                                            className="w-full bg-cad-surface/40 border border-cad-border rounded-xl pl-4 pr-10 py-3 text-sm text-cad-text focus:outline-none focus:border-yellow-500/50"
                                             placeholder="Type a note at current time..."
                                             value={noteInput}
                                             onChange={(e) => setNoteInput(e.target.value)}
                                             onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
                                           />
-                                          <button onClick={handleAddNote} className="absolute right-2 top-2 p-1.5 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg transition-colors">
+                                          <button onClick={handleAddNote} className="absolute right-2 top-2 p-1.5 bg-yellow-600 hover:bg-yellow-500 text-cad-text rounded-lg transition-colors">
                                               <Plus className="w-3.5 h-3.5" />
                                           </button>
                                       </div>
@@ -309,8 +309,8 @@ const Academy: React.FC = () => {
                                           <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2`}>
                                               <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-lg ${
                                                   msg.sender === 'me' 
-                                                  ? 'bg-purple-600 text-white rounded-br-none' 
-                                                  : 'bg-slate-800 text-slate-200 border border-slate-700 rounded-bl-none'
+                                                  ? 'bg-purple-600 text-cad-text rounded-br-none' 
+                                                  : 'bg-cad-surface text-slate-200 border border-slate-700 rounded-bl-none'
                                               }`}>
                                                   {msg.sender === 'ai' && <div className="text-xs font-bold text-purple-300 mb-2 flex items-center gap-1.5"><Bot className="w-3.5 h-3.5"/> AI Tutor</div>}
                                                   {msg.text}
@@ -318,20 +318,20 @@ const Academy: React.FC = () => {
                                           </div>
                                       ))}
                                       {tutorTyping && (
-                                          <div className="flex justify-start"><div className="bg-slate-800 text-purple-400 text-xs px-3 py-2 rounded-lg animate-pulse border border-slate-700">Thinking...</div></div>
+                                          <div className="flex justify-start"><div className="bg-cad-surface text-purple-400 text-xs px-3 py-2 rounded-lg animate-pulse border border-slate-700">Thinking...</div></div>
                                       )}
                                       <div ref={chatEndRef}></div>
                                   </div>
-                                  <div className="p-4 bg-slate-900 border-t border-white/5 flex gap-3">
+                                  <div className="p-4 bg-cad-surface border-t border-cad-border flex gap-3">
                                       <input 
                                         type="text" 
                                         value={tutorInput}
                                         onChange={(e) => setTutorInput(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && handleTutorSend()}
                                         placeholder="Ask a question..."
-                                        className="flex-1 bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition-colors"
+                                        className="flex-1 bg-cad-surface/40 border border-cad-border rounded-xl px-4 py-3 text-sm text-cad-text focus:outline-none focus:border-purple-500 transition-colors"
                                       />
-                                      <button onClick={handleTutorSend} className="p-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl transition-all shadow-lg shadow-purple-900/20 active:scale-95">
+                                      <button onClick={handleTutorSend} className="p-3 bg-purple-600 hover:bg-purple-500 text-cad-text rounded-xl transition-all shadow-lg shadow-purple-900/20 active:scale-95">
                                           <Send className="w-4 h-4" />
                                       </button>
                                   </div>
@@ -343,15 +343,15 @@ const Academy: React.FC = () => {
                               <div className="p-6 h-full flex flex-col justify-center">
                                   {quizQuestions.length === 0 ? (
                                       <div className="text-center">
-                                          <div className="w-20 h-20 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10">
+                                          <div className="w-20 h-20 bg-cad-surface/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-cad-border">
                                             <BrainCircuit className="w-10 h-10 text-slate-500" />
                                           </div>
-                                          <h3 className="text-white font-bold text-xl mb-2">Knowledge Check</h3>
+                                          <h3 className="text-cad-text font-bold text-xl mb-2">Knowledge Check</h3>
                                           <p className="text-sm text-slate-400 mb-8 leading-relaxed">Generate a personalized 3-question quiz based on the course content to verify your understanding.</p>
                                           <button 
                                             onClick={handleGenerateQuiz}
                                             disabled={loadingQuiz}
-                                            className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-green-900/30 flex items-center justify-center gap-2 disabled:opacity-50 hover:scale-[1.02] active:scale-95"
+                                            className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-cad-text rounded-xl font-bold transition-all shadow-lg shadow-green-900/30 flex items-center justify-center gap-2 disabled:opacity-50 hover:scale-[1.02] active:scale-95"
                                           >
                                               {loadingQuiz ? <Loader2 className="w-5 h-5 animate-spin"/> : <Sparkles className="w-5 h-5 text-yellow-200" />} 
                                               Generate AI Quiz
@@ -360,9 +360,9 @@ const Academy: React.FC = () => {
                                   ) : (
                                       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
                                           {quizSubmitted && (
-                                              <div className="bg-slate-800/50 border border-white/10 p-6 rounded-2xl text-center backdrop-blur-sm">
+                                              <div className="bg-cad-surface/50 border border-cad-border p-6 rounded-2xl text-center backdrop-blur-sm">
                                                   <div className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-2">Result</div>
-                                                  <div className="text-5xl font-bold text-white flex items-center justify-center gap-3">
+                                                  <div className="text-5xl font-bold text-cad-text flex items-center justify-center gap-3">
                                                       {calculateScore()}/{quizQuestions.length}
                                                       {calculateScore() === quizQuestions.length && <Award className="w-8 h-8 text-yellow-400 animate-bounce" />}
                                                   </div>
@@ -371,19 +371,19 @@ const Academy: React.FC = () => {
                                           
                                           {quizQuestions.map((q, qIdx) => (
                                               <div key={qIdx} className="space-y-4">
-                                                  <p className="text-white font-bold text-base leading-snug">
+                                                  <p className="text-cad-text font-bold text-base leading-snug">
                                                       <span className="text-green-400 mr-2">Q{qIdx+1}.</span>
                                                       {q.question}
                                                   </p>
                                                   <div className="space-y-2.5">
                                                       {q.options.map((opt, oIdx) => {
-                                                          let optionClass = "border-white/5 bg-white/5 hover:bg-white/10 text-slate-300";
+                                                          let optionClass = "border-cad-border bg-cad-surface/30 hover:bg-cad-surface/50 text-slate-300";
                                                           if (quizSubmitted) {
                                                               if (oIdx === q.correctAnswer) optionClass = "border-green-500/50 bg-green-500/20 text-green-200";
                                                               else if (userAnswers[qIdx] === oIdx && oIdx !== q.correctAnswer) optionClass = "border-red-500/50 bg-red-500/20 text-red-200";
                                                               else optionClass = "border-transparent opacity-40";
                                                           } else if (userAnswers[qIdx] === oIdx) {
-                                                              optionClass = "border-green-500 bg-green-500/10 text-white shadow-[0_0_10px_rgba(74,222,128,0.1)]";
+                                                              optionClass = "border-green-500 bg-green-500/10 text-cad-text shadow-[0_0_10px_rgba(74,222,128,0.1)]";
                                                           }
 
                                                           return (
@@ -409,7 +409,7 @@ const Academy: React.FC = () => {
                                               <button 
                                                   onClick={handleQuizSubmit}
                                                   disabled={userAnswers.includes(-1)}
-                                                  className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold mt-4 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-900/20 hover:scale-[1.02] active:scale-95 transition-all"
+                                                  className="w-full py-4 bg-green-600 hover:bg-green-500 text-cad-text rounded-xl font-bold mt-4 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-900/20 hover:scale-[1.02] active:scale-95 transition-all"
                                               >
                                                   Submit Answers
                                               </button>
@@ -428,14 +428,14 @@ const Academy: React.FC = () => {
                       <div className="bg-gradient-to-br from-[#0f172a] to-[#1e293b] p-1 rounded-3xl shadow-[0_0_100px_rgba(245,158,11,0.2)] max-w-3xl w-full relative overflow-hidden animate-in zoom-in-95 duration-500">
                           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
                           
-                          <div className="bg-[#0B1121] rounded-[20px] p-12 text-center relative z-10 border border-white/5">
-                              <button onClick={() => setShowCertificate(false)} className="absolute top-6 right-6 text-slate-500 hover:text-white"><ChevronLeft className="w-6 h-6 rotate-180" /></button>
+                          <div className="bg-cad-dark rounded-[20px] p-12 text-center relative z-10 border border-cad-border">
+                              <button onClick={() => setShowCertificate(false)} className="absolute top-6 right-6 text-slate-500 hover:text-cad-text"><ChevronLeft className="w-6 h-6 rotate-180" /></button>
                               
                               <div className="w-24 h-24 bg-gradient-to-br from-amber-400 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_40px_rgba(245,158,11,0.4)]">
-                                  <Award className="w-12 h-12 text-white" />
+                                  <Award className="w-12 h-12 text-cad-text" />
                               </div>
                               
-                              <h2 className="text-4xl font-bold text-white mb-2 tracking-tight">Certificate of Completion</h2>
+                              <h2 className="text-4xl font-bold text-cad-text mb-2 tracking-tight">Certificate of Completion</h2>
                               <p className="text-slate-400 mb-10">This certifies that</p>
                               
                               <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-200 mb-4 font-serif italic">
@@ -443,16 +443,16 @@ const Academy: React.FC = () => {
                               </div>
                               
                               <p className="text-slate-400 mb-8 max-w-md mx-auto">
-                                  Has successfully demonstrated proficiency in <strong className="text-white">{selectedCourse.title}</strong> on the CADLink Academy platform.
+                                  Has successfully demonstrated proficiency in <strong className="text-cad-text">{selectedCourse.title}</strong> on the CADLink Academy platform.
                               </p>
                               
                               <div className="flex items-center justify-center gap-8 text-xs text-slate-500 uppercase tracking-widest font-bold mb-10">
                                   <div>
-                                      <div className="mb-2 text-white">Nov 24, 2023</div>
+                                      <div className="mb-2 text-cad-text">Nov 24, 2023</div>
                                       <div className="border-t border-slate-700 pt-2 w-32 mx-auto">Date</div>
                                   </div>
                                   <div>
-                                      <div className="mb-2 text-white">CADLink Inc.</div>
+                                      <div className="mb-2 text-cad-text">CADLink Inc.</div>
                                       <div className="border-t border-slate-700 pt-2 w-32 mx-auto">Issuer</div>
                                   </div>
                               </div>
@@ -476,7 +476,7 @@ const Academy: React.FC = () => {
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+          <h2 className="text-3xl font-bold text-cad-text flex items-center gap-3">
               <GraduationCap className="w-8 h-8 text-cad-accent" /> Academy
           </h2>
           <p className="text-cad-muted mt-1">Master new software with AI-powered courses.</p>
@@ -487,7 +487,7 @@ const Academy: React.FC = () => {
       <div className="glass-panel p-1 rounded-3xl relative overflow-hidden group">
          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-indigo-600/20 to-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
          
-         <div className="bg-[#0f172a]/90 backdrop-blur-xl rounded-[20px] p-8 relative z-10 overflow-hidden">
+         <div className="bg-cad-dark/90 backdrop-blur-xl rounded-[20px] p-8 relative z-10 overflow-hidden">
              {/* Decorative Elements */}
              <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
                 <BrainCircuit className="w-64 h-64 text-purple-400" />
@@ -495,11 +495,11 @@ const Academy: React.FC = () => {
 
             <div className="flex flex-col md:flex-row items-start gap-8 relative z-10">
                 <div className="p-4 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-lg shadow-purple-500/20">
-                    <Sparkles className="w-8 h-8 text-white" />
+                    <Sparkles className="w-8 h-8 text-cad-text" />
                 </div>
                 <div className="flex-1 max-w-2xl space-y-4">
                     <div>
-                        <h3 className="text-2xl font-bold text-white mb-2">AI Course Generator</h3>
+                        <h3 className="text-2xl font-bold text-cad-text mb-2">AI Course Generator</h3>
                         <p className="text-slate-300 leading-relaxed">Can't find a specific topic? Enter a subject, and our AI will instantly generate a comprehensive syllabus and learning path tailored for you.</p>
                     </div>
                     
@@ -509,12 +509,12 @@ const Academy: React.FC = () => {
                             value={topic}
                             onChange={(e) => setTopic(e.target.value)}
                             placeholder="E.g., Advanced Surface Modeling in Rhino..."
-                            className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-5 py-3 text-white focus:outline-none focus:border-purple-500 placeholder-slate-500 transition-colors"
+                            className="flex-1 bg-cad-surface border border-cad-border rounded-xl px-5 py-3 text-cad-text focus:outline-none focus:border-purple-500 placeholder-slate-500 transition-colors"
                         />
                         <button 
                             onClick={handleGenerate}
                             disabled={loadingGen}
-                            className="px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-purple-900/30 hover:shadow-purple-600/40 active:scale-95"
+                            className="px-8 py-3 bg-purple-600 hover:bg-purple-500 text-cad-text font-bold rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-purple-900/30 hover:shadow-purple-600/40 active:scale-95"
                         >
                             {loadingGen ? <Loader2 className="w-5 h-5 animate-spin"/> : <Sparkles className="w-5 h-5 text-yellow-200" />}
                             Generate
@@ -523,11 +523,11 @@ const Academy: React.FC = () => {
 
                     {generatedOutline && (
                         <div className="mt-6 bg-black/40 rounded-xl p-6 text-slate-200 text-sm border border-purple-500/20 whitespace-pre-wrap shadow-inner animate-in fade-in slide-in-from-top-4">
-                            <div className="flex justify-between items-start mb-4 pb-4 border-b border-white/5">
+                            <div className="flex justify-between items-start mb-4 pb-4 border-b border-cad-border">
                                  <h4 className="font-bold text-purple-400 uppercase tracking-widest text-xs flex items-center gap-2">
                                     <Bot className="w-4 h-4"/> Generated Syllabus
                                  </h4>
-                                 <button onClick={() => setGeneratedOutline(null)} className="text-slate-500 hover:text-white transition-colors"><ChevronLeft className="w-4 h-4 rotate-90" /></button>
+                                 <button onClick={() => setGeneratedOutline(null)} className="text-slate-500 hover:text-cad-text transition-colors"><ChevronLeft className="w-4 h-4 rotate-90" /></button>
                             </div>
                             <div className="leading-relaxed font-mono text-xs opacity-90">
                                 {generatedOutline}
@@ -542,7 +542,7 @@ const Academy: React.FC = () => {
       {/* Course List */}
       <div className="space-y-6">
           <div className="flex justify-between items-center">
-              <h3 className="font-bold text-white text-xl">Available Courses</h3>
+              <h3 className="font-bold text-cad-text text-xl">Available Courses</h3>
               <div className="relative w-72 group">
                   <Search className="absolute left-3 top-2.5 text-slate-500 w-4 h-4 group-focus-within:text-cad-accent transition-colors" />
                   <input 
@@ -550,7 +550,7 @@ const Academy: React.FC = () => {
                     placeholder="Search library..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:border-cad-accent outline-none backdrop-blur-sm transition-colors"
+                    className="w-full bg-cad-surface/50 border border-cad-border rounded-xl pl-10 pr-4 py-2 text-sm text-cad-text focus:border-cad-accent outline-none backdrop-blur-sm transition-colors"
                   />
               </div>
           </div>
@@ -565,25 +565,25 @@ const Academy: React.FC = () => {
                             <PlayCircle className="w-5 h-5 fill-cad-dark" /> Resume Learning
                         </div>
                     </div>
-                    <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg text-xs font-bold text-white border border-white/10 shadow-lg">
+                    <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg text-xs font-bold text-white border border-cad-border shadow-lg">
                         {course.software}
                     </div>
                     {course.progress === 100 && (
-                        <div className="absolute top-3 right-3 bg-amber-500/90 backdrop-blur-md p-1.5 rounded-full text-white shadow-lg border border-amber-400/50 animate-in zoom-in duration-300">
+                        <div className="absolute top-3 right-3 bg-amber-500/90 backdrop-blur-md p-1.5 rounded-full text-cad-text shadow-lg border border-amber-400/50 animate-in zoom-in duration-300">
                             <Award className="w-4 h-4" />
                         </div>
                     )}
                     {/* Progress Bar */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/50">
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-cad-surface/60">
                         <div className="h-full bg-gradient-to-r from-green-400 to-emerald-500" style={{ width: `${course.progress}%` }}></div>
                     </div>
                 </div>
                 
                 <div className="p-6 flex flex-col flex-1">
-                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cad-accent transition-colors line-clamp-2 leading-tight">{course.title}</h3>
+                    <h3 className="text-lg font-bold text-cad-text mb-2 group-hover:text-cad-accent transition-colors line-clamp-2 leading-tight">{course.title}</h3>
                     <p className="text-sm text-slate-400 mb-6 line-clamp-2 leading-relaxed">{course.description}</p>
                     
-                    <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between text-xs font-medium text-slate-500">
+                    <div className="mt-auto pt-4 border-t border-cad-border flex items-center justify-between text-xs font-medium text-slate-500">
                         <div className="flex items-center gap-2">
                             <img src={`https://ui-avatars.com/api/?name=${course.instructor}&background=random`} className="w-5 h-5 rounded-full ring-2 ring-[#0B1121]" alt="Inst"/>
                             <span className="text-slate-300">{course.instructor}</span>

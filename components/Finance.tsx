@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { DollarSign, ArrowUpRight, ArrowDownLeft, Clock, Download, CreditCard, TrendingUp, Filter, Wallet, PieChart, Activity, Building2 } from 'lucide-react';
 import { Transaction } from '../types';
 import { useCurrency } from '../contexts/CurrencyContext';
+import { useCurrentUser } from '../contexts/UserContext';
 
 const MOCK_TRANSACTIONS: Transaction[] = [
     { id: 't1', description: 'Payment for Job: HVAC Design', amount: 850.00, date: 'Oct 24, 2023', status: 'Completed', type: 'Credit' },
@@ -287,6 +288,8 @@ const SparklineCard = ({ title, value, subtext, data, colorClass, icon: Icon }: 
 
 export default function Finance() {
     const { format } = useCurrency();
+    const { profile, email, firstName, lastName } = useCurrentUser();
+    const displayName = [firstName, lastName].filter(Boolean).join(' ') || profile?.displayName || email || 'My Account';
     const [filterType, setFilterType] = useState<'All' | 'Credit' | 'Debit'>('All');
 
     const filteredTransactions = useMemo(() => {
@@ -438,7 +441,7 @@ export default function Finance() {
                         <div className="flex items-center gap-3 mb-6">
                             <img src="https://picsum.photos/200/200?random=99" className="w-10 h-10 rounded-full border border-cad-border" alt="Me" />
                             <div className="flex-1">
-                                <p className="text-sm font-bold text-cad-text">Takudzwa Mupinga</p>
+                                <p className="text-sm font-bold text-cad-text">{displayName}</p>
                                 <p className="text-[10px] text-cad-muted">**** 4242</p>
                             </div>
                             <div className="text-right">

@@ -43,7 +43,7 @@ const Calendar: React.FC = () => {
         <div className="h-full overflow-hidden flex flex-col p-6 md:p-10 max-w-7xl mx-auto animate-in fade-in duration-500">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                    <h2 className="text-3xl font-bold text-cad-text flex items-center gap-3">
                         <CalendarIcon className="w-8 h-8 text-cad-accent" /> Schedule
                     </h2>
                     <p className="text-cad-muted mt-1">Manage deadlines, meetings, and project milestones.</p>
@@ -53,18 +53,18 @@ const Calendar: React.FC = () => {
                 </button>
             </div>
 
-            <div className="flex-1 glass-panel rounded-3xl border border-white/5 overflow-hidden flex flex-col lg:flex-row shadow-2xl relative">
+            <div className="flex-1 glass-panel rounded-3xl border border-cad-border overflow-hidden flex flex-col lg:flex-row shadow-2xl relative">
                 {/* Calendar Grid (Main) */}
-                <div className="flex-1 p-8 border-r border-white/5 flex flex-col overflow-y-auto custom-scrollbar">
+                <div className="flex-1 p-8 border-r border-cad-border flex flex-col overflow-y-auto custom-scrollbar">
                     <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-2xl font-bold text-white tracking-tight">
+                        <h3 className="text-2xl font-bold text-cad-text tracking-tight">
                             {currentDate.toLocaleDateString('default', { month: 'long', year: 'numeric' })}
                         </h3>
                         <div className="flex gap-2">
-                            <button onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-colors border border-transparent hover:border-white/10">
+                            <button onClick={prevMonth} className="p-2 hover:bg-cad-surface/50 rounded-xl text-slate-400 hover:text-cad-text transition-colors border border-transparent hover:border-cad-border">
                                 <ChevronLeft className="w-5 h-5" />
                             </button>
-                            <button onClick={nextMonth} className="p-2 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-colors border border-transparent hover:border-white/10">
+                            <button onClick={nextMonth} className="p-2 hover:bg-cad-surface/50 rounded-xl text-slate-400 hover:text-cad-text transition-colors border border-transparent hover:border-cad-border">
                                 <ChevronRight className="w-5 h-5" />
                             </button>
                         </div>
@@ -95,7 +95,7 @@ const Calendar: React.FC = () => {
                                     className={`min-h-[100px] rounded-2xl border p-3 cursor-pointer transition-all flex flex-col gap-1.5 ${
                                         isSelected 
                                         ? 'bg-cad-accent/10 border-cad-accent/50 shadow-glow' 
-                                        : 'bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/10'
+                                        : 'bg-cad-surface/30 border-cad-border hover:border-white/20 hover:bg-cad-surface/50'
                                     }`}
                                 >
                                     <div className="flex justify-between items-start">
@@ -109,7 +109,7 @@ const Calendar: React.FC = () => {
                                     
                                     <div className="flex-1 flex flex-col justify-end gap-1.5">
                                         {events.map((ev, idx) => (
-                                            <div key={idx} className={`hidden lg:block text-[10px] px-2 py-1 rounded-md truncate text-white font-bold ${getTypeColor(ev.type)} shadow-sm`}>
+                                            <div key={idx} className={`hidden lg:block text-[10px] px-2 py-1 rounded-md truncate text-cad-text font-bold ${getTypeColor(ev.type)} shadow-sm`}>
                                                 {ev.time} {ev.title}
                                             </div>
                                         ))}
@@ -121,8 +121,8 @@ const Calendar: React.FC = () => {
                 </div>
 
                 {/* Day Detail Sidebar */}
-                <div className="w-full lg:w-[400px] bg-black/20 backdrop-blur-md p-8 overflow-y-auto custom-scrollbar border-l border-white/5">
-                    <h3 className="text-xl font-bold text-white mb-8">
+                <div className="w-full lg:w-[400px] bg-cad-surface/30 backdrop-blur-md p-8 overflow-y-auto custom-scrollbar border-l border-cad-border">
+                    <h3 className="text-xl font-bold text-cad-text mb-8">
                         {selectedDate ? `${selectedDate} ${currentDate.toLocaleDateString('default', { month: 'long' })}` : 'Select a date'}
                     </h3>
 
@@ -133,17 +133,17 @@ const Calendar: React.FC = () => {
                                     <div 
                                         key={event.id} 
                                         onClick={() => setSelectedEvent(event)}
-                                        className="bg-white/5 rounded-2xl p-5 border border-white/5 hover:border-cad-accent/30 transition-all group hover:bg-white/10 shadow-lg cursor-pointer hover:-translate-y-1"
+                                        className="bg-cad-surface/30 rounded-2xl p-5 border border-cad-border hover:border-cad-accent/30 transition-all group hover:bg-cad-surface/50 shadow-lg cursor-pointer hover:-translate-y-1"
                                     >
                                         <div className="flex justify-between items-start mb-3">
-                                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg text-white ${getTypeColor(event.type)} shadow-sm`}>
+                                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg text-cad-text ${getTypeColor(event.type)} shadow-sm`}>
                                                 {event.type}
                                             </span>
                                             <div className="text-slate-500 group-hover:text-cad-accent transition-colors">
                                                 <ExternalLink className="w-4 h-4" />
                                             </div>
                                         </div>
-                                        <h4 className="font-bold text-white text-lg mb-4 leading-tight">{event.title}</h4>
+                                        <h4 className="font-bold text-cad-text text-lg mb-4 leading-tight">{event.title}</h4>
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-3 text-sm text-slate-300">
                                                 <Clock className="w-4 h-4 text-cad-muted" /> 
@@ -166,12 +166,12 @@ const Calendar: React.FC = () => {
                                 ))
                             ) : (
                                 <div className="text-center py-16 text-slate-500">
-                                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/5">
+                                    <div className="w-20 h-20 bg-cad-surface/30 rounded-full flex items-center justify-center mx-auto mb-6 border border-cad-border">
                                         <CalendarIcon className="w-8 h-8 opacity-30" />
                                     </div>
                                     <p className="text-lg font-medium mb-1">No events scheduled</p>
                                     <p className="text-sm">Enjoy your free time!</p>
-                                    <button className="mt-6 text-cad-accent hover:text-white transition-colors text-sm font-bold uppercase tracking-wider border-b border-cad-accent/30 hover:border-white pb-0.5">Add Event</button>
+                                    <button className="mt-6 text-cad-accent hover:text-cad-text transition-colors text-sm font-bold uppercase tracking-wider border-b border-cad-accent/30 hover:border-white pb-0.5">Add Event</button>
                                 </div>
                             )}
                         </div>
@@ -185,17 +185,17 @@ const Calendar: React.FC = () => {
                 {/* Event Detail Modal */}
                 {selectedEvent && (
                     <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
-                        <div className="glass-panel w-full max-w-lg rounded-3xl border border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                            <div className="p-6 border-b border-white/5 flex justify-between items-start bg-gradient-to-r from-slate-900 via-slate-900 to-[#1e293b]">
+                        <div className="glass-panel w-full max-w-lg rounded-3xl border border-cad-border shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+                            <div className="p-6 border-b border-cad-border flex justify-between items-start bg-gradient-to-r from-slate-900 via-slate-900 to-[#1e293b]">
                                 <div>
-                                    <span className={`inline-block mb-3 px-3 py-1 rounded-lg text-xs font-bold text-white uppercase tracking-wider ${getTypeColor(selectedEvent.type)}`}>
+                                    <span className={`inline-block mb-3 px-3 py-1 rounded-lg text-xs font-bold text-cad-text uppercase tracking-wider ${getTypeColor(selectedEvent.type)}`}>
                                         {selectedEvent.type}
                                     </span>
-                                    <h3 className="text-2xl font-bold text-white leading-tight">{selectedEvent.title}</h3>
+                                    <h3 className="text-2xl font-bold text-cad-text leading-tight">{selectedEvent.title}</h3>
                                 </div>
                                 <button 
                                     onClick={() => setSelectedEvent(null)}
-                                    className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 hover:text-white transition-colors"
+                                    className="p-2 bg-cad-surface/30 hover:bg-cad-surface/50 rounded-full text-slate-400 hover:text-cad-text transition-colors"
                                 >
                                     <X className="w-5 h-5" />
                                 </button>
@@ -203,18 +203,18 @@ const Calendar: React.FC = () => {
                             
                             <div className="p-8 space-y-6">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                                    <div className="bg-cad-surface/30 p-4 rounded-xl border border-cad-border">
                                         <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
                                             <Clock className="w-3.5 h-3.5" /> Time
                                         </div>
-                                        <p className="text-white font-bold">{selectedEvent.time}</p>
+                                        <p className="text-cad-text font-bold">{selectedEvent.time}</p>
                                         <p className="text-slate-500 text-sm">{selectedEvent.duration}</p>
                                     </div>
-                                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                                    <div className="bg-cad-surface/30 p-4 rounded-xl border border-cad-border">
                                         <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
                                             <CalendarIcon className="w-3.5 h-3.5" /> Date
                                         </div>
-                                        <p className="text-white font-bold">{selectedEvent.day} {currentDate.toLocaleDateString('default', { month: 'short' })}</p>
+                                        <p className="text-cad-text font-bold">{selectedEvent.day} {currentDate.toLocaleDateString('default', { month: 'short' })}</p>
                                         <p className="text-slate-500 text-sm">{currentDate.getFullYear()}</p>
                                     </div>
                                 </div>
@@ -230,7 +230,7 @@ const Calendar: React.FC = () => {
                                     <div className="flex items-start gap-3 p-4 bg-blue-500/5 rounded-xl border border-blue-500/10">
                                         <MapPin className="w-5 h-5 text-cad-accent shrink-0 mt-0.5" />
                                         <div>
-                                            <h4 className="text-sm font-bold text-white">Location</h4>
+                                            <h4 className="text-sm font-bold text-cad-text">Location</h4>
                                             <p className="text-slate-400 text-sm">{selectedEvent.location}</p>
                                         </div>
                                     </div>
@@ -243,10 +243,10 @@ const Calendar: React.FC = () => {
                                         </h4>
                                         <div className="flex flex-wrap gap-2">
                                             {selectedEvent.attendees.map(uid => (
-                                                <div key={uid} className="flex items-center gap-2 bg-white/5 pr-3 rounded-full border border-white/5">
+                                                <div key={uid} className="flex items-center gap-2 bg-cad-surface/30 pr-3 rounded-full border border-cad-border">
                                                     <img 
                                                         src={`https://picsum.photos/200/200?random=${uid}`} 
-                                                        className="w-8 h-8 rounded-full border border-white/10" 
+                                                        className="w-8 h-8 rounded-full border border-cad-border" 
                                                         alt="Attendee"
                                                     />
                                                     <span className="text-xs font-bold text-slate-300">User {uid}</span>
@@ -256,13 +256,13 @@ const Calendar: React.FC = () => {
                                     </div>
                                 )}
 
-                                <div className="pt-4 flex justify-end gap-3 border-t border-white/5">
+                                <div className="pt-4 flex justify-end gap-3 border-t border-cad-border">
                                     {selectedEvent.meetingLink && (
                                         <button className="flex-1 bg-cad-accent text-cad-dark py-3 rounded-xl font-bold hover:bg-sky-400 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-cad-accent/20">
                                             <Video className="w-4 h-4" /> Join Meeting
                                         </button>
                                     )}
-                                    <button className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-colors border border-white/10">
+                                    <button className="px-6 py-3 bg-cad-surface/30 hover:bg-cad-surface/50 text-cad-text rounded-xl font-bold transition-colors border border-cad-border">
                                         Reschedule
                                     </button>
                                 </div>

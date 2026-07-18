@@ -67,37 +67,37 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose }) => {
                 {/* Background Glow */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${step.color} rounded-[40px] blur-3xl transition-all duration-700`}></div>
                 
-                <div className="relative bg-[#0f172a] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[450px] animate-in slide-in-from-bottom-8 duration-500">
+                <div className="relative bg-cad-dark border border-cad-border rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[450px] animate-in slide-in-from-bottom-8 duration-500">
                     <button 
                         onClick={onClose}
-                        className="absolute top-6 right-6 p-2 text-slate-500 hover:text-white transition-colors z-20"
+                        className="absolute top-6 right-6 p-2 text-slate-500 hover:text-cad-text transition-colors z-20"
                     >
                         <X className="w-5 h-5" />
                     </button>
 
                     {/* Content Area */}
                     <div className="flex-1 flex flex-col items-center justify-center text-center p-10 relative z-10">
-                        <div className="mb-8 p-6 bg-white/5 rounded-3xl border border-white/5 shadow-lg relative group">
-                            <div className="absolute inset-0 bg-white/5 rounded-3xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity"></div>
+                        <div className="mb-8 p-6 bg-cad-surface/30 rounded-3xl border border-cad-border shadow-lg relative group">
+                            <div className="absolute inset-0 bg-cad-surface/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity"></div>
                             <div className="relative z-10 transition-transform duration-500 transform group-hover:scale-110">
                                 {step.icon}
                             </div>
                         </div>
                         
-                        <h2 className="text-3xl font-bold text-white mb-4 tracking-tight">{step.title}</h2>
+                        <h2 className="text-3xl font-bold text-cad-text mb-4 tracking-tight">{step.title}</h2>
                         <p className="text-slate-400 text-lg leading-relaxed max-w-sm">
                             {step.description}
                         </p>
                     </div>
 
                     {/* Footer */}
-                    <div className="p-8 border-t border-white/5 flex justify-between items-center bg-black/20">
+                    <div className="p-8 border-t border-cad-border flex justify-between items-center bg-cad-surface/30">
                         <div className="flex gap-2">
                             {TOUR_STEPS.map((_, idx) => (
                                 <div 
                                     key={idx}
                                     className={`h-1.5 rounded-full transition-all duration-300 ${
-                                        idx === currentStep ? 'w-8 bg-cad-accent' : 'w-2 bg-white/10'
+                                        idx === currentStep ? 'w-8 bg-cad-accent' : 'w-2 bg-cad-surface/50'
                                     }`}
                                 />
                             ))}

@@ -15,6 +15,8 @@ import Calendar from './components/Calendar';
 import ProjectHub from './components/ProjectHub';
 import CommandPalette from './components/CommandPalette';
 import Auth from './components/Auth';
+import DesignerOnboarding from './components/DesignerOnboarding';
+import ClientOnboarding from './components/ClientOnboarding';
 import Messages from './components/Messages';
 import ToastContainer from './components/Toast';
 import CloudDrive from './components/CloudDrive';
@@ -24,9 +26,12 @@ import ShortcutsModal from './components/ShortcutsModal';
 import OnboardingTour from './components/OnboardingTour';
 import { ToastNotification } from './types';
 import { HelpCircle } from 'lucide-react';
+import { UserProvider, useCurrentUser } from './contexts/UserContext';
 
-const App: React.FC = () => {
+const AppInner: React.FC = () => {
+  const { profile, email: ctxEmail, firstName, lastName, refetch: refetchUser } = useCurrentUser();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState<'designer' | 'client' | null>(null);
 
   // Default tab
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -57,10 +62,7 @@ const App: React.FC = () => {
     if (token) {
       setIsAuthenticated(true);
 
-      // Role-based landing page
-      if (role === 'DESIGNER') {
-        setActiveTab('studio');
-      } else if (role === 'ADMIN') {
+      if (role === 'ADMIN') {
         setActiveTab('admin');
       } else {
         setActiveTab('dashboard');
@@ -207,6 +209,7 @@ const App: React.FC = () => {
 
     setIsAuthenticated(false);
     setActiveTab('dashboard');
+    refetchUser();
 
     addToast('success', 'Logged out successfully');
   };
@@ -243,7 +246,7 @@ const App: React.FC = () => {
         );
 
       case 'market':
-        return <JobMarket onStartProject={handleStartProject} />;
+        return <JobMarket onStartProject={handleStartProject} onNavigate={setActiveTab} />;
 
       case 'network':
         return <Network onMessage={handleNavigateToMessage} />;
@@ -277,6 +280,7 @@ const App: React.FC = () => {
           <Settings
             theme={theme}
             onSetTheme={setTheme}
+            onLogout={handleLogout}
           />
         );
 
@@ -311,24 +315,60 @@ const App: React.FC = () => {
     }
   };
 
+  const handleLogin = (role: string) => {
+    setIsAuthenticated(true);
+    if (role === 'ADMIN') setActiveTab('admin');
+    else setActiveTab('dashboard');
+    refetchUser();
+    addToast('success', 'Welcome back!');
+  };
+
+  const handleRegisterDesigner = (_role: string) => {
+    setIsAuthenticated(true);
+    setShowOnboarding('designer');
+    setActiveTab('dashboard');
+    refetchUser();
+  };
+
+  const handleRegisterClient = (_role: string) => {
+    setIsAuthenticated(true);
+    setShowOnboarding('client');
+    setActiveTab('dashboard');
+    refetchUser();
+  };
+
+  // ONBOARDING SCREENS
+  if (showOnboarding === 'designer') {
+    return (
+      <DesignerOnboarding
+        onComplete={() => {
+          setShowOnboarding(null);
+          setActiveTab('market');
+          addToast('success', 'Profile ready! Browse open contracts below.');
+        }}
+      />
+    );
+  }
+
+  if (showOnboarding === 'client') {
+    return (
+      <ClientOnboarding
+        onComplete={() => {
+          setShowOnboarding(null);
+          setActiveTab('market');
+          addToast('success', 'Account ready! Post your first contract below.');
+        }}
+      />
+    );
+  }
+
   // AUTH SCREEN
   if (!isAuthenticated) {
     return (
       <Auth
-        onLogin={(role: string) => {
-          setIsAuthenticated(true);
-
-          // Role-based redirect
-          if (role === 'DESIGNER') {
-            setActiveTab('studio');
-          } else if (role === 'ADMIN') {
-            setActiveTab('admin');
-          } else {
-            setActiveTab('dashboard');
-          }
-
-          addToast('success', `Welcome back ${role}`);
-        }}
+        onLogin={handleLogin}
+        onRegisterDesigner={handleRegisterDesigner}
+        onRegisterClient={handleRegisterClient}
       />
     );
   }
@@ -367,18 +407,27 @@ const App: React.FC = () => {
         {/* HELP BUTTON */}
         <button
           onClick={() => setIsHelpOpen(true)}
-          className="fixed bottom-6 right-6 z-[50] w-10 h-10 bg-cad-panel border border-cad-border rounded-full shadow-2xl flex items-center justify-center text-cad-muted hover:text-white hover:border-cad-accent hover:shadow-glow-accent transition-all active:scale-95"
+          className="fixed bottom-6 right-6 z-[50] w-10 h-10 bg-cad-panel border border-cad-border rounded-full shadow-2xl flex items-center justify-center text-cad-muted hover:text-cad-text hover:border-cad-accent hover:shadow-glow-accent transition-all active:scale-95"
           title="Help & Support"
         >
           <HelpCircle className="w-5 h-5" />
         </button>
 
-        {/* OPTIONAL LOGOUT BUTTON */}
+        {/* PROFILE CHIP */}
         <button
-          onClick={handleLogout}
-          className="fixed top-6 right-6 z-[50] px-4 py-2 rounded-xl bg-red-500 text-white font-bold hover:bg-red-400 transition-all"
+          onClick={() => setActiveTab('profile')}
+          className="fixed top-4 right-5 z-[50] flex items-center gap-2.5 px-3 py-2 rounded-xl bg-cad-panel border border-cad-border hover:border-cad-accent transition-all shadow-sm group"
         >
-          Logout
+          {profile?.avatarUrl ? (
+            <img src={profile.avatarUrl} alt="avatar" className="w-7 h-7 rounded-lg object-cover shrink-0" />
+          ) : (
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cad-accent to-blue-600 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
+              {(ctxEmail || localStorage.getItem('email') || 'U')[0].toUpperCase()}
+            </div>
+          )}
+          <span className="text-xs font-medium text-cad-muted group-hover:text-cad-text transition-colors max-w-[120px] truncate hidden sm:block">
+            {[firstName, lastName].filter(Boolean).join(' ') || profile?.displayName || ctxEmail || localStorage.getItem('email') || ''}
+          </span>
         </button>
       </main>
 
@@ -411,5 +460,11 @@ const App: React.FC = () => {
     </div>
   );
 };
+
+const App: React.FC = () => (
+  <UserProvider>
+    <AppInner />
+  </UserProvider>
+);
 
 export default App;

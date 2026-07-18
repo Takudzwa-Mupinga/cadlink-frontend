@@ -165,13 +165,13 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onRestartTour })
                                 <h4 className="text-cad-text font-bold text-sm mb-3 flex items-center gap-2">
                                     <Terminal className="w-4 h-4 text-cad-accent" /> Installation
                                 </h4>
-                                <div className="bg-[#0f1423] p-4 rounded-xl border border-cad-border relative group">
+                                <div className="bg-cad-dark p-4 rounded-xl border border-cad-border relative group">
                                     <code className="text-xs font-mono text-green-400 break-all">
                                         {installCommand}
                                     </code>
                                     <button 
                                         onClick={() => handleCopy(installCommand)}
-                                        className="absolute top-2 right-2 p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                                        className="absolute top-2 right-2 p-1.5 bg-cad-surface/50 hover:bg-cad-surface/70 rounded-lg text-cad-text transition-colors"
                                     >
                                         {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                                     </button>
@@ -182,7 +182,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onRestartTour })
                                 <h4 className="text-cad-text font-bold text-sm mb-3 flex items-center gap-2">
                                     <FolderTree className="w-4 h-4 text-cad-accent" /> File Structure
                                 </h4>
-                                <div className="bg-[#0f1423] p-4 rounded-xl border border-cad-border overflow-x-auto">
+                                <div className="bg-cad-dark p-4 rounded-xl border border-cad-border overflow-x-auto">
                                     <pre className="text-[10px] font-mono text-slate-300 leading-relaxed">
                                         {fileStructure}
                                     </pre>
@@ -193,7 +193,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onRestartTour })
                                 <h4 className="text-cad-text font-bold text-sm mb-3 flex items-center gap-2">
                                     <Code className="w-4 h-4 text-cad-accent" /> .env Configuration
                                 </h4>
-                                <div className="bg-[#0f1423] p-4 rounded-xl border border-cad-border">
+                                <div className="bg-cad-dark p-4 rounded-xl border border-cad-border">
                                     <code className="text-xs font-mono text-yellow-400">
                                         VITE_API_KEY=your_gemini_api_key
                                     </code>

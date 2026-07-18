@@ -556,15 +556,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isCollapsed,
     <>
       {isMobileOpen && <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] md:hidden animate-in fade-in duration-200" onClick={() => setIsMobileOpen(false)} />}
       <button onClick={handleLogoClick} className={\`fixed top-5 left-6 z-[70] group transition-all duration-300 active:scale-95 \${isCollapsed && !isMobileOpen ? 'scale-100' : 'scale-100'}\`} title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}>
-          <div className={\`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg border \${(isCollapsed && !isMobileOpen) || isMobileOpen ? 'bg-cad-accent text-cad-dark border-cad-accent shadow-[0_0_20px_rgba(139,92,246,0.3)]' : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'}\`}>
+          <div className={\`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg border \${(isCollapsed && !isMobileOpen) || isMobileOpen ? 'bg-cad-accent text-cad-dark border-cad-accent shadow-[0_0_20px_rgba(139,92,246,0.3)]' : 'bg-cad-surface/30 border-cad-border text-slate-400 hover:text-cad-text hover:bg-cad-surface/50'}\`}>
               <Box className={\`w-5 h-5 transition-transform duration-500 \${isCollapsed && !isMobileOpen ? 'rotate-90 fill-current' : ''}\`} />
           </div>
       </button>
-      <div className={\`fixed left-0 top-0 h-[100dvh] bg-[#0B1121]/95 backdrop-blur-2xl border-r border-white/5 z-[65] transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] flex flex-col overflow-hidden shadow-2xl \${mobileClasses} \${desktopClasses}\`}>
+      <div className={\`fixed left-0 top-0 h-[100dvh] bg-cad-dark/95 backdrop-blur-2xl border-r border-cad-border z-[65] transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] flex flex-col overflow-hidden shadow-2xl \${mobileClasses} \${desktopClasses}\`}>
         <div className="h-24 flex items-center px-6 gap-4 shrink-0 pl-20 transition-all duration-300 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-cad-accent/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
           <div className="flex flex-col justify-center opacity-0 animate-in fade-in slide-in-from-left-4 duration-700 delay-100 fill-mode-forwards relative z-10">
-              <span className="text-xl font-black tracking-tighter text-white font-sans flex items-center gap-1">CAD<span className="text-cad-accent">Link</span></span>
+              <span className="text-xl font-black tracking-tighter text-cad-text font-sans flex items-center gap-1">CAD<span className="text-cad-accent">Link</span></span>
               <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Workspace</span>
           </div>
         </div>
@@ -573,28 +573,28 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isCollapsed,
           {menuItems.map((item) => {
              const isActive = activeTab === item.id;
              return (
-                <button key={item.id} onClick={() => handleTabClick(item.id)} className={\`w-full flex items-center h-12 rounded-xl transition-all duration-200 group relative px-4 gap-3.5 \${isActive ? 'bg-cad-accent/10 text-white shadow-inner' : 'text-slate-400 hover:text-white hover:bg-white/5'}\`}>
+                <button key={item.id} onClick={() => handleTabClick(item.id)} className={\`w-full flex items-center h-12 rounded-xl transition-all duration-200 group relative px-4 gap-3.5 \${isActive ? 'bg-cad-accent/10 text-cad-text shadow-inner' : 'text-slate-400 hover:text-cad-text hover:bg-cad-surface/30'}\`}>
                 {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-cad-accent rounded-r-full shadow-[0_0_10px_rgba(139,92,246,0.5)]"></div>}
                 <item.icon className={\`w-5 h-5 transition-all duration-300 shrink-0 \${isActive ? 'text-cad-accent scale-110 drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]' : 'group-hover:text-slate-200'}\`} />
                 <span className={\`text-sm font-medium whitespace-nowrap overflow-hidden tracking-wide transition-all \${isActive ? 'font-bold' : ''}\`}>{item.label}</span>
-                {(item.id === 'notifications' || (item as any).badge) && (<span className="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-md bg-white/10 border border-white/5 text-[10px] font-bold text-white shadow-sm">{ (item as any).badge || 3 }</span>)}
+                {(item.id === 'notifications' || (item as any).badge) && (<span className="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-md bg-cad-surface/50 border border-cad-border text-[10px] font-bold text-cad-text shadow-sm">{ (item as any).badge || 3 }</span>)}
                 </button>
             )
           })}
         </nav>
-        <div className="p-4 border-t border-white/5 space-y-1 shrink-0 bg-black/20">
+        <div className="p-4 border-t border-cad-border space-y-1 shrink-0 bg-cad-surface/30">
           <button onClick={() => handleTabClick('admin')} className={\`w-full flex items-center h-10 rounded-lg transition-all group px-3 gap-3 \${activeTab === 'admin' ? 'bg-red-500/10 text-red-400' : 'text-slate-500 hover:text-red-400 hover:bg-red-500/5'}\`}>
             <Shield className="w-4 h-4 shrink-0" /><span className="text-xs font-bold whitespace-nowrap overflow-hidden uppercase tracking-wider">Admin Mode</span>
           </button>
-          <button onClick={() => handleTabClick('settings')} className={\`w-full flex items-center h-12 rounded-xl transition-all group px-4 gap-3 \${activeTab === 'settings' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}\`}>
+          <button onClick={() => handleTabClick('settings')} className={\`w-full flex items-center h-12 rounded-xl transition-all group px-4 gap-3 \${activeTab === 'settings' ? 'bg-cad-surface/50 text-cad-text' : 'text-slate-400 hover:text-cad-text hover:bg-cad-surface/30'}\`}>
             <Settings className={\`w-5 h-5 shrink-0 \${activeTab === 'settings' ? 'text-cad-accent' : ''}\`} /><span className="text-sm font-medium whitespace-nowrap overflow-hidden">Settings</span>
           </button>
           <div className="pt-3 mt-1 px-2 flex items-center gap-3">
              <div className="relative">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shadow-lg">AD</div>
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-cad-text shadow-lg">AD</div>
                 <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-[#0B1121] rounded-full"></div>
              </div>
-             <div className="overflow-hidden"><p className="text-xs font-bold text-white truncate">Alex Drafter</p><p className="text-[10px] text-slate-500 truncate">Pro Account</p></div>
+             <div className="overflow-hidden"><p className="text-xs font-bold text-cad-text truncate">Alex Drafter</p><p className="text-[10px] text-slate-500 truncate">Pro Account</p></div>
           </div>
         </div>
       </div>
@@ -693,7 +693,7 @@ const App: React.FC = () => {
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isCollapsed={isSidebarCollapsed} toggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
       <main className={\`flex-1 relative h-full overflow-hidden bg-transparent transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] z-10 \${isSidebarCollapsed ? 'ml-0' : 'ml-0 md:ml-72'}\`}>
         {renderContent()}
-        <button onClick={() => setIsHelpOpen(true)} className="fixed bottom-6 right-6 z-[50] w-10 h-10 bg-cad-panel border border-cad-border rounded-full shadow-2xl flex items-center justify-center text-cad-muted hover:text-white hover:border-cad-accent hover:shadow-glow-accent transition-all active:scale-95" title="Help & Support">
+        <button onClick={() => setIsHelpOpen(true)} className="fixed bottom-6 right-6 z-[50] w-10 h-10 bg-cad-panel border border-cad-border rounded-full shadow-2xl flex items-center justify-center text-cad-muted hover:text-cad-text hover:border-cad-accent hover:shadow-glow-accent transition-all active:scale-95" title="Help & Support">
             <HelpCircle className="w-5 h-5" />
         </button>
       </main>
@@ -737,37 +737,37 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
     <div className="h-full overflow-y-auto custom-scrollbar p-6 md:p-10">
       <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div><h2 className="text-3xl font-bold text-white tracking-tight">Professional Network</h2><p className="text-cad-muted mt-1">Connect with top CAD talent and engineers.</p></div>
-        <div className="flex items-center gap-3 w-full md:w-auto"><div className="relative flex-1 md:w-64"><Search className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" /><input type="text" placeholder="Search people..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:border-cad-accent outline-none backdrop-blur-sm"/></div><button className="p-2 bg-white/5 border border-white/10 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"><Filter className="w-5 h-5" /></button></div>
+        <div><h2 className="text-3xl font-bold text-cad-text tracking-tight">Professional Network</h2><p className="text-cad-muted mt-1">Connect with top CAD talent and engineers.</p></div>
+        <div className="flex items-center gap-3 w-full md:w-auto"><div className="relative flex-1 md:w-64"><Search className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" /><input type="text" placeholder="Search people..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-cad-surface/50 border border-cad-border rounded-xl pl-9 pr-4 py-2 text-sm text-cad-text focus:border-cad-accent outline-none backdrop-blur-sm"/></div><button className="p-2 bg-cad-surface/30 border border-cad-border rounded-xl text-slate-400 hover:text-cad-text hover:bg-cad-surface/50 transition-colors"><Filter className="w-5 h-5" /></button></div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredUsers.map(user => {
             const status = connectionStatus[user.id] || 'none';
             return (
                 <div key={user.id} onClick={() => setSelectedUser(user)} className="glass-card rounded-2xl overflow-hidden hover:border-cad-accent/30 hover:shadow-glow transition-all duration-300 cursor-pointer group relative flex flex-col">
-                    <div className="h-28 bg-gradient-to-r from-slate-900 via-[#1e293b] to-slate-900 relative overflow-hidden"><div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div><div className={\`absolute top-4 right-4 flex items-center gap-2 bg-black/30 backdrop-blur-md px-2 py-1 rounded-full border border-white/5 \${user.isOnline ? 'text-green-400' : 'text-slate-500'}\`}><div className={\`w-2 h-2 rounded-full \${user.isOnline ? 'bg-green-500 animate-pulse' : 'bg-slate-500'}\`} /><span className="text-[10px] font-bold uppercase tracking-wider">{user.isOnline ? 'Online' : 'Offline'}</span></div></div>
+                    <div className="h-28 bg-gradient-to-r from-slate-900 via-[#1e293b] to-slate-900 relative overflow-hidden"><div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div><div className={\`absolute top-4 right-4 flex items-center gap-2 bg-cad-surface/40 backdrop-blur-md px-2 py-1 rounded-full border border-cad-border \${user.isOnline ? 'text-green-400' : 'text-slate-500'}\`}><div className={\`w-2 h-2 rounded-full \${user.isOnline ? 'bg-green-500 animate-pulse' : 'bg-slate-500'}\`} /><span className="text-[10px] font-bold uppercase tracking-wider">{user.isOnline ? 'Online' : 'Offline'}</span></div></div>
                     <div className="px-6 pb-6 relative flex-1 flex flex-col">
                     <div className="relative -mt-12 mb-4"><div className="relative inline-block"><img src={user.avatar} alt={user.name} className="w-24 h-24 rounded-2xl border-4 border-[#131b2e] object-cover shadow-2xl group-hover:scale-105 transition-transform duration-500" /></div></div>
-                    <div className="flex justify-between items-start mb-2"><div><h3 className="text-xl font-bold text-white group-hover:text-cad-accent transition-colors">{user.name}</h3><p className="text-cad-muted font-medium text-sm flex items-center gap-1"><Briefcase className="w-3.5 h-3.5" /> {user.role}</p></div><div className="flex items-center gap-1 text-amber-400 bg-amber-900/10 px-2 py-1 rounded border border-amber-500/10"><Star className="w-3.5 h-3.5 fill-amber-400" /><span className="text-sm font-bold">{user.rating}</span></div></div>
+                    <div className="flex justify-between items-start mb-2"><div><h3 className="text-xl font-bold text-cad-text group-hover:text-cad-accent transition-colors">{user.name}</h3><p className="text-cad-muted font-medium text-sm flex items-center gap-1"><Briefcase className="w-3.5 h-3.5" /> {user.role}</p></div><div className="flex items-center gap-1 text-amber-400 bg-amber-900/10 px-2 py-1 rounded border border-amber-500/10"><Star className="w-3.5 h-3.5 fill-amber-400" /><span className="text-sm font-bold">{user.rating}</span></div></div>
                     <p className="text-slate-400 text-sm mb-4 line-clamp-2 leading-relaxed">{user.bio}</p>
                     <div className="flex flex-wrap gap-2 mb-6">{user.skills.slice(0, 3).map(skill => (<span key={skill} className="text-[10px] font-bold text-sky-200 bg-sky-900/20 px-2 py-1 rounded border border-sky-500/10">{skill}</span>))}{user.skills.length > 3 && <span className="text-[10px] font-bold text-slate-500 px-1 self-center">+ {user.skills.length - 3}</span>}</div>
-                    <div className="mt-auto grid grid-cols-2 gap-3 pt-4 border-t border-white/5"><button onClick={(e) => handleConnect(user.id, e)} className={\`flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl transition-all border text-sm \${status === 'connected' ? 'bg-green-500/10 text-green-400 border-green-500/20' : status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-white/5 hover:bg-cad-accent hover:text-cad-dark text-white border-white/5'}\`}>{getConnectButtonIcon(status, user.id)}{getConnectButtonText(status)}</button><button onClick={(e) => handleMessageClick(user.id, e)} className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-white font-bold py-2.5 rounded-xl transition-all border border-white/5 text-sm"><MessageSquare className="w-4 h-4" /> Message</button></div></div>
+                    <div className="mt-auto grid grid-cols-2 gap-3 pt-4 border-t border-cad-border"><button onClick={(e) => handleConnect(user.id, e)} className={\`flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl transition-all border text-sm \${status === 'connected' ? 'bg-green-500/10 text-green-400 border-green-500/20' : status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-cad-surface/30 hover:bg-cad-accent hover:text-cad-dark text-cad-text border-cad-border'}\`}>{getConnectButtonIcon(status, user.id)}{getConnectButtonText(status)}</button><button onClick={(e) => handleMessageClick(user.id, e)} className="flex items-center justify-center gap-2 bg-cad-surface/30 hover:bg-cad-surface/50 text-cad-text font-bold py-2.5 rounded-xl transition-all border border-cad-border text-sm"><MessageSquare className="w-4 h-4" /> Message</button></div></div>
                 </div>
             );
         })}
       </div>
       {selectedUser && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="glass-panel w-full max-w-4xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
-                <div className="relative h-56 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900"><div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30"></div><button onClick={() => setSelectedUser(null)} className="absolute top-6 right-6 bg-black/20 hover:bg-white/10 text-white p-2 rounded-full transition-colors z-10 backdrop-blur-md border border-white/10"><X className="w-5 h-5" /></button><div className="absolute -bottom-12 left-10"><img src={selectedUser.avatar} alt={selectedUser.name} className="w-32 h-32 rounded-3xl border-4 border-[#141b2d] object-cover shadow-2xl" /></div></div>
+            <div className="glass-panel w-full max-w-4xl rounded-3xl border border-cad-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
+                <div className="relative h-56 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900"><div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30"></div><button onClick={() => setSelectedUser(null)} className="absolute top-6 right-6 bg-cad-surface/30 hover:bg-cad-surface/50 text-cad-text p-2 rounded-full transition-colors z-10 backdrop-blur-md border border-cad-border"><X className="w-5 h-5" /></button><div className="absolute -bottom-12 left-10"><img src={selectedUser.avatar} alt={selectedUser.name} className="w-32 h-32 rounded-3xl border-4 border-[#141b2d] object-cover shadow-2xl" /></div></div>
                 <div className="pt-16 px-10 pb-10 overflow-y-auto custom-scrollbar">
                     <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-10">
-                        <div><h2 className="text-3xl font-bold text-white tracking-tight">{selectedUser.name}</h2><div className="flex items-center gap-4 text-cad-muted mt-2 text-sm font-medium"><span className="flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-cad-accent"/> {selectedUser.role}</span><span className="w-1 h-1 bg-slate-600 rounded-full"></span><span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-cad-accent"/> Remote</span><span className="w-1 h-1 bg-slate-600 rounded-full"></span><span className="text-green-400 font-bold bg-green-900/20 px-2 py-0.5 rounded border border-green-500/10">\${selectedUser.hourlyRate}/hr</span></div></div>
-                        <div className="flex gap-3"><button className="px-6 py-2.5 bg-cad-accent text-cad-dark font-bold rounded-xl hover:bg-sky-400 shadow-lg shadow-cad-accent/20 transition-all active:scale-95">Hire {selectedUser.name.split(' ')[0]}</button><button onClick={() => { if(onMessage) { onMessage(selectedUser.id); setSelectedUser(null); } }} className="px-5 py-2.5 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors">Message</button></div>
+                        <div><h2 className="text-3xl font-bold text-cad-text tracking-tight">{selectedUser.name}</h2><div className="flex items-center gap-4 text-cad-muted mt-2 text-sm font-medium"><span className="flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-cad-accent"/> {selectedUser.role}</span><span className="w-1 h-1 bg-slate-600 rounded-full"></span><span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-cad-accent"/> Remote</span><span className="w-1 h-1 bg-slate-600 rounded-full"></span><span className="text-green-400 font-bold bg-green-900/20 px-2 py-0.5 rounded border border-green-500/10">\${selectedUser.hourlyRate}/hr</span></div></div>
+                        <div className="flex gap-3"><button className="px-6 py-2.5 bg-cad-accent text-cad-dark font-bold rounded-xl hover:bg-sky-400 shadow-lg shadow-cad-accent/20 transition-all active:scale-95">Hire {selectedUser.name.split(' ')[0]}</button><button onClick={() => { if(onMessage) { onMessage(selectedUser.id); setSelectedUser(null); } }} className="px-5 py-2.5 bg-cad-surface/30 border border-cad-border text-cad-text font-bold rounded-xl hover:bg-cad-surface/50 transition-colors">Message</button></div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                        <div className="md:col-span-1 space-y-8"><div className="glass-card p-6 rounded-2xl"><h3 className="font-bold text-white mb-4 flex items-center gap-2 text-sm uppercase tracking-wider"><Star className="w-4 h-4 text-cad-accent"/> About</h3><p className="text-slate-300 text-sm leading-relaxed">{selectedUser.bio} I specialize in complex parametric modeling and large-scale BIM coordination.</p></div><div><h3 className="font-bold text-white mb-4 text-sm uppercase tracking-wider">Skills</h3><div className="flex flex-wrap gap-2">{selectedUser.skills.map(skill => (<span key={skill} className="text-xs font-bold text-white bg-white/5 px-3 py-1.5 rounded-lg border border-white/5 hover:border-cad-accent/50 transition-colors">{skill}</span>))}</div></div><div><h3 className="font-bold text-white mb-4 text-sm uppercase tracking-wider">Certifications</h3><ul className="space-y-3"><li className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><div className="p-1.5 bg-amber-500/10 rounded-lg text-amber-500"><Award className="w-4 h-4" /></div><span className="text-sm text-slate-300 font-medium">Autodesk Certified</span></li><li className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5"><div className="p-1.5 bg-amber-500/10 rounded-lg text-amber-500"><Award className="w-4 h-4" /></div><span className="text-sm text-slate-300 font-medium">SolidWorks CSWP</span></li></ul></div></div>
-                        <div className="md:col-span-2"><div className="flex justify-between items-center mb-6"><h3 className="font-bold text-white text-lg">Portfolio</h3><button className="text-cad-accent text-sm font-bold hover:text-white transition-colors flex items-center gap-1">View All <ExternalLink className="w-3 h-3" /></button></div><div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{selectedUser.portfolio?.map(item => (<div key={item.id} className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-white/5 cursor-pointer"><img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" /><div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5"><span className="text-xs text-cad-accent font-bold uppercase tracking-wider mb-1">{item.category}</span><h4 className="text-white font-bold text-lg leading-tight">{item.title}</h4></div></div>))}</div></div>
+                        <div className="md:col-span-1 space-y-8"><div className="glass-card p-6 rounded-2xl"><h3 className="font-bold text-cad-text mb-4 flex items-center gap-2 text-sm uppercase tracking-wider"><Star className="w-4 h-4 text-cad-accent"/> About</h3><p className="text-slate-300 text-sm leading-relaxed">{selectedUser.bio} I specialize in complex parametric modeling and large-scale BIM coordination.</p></div><div><h3 className="font-bold text-cad-text mb-4 text-sm uppercase tracking-wider">Skills</h3><div className="flex flex-wrap gap-2">{selectedUser.skills.map(skill => (<span key={skill} className="text-xs font-bold text-cad-text bg-cad-surface/30 px-3 py-1.5 rounded-lg border border-cad-border hover:border-cad-accent/50 transition-colors">{skill}</span>))}</div></div><div><h3 className="font-bold text-cad-text mb-4 text-sm uppercase tracking-wider">Certifications</h3><ul className="space-y-3"><li className="flex items-center gap-3 p-3 bg-cad-surface/30 rounded-xl border border-cad-border"><div className="p-1.5 bg-amber-500/10 rounded-lg text-amber-500"><Award className="w-4 h-4" /></div><span className="text-sm text-slate-300 font-medium">Autodesk Certified</span></li><li className="flex items-center gap-3 p-3 bg-cad-surface/30 rounded-xl border border-cad-border"><div className="p-1.5 bg-amber-500/10 rounded-lg text-amber-500"><Award className="w-4 h-4" /></div><span className="text-sm text-slate-300 font-medium">SolidWorks CSWP</span></li></ul></div></div>
+                        <div className="md:col-span-2"><div className="flex justify-between items-center mb-6"><h3 className="font-bold text-cad-text text-lg">Portfolio</h3><button className="text-cad-accent text-sm font-bold hover:text-cad-text transition-colors flex items-center gap-1">View All <ExternalLink className="w-3 h-3" /></button></div><div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{selectedUser.portfolio?.map(item => (<div key={item.id} className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-cad-border cursor-pointer"><img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" /><div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5"><span className="text-xs text-cad-accent font-bold uppercase tracking-wider mb-1">{item.category}</span><h4 className="text-cad-text font-bold text-lg leading-tight">{item.title}</h4></div></div>))}</div></div>
                     </div>
                 </div>
             </div>
@@ -825,24 +825,24 @@ const Admin: React.FC = () => {
     const filteredUsers = users.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
     return (
-        <div className="h-full overflow-y-auto custom-scrollbar p-6 md:p-10 bg-[#09090b]">
+        <div className="h-full overflow-y-auto custom-scrollbar p-6 md:p-10 bg-cad-dark">
             <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-cad-border pb-8">
                     <div>
                         <div className="flex items-center gap-2 text-red-500 font-bold uppercase tracking-widest text-xs mb-2">
                             <Shield className="w-4 h-4" /> Administrator Mode
                         </div>
-                        <h2 className="text-3xl font-bold text-white tracking-tight">Platform Command Center</h2>
+                        <h2 className="text-3xl font-bold text-cad-text tracking-tight">Platform Command Center</h2>
                         <p className="text-cad-muted mt-2 font-light">Global oversight, financial control, and dispute resolution.</p>
                     </div>
-                    <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 overflow-x-auto max-w-full">
+                    <div className="flex bg-cad-surface/30 p-1 rounded-xl border border-cad-border overflow-x-auto max-w-full">
                         {['overview', 'users', 'disputes', 'financials', 'source'].map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab as any)}
                                 className={`px-6 py-2.5 rounded-lg text-sm font-bold capitalize transition-all whitespace-nowrap ${
-                                    activeTab === tab ? 'bg-red-600 text-white shadow-lg shadow-red-900/30' : 'text-slate-400 hover:text-white hover:bg-white/10'
+                                    activeTab === tab ? 'bg-red-600 text-cad-text shadow-lg shadow-red-900/30' : 'text-slate-400 hover:text-cad-text hover:bg-cad-surface/50'
                                 }`}
                             >
                                 {tab === 'source' ? 'Source Code' : tab}
@@ -859,7 +859,7 @@ const Admin: React.FC = () => {
                                 <Code className="w-6 h-6 text-blue-400" />
                             </div>
                             <div>
-                                <h4 className="font-bold text-white text-lg">Full Application Source Code</h4>
+                                <h4 className="font-bold text-cad-text text-lg">Full Application Source Code</h4>
                                 <p className="text-sm text-blue-200/70 mt-1 leading-relaxed">
                                     Browse and download the configuration and structure of the application. 
                                     <span className="block mt-1 text-blue-300 font-bold">Includes all components, configs, and styles for a local rebuild.</span>
@@ -869,30 +869,30 @@ const Admin: React.FC = () => {
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {SOURCE_FILES.map((file) => (
-                                <div key={file.name} className="glass-panel rounded-2xl border border-white/10 overflow-hidden flex flex-col shadow-lg">
-                                    <div className="p-4 bg-white/5 border-b border-white/5 flex justify-between items-center">
+                                <div key={file.name} className="glass-panel rounded-2xl border border-cad-border overflow-hidden flex flex-col shadow-lg">
+                                    <div className="p-4 bg-cad-surface/30 border-b border-cad-border flex justify-between items-center">
                                         <div className="flex items-center gap-3">
                                             <FileText className="w-4 h-4 text-cad-accent" />
-                                            <span className="font-bold text-sm text-white">{file.name}</span>
+                                            <span className="font-bold text-sm text-cad-text">{file.name}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <button 
                                                 onClick={() => handleCopy(file.content, file.name)}
-                                                className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors"
+                                                className="p-2 hover:bg-cad-surface/50 rounded-lg text-slate-400 hover:text-cad-text transition-colors"
                                                 title="Copy to Clipboard"
                                             >
                                                 {copiedFile === file.name ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
                                             </button>
                                             <button 
                                                 onClick={() => handleDownload(file.content, file.name)}
-                                                className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors"
+                                                className="p-2 hover:bg-cad-surface/50 rounded-lg text-slate-400 hover:text-cad-text transition-colors"
                                                 title="Download File"
                                             >
                                                 <Download className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="p-4 bg-[#0B1121] overflow-x-auto custom-scrollbar flex-1 relative group max-h-[300px]">
+                                    <div className="p-4 bg-cad-dark overflow-x-auto custom-scrollbar flex-1 relative group max-h-[300px]">
                                         <pre className="text-xs font-mono text-slate-300 leading-relaxed whitespace-pre-wrap">
                                             {file.content.slice(0, 500)}...
                                         </pre>
@@ -908,24 +908,24 @@ const Admin: React.FC = () => {
                     <div className="space-y-8">
                         {/* KPI Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div className="glass-panel p-6 rounded-2xl border border-white/10 relative overflow-hidden group">
+                            <div className="glass-panel p-6 rounded-2xl border border-cad-border relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><DollarSign className="w-16 h-16" /></div>
                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Platform Revenue</p>
-                                <h3 className="text-3xl font-bold text-white flex items-baseline gap-2">
+                                <h3 className="text-3xl font-bold text-cad-text flex items-baseline gap-2">
                                     R128.4k <span className="text-sm font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded">+12%</span>
                                 </h3>
                                 <p className="text-xs text-slate-500 mt-2">Net profit from commissions</p>
                             </div>
-                            <div className="glass-panel p-6 rounded-2xl border border-white/10 relative overflow-hidden group">
+                            <div className="glass-panel p-6 rounded-2xl border border-cad-border relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Activity className="w-16 h-16" /></div>
                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Marketplace Volume</p>
-                                <h3 className="text-3xl font-bold text-white">R9.6M</h3>
+                                <h3 className="text-3xl font-bold text-cad-text">R9.6M</h3>
                                 <p className="text-xs text-slate-500 mt-2">Total transaction value</p>
                             </div>
-                            <div className="glass-panel p-6 rounded-2xl border border-white/10 relative overflow-hidden group">
+                            <div className="glass-panel p-6 rounded-2xl border border-cad-border relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Users className="w-16 h-16" /></div>
                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Total Users</p>
-                                <h3 className="text-3xl font-bold text-white">15,420</h3>
+                                <h3 className="text-3xl font-bold text-cad-text">15,420</h3>
                                 <p className="text-xs text-slate-500 mt-2">850 New this week</p>
                             </div>
                             <div className="glass-panel p-6 rounded-2xl border border-red-500/20 bg-red-500/5 relative overflow-hidden group">
@@ -937,14 +937,14 @@ const Admin: React.FC = () => {
                         </div>
 
                         {/* Revenue Chart Placeholder */}
-                        <div className="glass-panel p-8 rounded-2xl border border-white/10">
+                        <div className="glass-panel p-8 rounded-2xl border border-cad-border">
                             <div className="flex justify-between items-center mb-8">
-                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                <h3 className="text-xl font-bold text-cad-text flex items-center gap-2">
                                     <TrendingUp className="w-5 h-5 text-cad-accent" /> Revenue Trends
                                 </h3>
-                                <div className="flex bg-white/5 rounded-lg p-1">
+                                <div className="flex bg-cad-surface/30 rounded-lg p-1">
                                     {['1W', '1M', '1Y'].map(r => (
-                                        <button key={r} className="px-3 py-1 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors">{r}</button>
+                                        <button key={r} className="px-3 py-1 text-xs font-bold text-slate-400 hover:text-cad-text hover:bg-cad-surface/50 rounded transition-colors">{r}</button>
                                     ))}
                                 </div>
                             </div>
@@ -964,26 +964,26 @@ const Admin: React.FC = () => {
 
                         {/* System Health & Activity */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div className="glass-panel p-6 rounded-2xl border border-white/10">
-                                <h3 className="font-bold text-white mb-6 flex items-center gap-2">
+                            <div className="glass-panel p-6 rounded-2xl border border-cad-border">
+                                <h3 className="font-bold text-cad-text mb-6 flex items-center gap-2">
                                     <Activity className="w-5 h-5 text-cad-accent" /> System Status
                                 </h3>
                                 <div className="space-y-4">
-                                    <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/5">
+                                    <div className="flex justify-between items-center p-4 bg-cad-surface/30 rounded-xl border border-cad-border">
                                         <div className="flex items-center gap-3">
                                             <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
                                             <span className="text-sm font-bold text-slate-200">Main Server (US-East)</span>
                                         </div>
                                         <span className="text-xs font-mono text-green-400 bg-green-500/10 px-2 py-1 rounded">99.9% Uptime</span>
                                     </div>
-                                    <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/5">
+                                    <div className="flex justify-between items-center p-4 bg-cad-surface/30 rounded-xl border border-cad-border">
                                         <div className="flex items-center gap-3">
                                             <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
                                             <span className="text-sm font-bold text-slate-200">Gemini AI API</span>
                                         </div>
                                         <span className="text-xs font-mono text-slate-400">450ms Latency</span>
                                     </div>
-                                    <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/5">
+                                    <div className="flex justify-between items-center p-4 bg-cad-surface/30 rounded-xl border border-cad-border">
                                         <div className="flex items-center gap-3">
                                             <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
                                             <span className="text-sm font-bold text-slate-200">Storage Buckets</span>
@@ -993,20 +993,20 @@ const Admin: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="glass-panel p-6 rounded-2xl border border-white/10">
-                                <h3 className="font-bold text-white mb-6">Live Activity Feed</h3>
+                            <div className="glass-panel p-6 rounded-2xl border border-cad-border">
+                                <h3 className="font-bold text-cad-text mb-6">Live Activity Feed</h3>
                                 <div className="space-y-4 text-sm">
-                                    <div className="flex gap-4 items-start p-3 hover:bg-white/5 rounded-xl transition-colors">
+                                    <div className="flex gap-4 items-start p-3 hover:bg-cad-surface/30 rounded-xl transition-colors">
                                         <span className="text-[10px] font-mono text-slate-500 mt-1">10:42 AM</span>
-                                        <p className="text-slate-300"><span className="text-white font-bold">System</span> automatically released payment #9921 ({format(2550)})</p>
+                                        <p className="text-slate-300"><span className="text-cad-text font-bold">System</span> automatically released payment #9921 ({format(2550)})</p>
                                     </div>
-                                    <div className="flex gap-4 items-start p-3 hover:bg-white/5 rounded-xl transition-colors">
+                                    <div className="flex gap-4 items-start p-3 hover:bg-cad-surface/30 rounded-xl transition-colors">
                                         <span className="text-[10px] font-mono text-slate-500 mt-1">10:15 AM</span>
                                         <p className="text-slate-300"><span className="text-red-400 font-bold">AutoMod</span> flagged user @spambot55 for suspicious links</p>
                                     </div>
-                                    <div className="flex gap-4 items-start p-3 hover:bg-white/5 rounded-xl transition-colors">
+                                    <div className="flex gap-4 items-start p-3 hover:bg-cad-surface/30 rounded-xl transition-colors">
                                         <span className="text-[10px] font-mono text-slate-500 mt-1">09:30 AM</span>
-                                        <p className="text-slate-300"><span className="text-white font-bold">New User</span> "Tesla Dynamics" upgraded to Enterprise Plan</p>
+                                        <p className="text-slate-300"><span className="text-cad-text font-bold">New User</span> "Tesla Dynamics" upgraded to Enterprise Plan</p>
                                     </div>
                                 </div>
                             </div>
@@ -1026,64 +1026,64 @@ const Admin: React.FC = () => {
                                     className={`glass-card p-5 rounded-2xl border cursor-pointer transition-all hover:-translate-y-1 ${
                                         selectedDisputeId === dispute.id 
                                         ? 'bg-red-500/10 border-red-500/50 shadow-lg shadow-red-900/20' 
-                                        : 'border-white/5 hover:border-white/20'
+                                        : 'border-cad-border hover:border-white/20'
                                     }`}
                                 >
                                     <div className="flex justify-between items-start mb-3">
                                         <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded ${dispute.status === 'Resolved' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                                             {dispute.status}
                                         </span>
-                                        <span className="text-white font-mono font-bold">{format(dispute.amount)}</span>
+                                        <span className="text-cad-text font-mono font-bold">{format(dispute.amount)}</span>
                                     </div>
-                                    <h4 className="font-bold text-white mb-1">{dispute.contract}</h4>
+                                    <h4 className="font-bold text-cad-text mb-1">{dispute.contract}</h4>
                                     <p className="text-xs text-slate-400 line-clamp-2">{dispute.reason}</p>
                                 </div>
                             ))}
                         </div>
 
                         {/* Dispute Detail / Tribunal View */}
-                        <div className="lg:col-span-2 glass-panel rounded-2xl border border-white/10 overflow-hidden flex flex-col h-[600px]">
+                        <div className="lg:col-span-2 glass-panel rounded-2xl border border-cad-border overflow-hidden flex flex-col h-[600px]">
                             {selectedDispute ? (
                                 <div className="flex flex-col h-full">
-                                    <div className="p-6 border-b border-white/10 bg-[#121214] flex justify-between items-start">
+                                    <div className="p-6 border-b border-cad-border bg-cad-panel flex justify-between items-start">
                                         <div>
                                             <div className="flex items-center gap-2 mb-2">
                                                 <AlertTriangle className="w-5 h-5 text-red-500" />
-                                                <h3 className="text-xl font-bold text-white">Dispute Tribunal</h3>
+                                                <h3 className="text-xl font-bold text-cad-text">Dispute Tribunal</h3>
                                             </div>
                                             <p className="text-slate-400 text-sm">Case ID: <span className="font-mono text-slate-300">#{selectedDispute.id.toUpperCase()}</span></p>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-xs text-slate-500 uppercase font-bold">Escrow Amount</p>
-                                            <p className="text-2xl font-bold text-white font-mono">{format(selectedDispute.amount)}</p>
+                                            <p className="text-2xl font-bold text-cad-text font-mono">{format(selectedDispute.amount)}</p>
                                         </div>
                                     </div>
 
-                                    <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#0f1423]">
+                                    <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-cad-dark">
                                         <div className="grid grid-cols-2 gap-4">
-                                            <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                                            <div className="p-4 rounded-xl bg-cad-surface/30 border border-cad-border">
                                                 <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2">Client</p>
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs">CL</div>
-                                                    <span className="font-bold text-white">{selectedDispute.client}</span>
+                                                    <span className="font-bold text-cad-text">{selectedDispute.client}</span>
                                                 </div>
                                             </div>
-                                            <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                                            <div className="p-4 rounded-xl bg-cad-surface/30 border border-cad-border">
                                                 <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2">Freelancer</p>
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-xs">FR</div>
-                                                    <span className="font-bold text-white">{selectedDispute.freelancer}</span>
+                                                    <span className="font-bold text-cad-text">{selectedDispute.freelancer}</span>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="bg-black/30 rounded-xl p-4 border border-white/5">
+                                        <div className="bg-cad-surface/40 rounded-xl p-4 border border-cad-border">
                                             <h4 className="font-bold text-slate-300 text-sm mb-3 flex items-center gap-2">
                                                 <FileText className="w-4 h-4" /> Evidence Log
                                             </h4>
                                             <div className="space-y-3">
                                                 {selectedDispute.evidence?.map((ev, i) => (
-                                                    <div key={i} className="text-sm border-l-2 border-white/10 pl-3 py-1">
+                                                    <div key={i} className="text-sm border-l-2 border-cad-border pl-3 py-1">
                                                         <div className="flex justify-between text-xs text-slate-500 mb-1">
                                                             <span className="font-bold text-slate-400">{ev.user || 'System'}</span>
                                                             <span>{ev.time}</span>
@@ -1095,8 +1095,8 @@ const Admin: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    <div className="p-6 border-t border-white/10 bg-[#121214]">
-                                        <h4 className="font-bold text-white mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                    <div className="p-6 border-t border-cad-border bg-cad-panel">
+                                        <h4 className="font-bold text-cad-text mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
                                             <Gavel className="w-4 h-4 text-cad-accent" /> Render Judgment
                                         </h4>
                                         <div className="grid grid-cols-2 gap-4">
@@ -1117,7 +1117,7 @@ const Admin: React.FC = () => {
                                 </div>
                             ) : (
                                 <div className="h-full flex flex-col items-center justify-center text-slate-500">
-                                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
+                                    <div className="w-20 h-20 bg-cad-surface/30 rounded-full flex items-center justify-center mb-6">
                                         <Shield className="w-10 h-10 opacity-20" />
                                     </div>
                                     <p className="text-lg font-medium">Select a dispute case to adjudicate.</p>
@@ -1129,9 +1129,9 @@ const Admin: React.FC = () => {
 
                 {/* USERS TAB */}
                 {activeTab === 'users' && (
-                    <div className="glass-panel rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
-                        <div className="p-6 border-b border-white/10 flex flex-col md:flex-row gap-4 justify-between items-center bg-[#121214]">
-                            <h3 className="text-xl font-bold text-white">User Management</h3>
+                    <div className="glass-panel rounded-2xl border border-cad-border overflow-hidden shadow-2xl">
+                        <div className="p-6 border-b border-cad-border flex flex-col md:flex-row gap-4 justify-between items-center bg-cad-panel">
+                            <h3 className="text-xl font-bold text-cad-text">User Management</h3>
                             <div className="relative w-full md:w-96">
                                 <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
                                 <input 
@@ -1139,13 +1139,13 @@ const Admin: React.FC = () => {
                                     placeholder="Search users by name, email, or ID..." 
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-cad-accent transition-colors" 
+                                    className="w-full bg-cad-surface/40 border border-cad-border rounded-xl pl-10 pr-4 py-2 text-sm text-cad-text focus:outline-none focus:border-cad-accent transition-colors" 
                                 />
                             </div>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
-                                <thead className="bg-white/5 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                <thead className="bg-cad-surface/30 text-xs font-bold text-slate-400 uppercase tracking-wider">
                                     <tr>
                                         <th className="px-6 py-4">User Identity</th>
                                         <th className="px-6 py-4">Role</th>
@@ -1156,14 +1156,14 @@ const Admin: React.FC = () => {
                                 </thead>
                                 <tbody className="divide-y divide-white/5 text-sm">
                                     {filteredUsers.map(user => (
-                                        <tr key={user.id} className="hover:bg-white/5 transition-colors group">
+                                        <tr key={user.id} className="hover:bg-cad-surface/30 transition-colors group">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 border border-white/10 flex items-center justify-center text-xs font-bold text-white">
+                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 border border-cad-border flex items-center justify-center text-xs font-bold text-cad-text">
                                                         {user.name.charAt(0)}
                                                     </div>
                                                     <div>
-                                                        <p className="font-bold text-white">{user.name}</p>
+                                                        <p className="font-bold text-cad-text">{user.name}</p>
                                                         <p className="text-xs text-slate-500 font-mono">ID: {user.id.toUpperCase()}</p>
                                                     </div>
                                                 </div>
@@ -1179,9 +1179,9 @@ const Admin: React.FC = () => {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-slate-400 text-xs font-mono">{user.joined}</td>
-                                            <td className="px-6 py-4 text-right font-mono text-white font-medium">{user.earnings || user.spent}</td>
+                                            <td className="px-6 py-4 text-right font-mono text-cad-text font-medium">{user.earnings || user.spent}</td>
                                             <td className="px-6 py-4 flex justify-center gap-2">
-                                                <button className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors" title="View Profile"><Eye className="w-4 h-4"/></button>
+                                                <button className="p-2 hover:bg-cad-surface/50 rounded-lg text-slate-400 hover:text-cad-text transition-colors" title="View Profile"><Eye className="w-4 h-4"/></button>
                                                 <button 
                                                     onClick={() => toggleBanUser(user.id)}
                                                     className={`p-2 rounded-lg transition-colors ${user.status === 'Banned' ? 'hover:bg-green-500/20 text-green-500' : 'hover:bg-red-500/20 text-red-500'}`} 
@@ -1202,50 +1202,50 @@ const Admin: React.FC = () => {
                 {activeTab === 'financials' && (
                     <div className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="glass-panel p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-[#121214] to-black">
+                            <div className="glass-panel p-6 rounded-2xl border border-cad-border bg-gradient-to-br from-[#121214] to-black">
                                 <h3 className="text-slate-400 font-bold text-sm uppercase tracking-wider mb-2">Commissions (10-20%)</h3>
-                                <div className="text-4xl font-bold text-white mb-2">R128,550</div>
-                                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                <div className="text-4xl font-bold text-cad-text mb-2">R128,550</div>
+                                <div className="h-1.5 w-full bg-cad-surface rounded-full overflow-hidden">
                                     <div className="h-full bg-cad-accent w-[70%]"></div>
                                 </div>
                             </div>
-                            <div className="glass-panel p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-[#121214] to-black">
+                            <div className="glass-panel p-6 rounded-2xl border border-cad-border bg-gradient-to-br from-[#121214] to-black">
                                 <h3 className="text-slate-400 font-bold text-sm uppercase tracking-wider mb-2">Subscriptions</h3>
-                                <div className="text-4xl font-bold text-white mb-2">R37,200</div>
-                                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                <div className="text-4xl font-bold text-cad-text mb-2">R37,200</div>
+                                <div className="h-1.5 w-full bg-cad-surface rounded-full overflow-hidden">
                                     <div className="h-full bg-blue-500 w-[20%]"></div>
                                 </div>
                             </div>
-                            <div className="glass-panel p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-[#121214] to-black">
+                            <div className="glass-panel p-6 rounded-2xl border border-cad-border bg-gradient-to-br from-[#121214] to-black">
                                 <h3 className="text-slate-400 font-bold text-sm uppercase tracking-wider mb-2">Asset Marketplace</h3>
-                                <div className="text-4xl font-bold text-white mb-2">R24,750</div>
-                                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                <div className="text-4xl font-bold text-cad-text mb-2">R24,750</div>
+                                <div className="h-1.5 w-full bg-cad-surface rounded-full overflow-hidden">
                                     <div className="h-full bg-purple-500 w-[10%]"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="glass-panel rounded-2xl border border-white/10 p-8">
+                        <div className="glass-panel rounded-2xl border border-cad-border p-8">
                             <div className="flex justify-between items-center mb-8">
-                                <h3 className="text-xl font-bold text-white">Pending Payouts</h3>
-                                <button className="text-sm bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center gap-2">
+                                <h3 className="text-xl font-bold text-cad-text">Pending Payouts</h3>
+                                <button className="text-sm bg-cad-surface/30 border border-cad-border px-4 py-2 rounded-xl text-cad-text hover:bg-cad-surface/50 transition-colors flex items-center gap-2">
                                     <Download className="w-4 h-4"/> Export CSV
                                 </button>
                             </div>
                             <div className="space-y-4">
                                 {[1, 2, 3].map((i) => (
-                                    <div key={i} className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
+                                    <div key={i} className="flex items-center justify-between p-4 bg-white/[0.02] border border-cad-border rounded-xl hover:bg-cad-surface/30 transition-colors">
                                         <div className="flex items-center gap-4">
                                             <div className="p-3 bg-green-500/10 rounded-xl text-green-500 border border-green-500/20">
                                                 <CreditCard className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <p className="font-bold text-white">Withdrawal Request #{9000 + i}</p>
+                                                <p className="font-bold text-cad-text">Withdrawal Request #{9000 + i}</p>
                                                 <p className="text-xs text-slate-500">Alex Drafter • PayPal</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-mono font-bold text-white">{format(3750)}</p>
+                                            <p className="font-mono font-bold text-cad-text">{format(3750)}</p>
                                             <p className="text-xs text-yellow-500 font-bold bg-yellow-500/10 px-2 py-0.5 rounded mt-1 inline-block">PENDING</p>
                                         </div>
                                     </div>

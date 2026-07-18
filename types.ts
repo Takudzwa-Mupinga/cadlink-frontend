@@ -35,7 +35,7 @@ export interface Job {
   requirements?: string[];
   discipline?: string;
   deliverables?: string[];
-  deadline?: string;
+  duration?: string;
 }
 
 export interface ServiceGig {

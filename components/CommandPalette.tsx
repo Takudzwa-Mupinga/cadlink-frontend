@@ -55,16 +55,16 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onNavi
     return (
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md flex items-start justify-center pt-[20vh] animate-in fade-in duration-200" onClick={onClose}>
             <div 
-                className="w-full max-w-xl bg-[#1e293b]/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 ring-1 ring-white/10"
+                className="w-full max-w-xl bg-cad-surface/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-cad-border overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 ring-1 ring-white/10"
                 onClick={e => e.stopPropagation()}
             >
-                <div className="flex items-center gap-4 p-5 border-b border-white/5">
+                <div className="flex items-center gap-4 p-5 border-b border-cad-border">
                     <Search className="w-5 h-5 text-cad-accent" />
                     <input 
                         ref={inputRef}
                         type="text" 
                         placeholder="Type a command or search..." 
-                        className="flex-1 bg-transparent text-white placeholder-slate-500 focus:outline-none text-lg font-medium"
+                        className="flex-1 bg-transparent text-cad-text placeholder-slate-500 focus:outline-none text-lg font-medium"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={(e) => {
@@ -73,7 +73,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onNavi
                         }}
                     />
                     <div className="hidden md:flex items-center gap-1">
-                        <kbd className="bg-white/10 text-slate-400 px-2 py-1 rounded-md text-[10px] font-bold font-mono border border-white/5">ESC</kbd>
+                        <kbd className="bg-cad-surface/50 text-slate-400 px-2 py-1 rounded-md text-[10px] font-bold font-mono border border-cad-border">ESC</kbd>
                     </div>
                 </div>
                 
@@ -89,12 +89,12 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onNavi
                                 <button
                                     key={idx}
                                     onClick={() => handleSelect(item.id)}
-                                    className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-cad-accent hover:text-cad-dark group transition-all text-left mb-1 ${idx === 0 ? 'bg-white/5' : ''}`}
+                                    className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-cad-accent hover:text-cad-dark group transition-all text-left mb-1 ${idx === 0 ? 'bg-cad-surface/30' : ''}`}
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className="text-slate-400 group-hover:text-cad-dark transition-colors bg-white/5 p-2 rounded-lg border border-white/5 group-hover:border-transparent group-hover:bg-black/10">{item.icon}</div>
+                                        <div className="text-slate-400 group-hover:text-cad-dark transition-colors bg-cad-surface/30 p-2 rounded-lg border border-cad-border group-hover:border-transparent group-hover:bg-black/10">{item.icon}</div>
                                         <div>
-                                            <span className={`text-sm font-bold ${idx === 0 ? 'text-white' : 'text-slate-300'} group-hover:text-cad-dark transition-colors`}>{item.label}</span>
+                                            <span className={`text-sm font-bold ${idx === 0 ? 'text-cad-text' : 'text-slate-300'} group-hover:text-cad-dark transition-colors`}>{item.label}</span>
                                         </div>
                                     </div>
                                     {idx === 0 && <CornerDownLeft className="w-4 h-4 text-slate-500 group-hover:text-cad-dark" />}
@@ -104,7 +104,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onNavi
                     )}
                 </div>
 
-                <div className="bg-[#0f172a]/50 p-3 border-t border-white/5 flex justify-between items-center px-5 text-xs text-slate-500 font-medium">
+                <div className="bg-cad-dark/50 p-3 border-t border-cad-border flex justify-between items-center px-5 text-xs text-slate-500 font-medium">
                     <div className="flex gap-4">
                         <span><strong className="text-slate-400">↑↓</strong> to navigate</span>
                         <span><strong className="text-slate-400">↵</strong> to select</span>

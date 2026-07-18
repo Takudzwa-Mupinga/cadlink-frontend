@@ -1,7 +1,8 @@
 
 import React, { useMemo, useState } from 'react';
-import { Play, Pause, Calendar, ArrowRight, Briefcase, Zap, MoreHorizontal, Sun, Clock, Activity, Users, CreditCard, CheckCircle2, X, FileText, MessageSquare, Star, TrendingUp, DollarSign, Newspaper, ExternalLink, Video, Box, Search, Layers, Command } from 'lucide-react';
-import { CURRENT_USER, MOCK_EVENTS } from '../constants';
+import { Play, Pause, Calendar, ArrowRight, Briefcase, Zap, MoreHorizontal, Clock, Activity, Users, CreditCard, CheckCircle2, X, FileText, MessageSquare, Star, TrendingUp, DollarSign, Newspaper, ExternalLink, Video, Box, Search, Layers, Command } from 'lucide-react';
+import { MOCK_EVENTS } from '../constants';
+import { useCurrentUser } from '../contexts/UserContext';
 
 interface DashboardProps {
     timerState: {
@@ -43,7 +44,7 @@ const ActivityHeatmap = () => {
             case 2: return 'bg-cad-accent/50 border-cad-accent/10';
             case 3: return 'bg-cad-accent border-cad-accent/20';
             case 4: return 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.6)] border-white'; 
-            default: return 'bg-white/5 border-transparent';
+            default: return 'bg-cad-surface/30 border-transparent';
         }
     };
 
@@ -63,7 +64,7 @@ const ActivityHeatmap = () => {
                 
                 <div className="flex items-center gap-1.5 text-[10px] text-cad-muted font-medium">
                     <span>Less</span>
-                    <div className="w-3 h-3 rounded-sm bg-white/5 border border-transparent"></div>
+                    <div className="w-3 h-3 rounded-sm bg-cad-surface/30 border border-transparent"></div>
                     <div className="w-3 h-3 rounded-sm bg-cad-accent/20 border border-cad-accent/5"></div>
                     <div className="w-3 h-3 rounded-sm bg-cad-accent/50 border border-cad-accent/10"></div>
                     <div className="w-3 h-3 rounded-sm bg-cad-accent border border-cad-accent/20"></div>
@@ -108,62 +109,62 @@ const PlatformPillars = ({ onNavigate }: { onNavigate?: (t: string) => void }) =
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div 
                 onClick={() => onNavigate && onNavigate('market')}
-                className="relative rounded-3xl overflow-hidden cursor-pointer group h-40 border border-white/10 shadow-lg hover:shadow-2xl hover:border-blue-500/30 transition-all duration-300 hover:-translate-y-1"
+                className="relative rounded-3xl overflow-hidden cursor-pointer group h-40 border border-cad-border shadow-lg hover:shadow-2xl hover:border-blue-500/30 transition-all duration-300 hover:-translate-y-1"
             >
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-blue-950"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-900 dark:to-blue-950"></div>
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[size:20px_20px] opacity-20"></div>
-                
+
                 <div className="relative z-10 p-6 flex flex-col h-full justify-between">
                     <div className="flex justify-between items-start">
-                        <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shadow-glow">
+                        <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-500 dark:text-blue-400 shadow-glow">
                             <Search className="w-5 h-5" />
                         </div>
-                        <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-white transition-colors" />
+                        <ArrowRight className="w-5 h-5 text-slate-400 dark:text-slate-500 group-hover:text-cad-text transition-colors" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-white mb-0.5 group-hover:text-blue-400 transition-colors">Find Contracts</h3>
-                        <p className="text-xs text-slate-400">Bid on high-value engineering projects.</p>
+                        <h3 className="text-lg font-bold text-cad-text mb-0.5 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">Find Contracts</h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Bid on high-value engineering projects.</p>
                     </div>
                 </div>
             </div>
 
             <div 
                 onClick={() => onNavigate && onNavigate('market')}
-                className="relative rounded-3xl overflow-hidden cursor-pointer group h-40 border border-white/10 shadow-lg hover:shadow-2xl hover:border-purple-500/30 transition-all duration-300 hover:-translate-y-1"
+                className="relative rounded-3xl overflow-hidden cursor-pointer group h-40 border border-cad-border shadow-lg hover:shadow-2xl hover:border-purple-500/30 transition-all duration-300 hover:-translate-y-1"
             >
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-purple-950"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-slate-900 dark:to-purple-950"></div>
                 <div className="absolute inset-0 opacity-20"><div className="absolute top-0 right-0 w-32 h-32 bg-purple-500 rounded-full blur-[60px]"></div></div>
 
                 <div className="relative z-10 p-6 flex flex-col h-full justify-between">
                     <div className="flex justify-between items-start">
-                        <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-glow">
+                        <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-500 dark:text-purple-400 shadow-glow">
                             <Box className="w-5 h-5" />
                         </div>
-                        <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-white transition-colors" />
+                        <ArrowRight className="w-5 h-5 text-slate-400 dark:text-slate-500 group-hover:text-cad-text transition-colors" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-white mb-0.5 group-hover:text-purple-400 transition-colors">Sell Services</h3>
-                        <p className="text-xs text-slate-400">Monetize your skills with fixed-price gigs.</p>
+                        <h3 className="text-lg font-bold text-cad-text mb-0.5 group-hover:text-purple-500 dark:group-hover:text-purple-400 transition-colors">Sell Services</h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Monetize your skills with fixed-price gigs.</p>
                     </div>
                 </div>
             </div>
 
             <div 
                 onClick={() => onNavigate && onNavigate('studio')}
-                className="relative rounded-3xl overflow-hidden cursor-pointer group h-40 border border-white/10 shadow-lg hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 hover:-translate-y-1"
+                className="relative rounded-3xl overflow-hidden cursor-pointer group h-40 border border-cad-border shadow-lg hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 hover:-translate-y-1"
             >
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-emerald-950"></div>
-                
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-slate-900 dark:to-emerald-950"></div>
+
                 <div className="relative z-10 p-6 flex flex-col h-full justify-between">
                     <div className="flex justify-between items-start">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-glow">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-glow">
                             <Users className="w-5 h-5" />
                         </div>
-                        <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-white transition-colors" />
+                        <ArrowRight className="w-5 h-5 text-slate-400 dark:text-slate-500 group-hover:text-cad-text transition-colors" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-white mb-0.5 group-hover:text-emerald-400 transition-colors">Team Studio</h3>
-                        <p className="text-xs text-slate-400">Real-time collaboration & design review.</p>
+                        <h3 className="text-lg font-bold text-cad-text mb-0.5 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Team Studio</h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Real-time collaboration & design review.</p>
                     </div>
                 </div>
             </div>
@@ -184,17 +185,17 @@ const OnboardingChecklist = () => {
 
     return (
         <div className="glass-panel p-6 rounded-2xl border border-cad-border relative overflow-hidden mb-8 animate-in slide-in-from-top-4">
-            <button onClick={() => setIsVisible(false)} className="absolute top-4 right-4 text-slate-500 hover:text-white"><X className="w-4 h-4"/></button>
+            <button onClick={() => setIsVisible(false)} className="absolute top-4 right-4 text-slate-500 hover:text-cad-text"><X className="w-4 h-4"/></button>
             <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-cad-accent to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-cad-accent/20 shrink-0">
-                    <CheckCircle2 className="w-6 h-6 text-white" />
+                    <CheckCircle2 className="w-6 h-6 text-cad-text" />
                 </div>
                 <div className="flex-1">
                     <h3 className="font-bold text-cad-text text-lg">Getting Started</h3>
                     <p className="text-sm text-cad-muted mb-4">Complete these steps to verify your account and boost your visibility.</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {steps.map(step => (
-                            <div key={step.id} className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${step.done ? 'text-cad-muted line-through decoration-slate-600' : 'text-cad-text bg-white/5'}`}>
+                            <div key={step.id} className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${step.done ? 'text-cad-muted line-through decoration-slate-600' : 'text-cad-text bg-cad-surface/30'}`}>
                                 <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${step.done ? 'bg-green-500/20 border-green-500/50 text-green-500' : 'border-slate-600'}`}>
                                     {step.done && <CheckCircle2 className="w-3.5 h-3.5" />}
                                 </div>
@@ -202,7 +203,7 @@ const OnboardingChecklist = () => {
                             </div>
                         ))}
                     </div>
-                    <div className="mt-4 w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                    <div className="mt-4 w-full bg-cad-surface/30 h-1.5 rounded-full overflow-hidden">
                         <div className="h-full bg-green-500 w-1/2 rounded-full"></div>
                     </div>
                 </div>
@@ -212,7 +213,9 @@ const OnboardingChecklist = () => {
 };
 
 const Dashboard: React.FC<DashboardProps> = ({ timerState, onToggleTimer, onProjectChange, onNavigate }) => {
-    const [viewMode, setViewMode] = useState<'freelancer' | 'client'>('freelancer');
+    const { firstName: ctxFirstName, email, role } = useCurrentUser();
+    const firstName = ctxFirstName || email.split('@')[0] || 'there';
+    const isClient = role === 'CLIENT';
 
     const { isTimerRunning, elapsedTime, selectedProject } = {
         isTimerRunning: timerState?.isRunning || false,
@@ -231,43 +234,20 @@ const Dashboard: React.FC<DashboardProps> = ({ timerState, onToggleTimer, onProj
         <div className="h-full overflow-y-auto custom-scrollbar p-8 lg:p-12 relative">
             <div className="max-w-[1600px] mx-auto space-y-10 animate-in fade-in duration-500 pb-20 relative z-10">
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row justify-between items-end gap-6 pb-2">
-                    <div>
-                        <div className="flex items-center gap-2 text-cad-accent mb-3 bg-cad-accent/10 w-fit px-3 py-1.5 rounded-full border border-cad-accent/20 backdrop-blur-sm">
-                            <Sun className="w-3.5 h-3.5" />
-                            <span className="font-mono text-[10px] uppercase tracking-wider font-bold">Good Morning</span>
-                        </div>
-                        <h2 className="text-4xl lg:text-5xl font-bold text-cad-text tracking-tight mb-2">Hello, {CURRENT_USER.name.split(' ')[0]}.</h2>
-                        <p className="text-cad-muted text-lg font-light max-w-2xl">
-                            {viewMode === 'freelancer' 
-                                ? "You have 3 meetings and 1 deadline pending. Your efficiency is up 12% this week."
-                                : "You have 2 active contracts and 65 new applicants to review for your open roles."
-                            }
-                        </p>
-                    </div>
-                    
-                    <div className="flex flex-col items-end gap-4">
-                        <div className="flex bg-[#121214] p-1 rounded-xl border border-white/10 shadow-lg">
-                            <button 
-                                onClick={() => setViewMode('freelancer')}
-                                className={`px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${viewMode === 'freelancer' ? 'bg-cad-accent text-white shadow-lg' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
-                            >
-                                Freelancer
-                            </button>
-                            <button 
-                                onClick={() => setViewMode('client')}
-                                className={`px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${viewMode === 'client' ? 'bg-cad-accent text-white shadow-lg' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
-                            >
-                                Client
-                            </button>
-                        </div>
-                    </div>
+                <div className="pb-2">
+                    <h2 className="text-4xl lg:text-5xl font-bold text-cad-text tracking-tight mb-2">Hello, {firstName}.</h2>
+                    <p className="text-cad-muted text-lg font-light max-w-2xl">
+                        {isClient
+                            ? "You have 2 active contracts and 65 new applicants to review for your open roles."
+                            : "You have 3 meetings and 1 deadline pending. Your efficiency is up 12% this week."
+                        }
+                    </p>
                 </div>
 
                 <PlatformPillars onNavigate={onNavigate} />
                 <OnboardingChecklist />
 
-                {viewMode === 'freelancer' ? (
+                {!isClient ? (
                     <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                         {/* LEFT COLUMN (2/3) */}
                         <div className="xl:col-span-2 space-y-8">
@@ -292,7 +272,7 @@ const Dashboard: React.FC<DashboardProps> = ({ timerState, onToggleTimer, onProj
                                                     <select 
                                                         value={selectedProject}
                                                         onChange={(e) => onProjectChange(e.target.value)}
-                                                        className="w-full bg-[#050505] text-cad-text border border-cad-border rounded-xl px-5 py-4 focus:border-cad-accent outline-none font-medium appearance-none transition-all cursor-pointer hover:border-white/20 text-lg shadow-inner"
+                                                        className="w-full bg-cad-panel text-cad-text border border-cad-border rounded-xl px-5 py-4 focus:border-cad-accent outline-none font-medium appearance-none transition-all cursor-pointer hover:border-white/20 text-lg shadow-inner"
                                                     >
                                                         <option>HVAC Layout - BuildTech</option>
                                                         <option>Villa Rendering - ArchViz</option>
@@ -306,8 +286,8 @@ const Dashboard: React.FC<DashboardProps> = ({ timerState, onToggleTimer, onProj
                                             </div>
                                         </div>
                                         
-                                        <div className="text-center md:text-right min-w-[240px] flex flex-col items-center md:items-end bg-[#050505] p-6 rounded-2xl border border-cad-border shadow-inner">
-                                            <div className={`font-mono text-5xl font-bold tracking-wider tabular-nums transition-all ${isTimerRunning ? 'text-white' : 'text-slate-500'}`}>
+                                        <div className="text-center md:text-right min-w-[240px] flex flex-col items-center md:items-end bg-cad-panel p-6 rounded-2xl border border-cad-border shadow-inner">
+                                            <div className={`font-mono text-5xl font-bold tracking-wider tabular-nums transition-all ${isTimerRunning ? 'text-cad-text' : 'text-slate-500'}`}>
                                                 {formatTime(elapsedTime)}
                                             </div>
                                             <div className="mt-5 w-full">
@@ -353,7 +333,7 @@ const Dashboard: React.FC<DashboardProps> = ({ timerState, onToggleTimer, onProj
                                                 <span>Progress</span>
                                                 <span className="text-cad-text">75%</span>
                                             </div>
-                                            <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                                            <div className="w-full bg-cad-surface/50 rounded-full h-1.5 overflow-hidden">
                                                 <div className="bg-cad-accent h-full rounded-full shadow-[0_0_10px_rgba(139,92,246,0.4)]" style={{ width: '75%' }}></div>
                                             </div>
                                         </div>
@@ -377,7 +357,7 @@ const Dashboard: React.FC<DashboardProps> = ({ timerState, onToggleTimer, onProj
                                                 <span>Progress</span>
                                                 <span className="text-cad-text">30%</span>
                                             </div>
-                                            <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                                            <div className="w-full bg-cad-surface/50 rounded-full h-1.5 overflow-hidden">
                                                 <div className="bg-purple-500 h-full rounded-full shadow-[0_0_10px_rgba(168,85,247,0.4)]" style={{ width: '30%' }}></div>
                                             </div>
                                         </div>
@@ -426,7 +406,7 @@ const Dashboard: React.FC<DashboardProps> = ({ timerState, onToggleTimer, onProj
                                                     <h4 className={`font-bold text-sm leading-tight mb-1 ${event.type === 'Deadline' ? 'text-red-400' : 'text-cad-text'}`}>
                                                         {event.title}
                                                     </h4>
-                                                    <span className="text-[10px] font-mono text-cad-muted bg-white/5 px-1.5 py-0.5 rounded ml-2 whitespace-nowrap border border-white/5">{event.time}</span>
+                                                    <span className="text-[10px] font-mono text-cad-muted bg-cad-surface/30 px-1.5 py-0.5 rounded ml-2 whitespace-nowrap border border-cad-border">{event.time}</span>
                                                 </div>
                                             </div>
                                         </div>

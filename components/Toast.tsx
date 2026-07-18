@@ -44,8 +44,8 @@ const ToastItem: React.FC<{ notification: ToastNotification; onRemove: (id: stri
   return (
     <div className={`pointer-events-auto flex items-center gap-3 p-4 rounded-xl border backdrop-blur-md shadow-lg animate-in slide-in-from-right-10 fade-in duration-300 min-w-[300px] ${getBgColor()}`}>
       {getIcon()}
-      <p className="text-sm font-bold text-white flex-1">{notification.message}</p>
-      <button onClick={() => onRemove(notification.id)} className="text-slate-400 hover:text-white transition-colors">
+      <p className="text-sm font-bold text-cad-text flex-1">{notification.message}</p>
+      <button onClick={() => onRemove(notification.id)} className="text-slate-400 hover:text-cad-text transition-colors">
         <X className="w-4 h-4" />
       </button>
     </div>

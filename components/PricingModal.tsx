@@ -36,7 +36,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
             ],
             cta: 'Current Plan',
             current: true,
-            color: 'bg-slate-800'
+            color: 'bg-cad-surface'
         },
         {
             name: 'Pro Freelancer',
@@ -76,7 +76,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
             ],
             notIncluded: [],
             cta: 'Contact Sales',
-            color: 'bg-slate-800'
+            color: 'bg-cad-surface'
         }
     ];
 
@@ -105,10 +105,10 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
 
     return (
         <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
-            <div className="w-full max-w-6xl h-full max-h-[90vh] overflow-y-auto custom-scrollbar bg-[#0B1121] rounded-3xl border border-white/10 shadow-2xl relative">
+            <div className="w-full max-w-6xl h-full max-h-[90vh] overflow-y-auto custom-scrollbar bg-cad-dark rounded-3xl border border-cad-border shadow-2xl relative">
                 <button 
                     onClick={onClose}
-                    className="absolute top-6 right-6 p-2 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 hover:text-white transition-colors z-50"
+                    className="absolute top-6 right-6 p-2 bg-cad-surface/30 hover:bg-cad-surface/50 rounded-full text-slate-400 hover:text-cad-text transition-colors z-50"
                 >
                     <X className="w-6 h-6" />
                 </button>
@@ -117,7 +117,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cad-accent/10 text-cad-accent border border-cad-accent/20 text-xs font-bold uppercase tracking-wider mb-6">
                         <Zap className="w-3 h-3" /> Upgrade your Workflow
                     </div>
-                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">Simple pricing for <span className="text-transparent bg-clip-text bg-gradient-to-r from-cad-accent to-purple-400">Engineers</span>.</h2>
+                    <h2 className="text-4xl md:text-5xl font-bold text-cad-text mb-6 tracking-tight">Simple pricing for <span className="text-transparent bg-clip-text bg-gradient-to-r from-cad-accent to-purple-400">Engineers</span>.</h2>
                     <p className="text-xl text-cad-muted max-w-2xl mx-auto mb-16">
                         Unlock the full potential of CADLink. From AI generation to unlimited storage, choose the plan that fits your career.
                     </p>
@@ -126,9 +126,9 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
                         {plans.map((plan) => (
                             <div 
                                 key={plan.name} 
-                                className={`relative rounded-3xl p-1 ${plan.popular ? 'ring-2 ring-cad-accent shadow-[0_0_40px_rgba(56,189,248,0.2)]' : 'border border-white/5'}`}
+                                className={`relative rounded-3xl p-1 ${plan.popular ? 'ring-2 ring-cad-accent shadow-[0_0_40px_rgba(56,189,248,0.2)]' : 'border border-cad-border'}`}
                             >
-                                <div className={`h-full bg-[#121214] rounded-[22px] overflow-hidden flex flex-col relative ${plan.popular ? '' : ''}`}>
+                                <div className={`h-full bg-cad-panel rounded-[22px] overflow-hidden flex flex-col relative ${plan.popular ? '' : ''}`}>
                                     {plan.popular && (
                                         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-cad-accent to-purple-500"></div>
                                     )}
@@ -139,9 +139,9 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
                                     )}
 
                                     <div className="p-8 text-left">
-                                        <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
+                                        <h3 className="text-xl font-bold text-cad-text mb-2">{plan.name}</h3>
                                         <div className="flex items-baseline gap-1 mb-4">
-                                            <span className="text-4xl font-bold text-white tracking-tight">{(plan as any).isFree ? 'Free' : format(plan.price)}</span>
+                                            <span className="text-4xl font-bold text-cad-text tracking-tight">{(plan as any).isFree ? 'Free' : format(plan.price)}</span>
                                             <span className="text-slate-500 font-medium">{plan.period}</span>
                                         </div>
                                         <p className="text-sm text-slate-400 h-10">{plan.description}</p>
@@ -151,7 +151,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
                                         <div className="space-y-4 mb-8 flex-1">
                                             {plan.features.map((feature) => (
                                                 <div key={feature} className="flex items-start gap-3">
-                                                    <div className={`p-0.5 rounded-full ${plan.popular ? 'bg-cad-accent/20 text-cad-accent' : 'bg-white/10 text-slate-300'}`}>
+                                                    <div className={`p-0.5 rounded-full ${plan.popular ? 'bg-cad-accent/20 text-cad-accent' : 'bg-cad-surface/50 text-slate-300'}`}>
                                                         <Check className="w-3 h-3" />
                                                     </div>
                                                     <span className="text-sm text-slate-200 font-medium">{feature}</span>
@@ -159,7 +159,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
                                             ))}
                                             {plan.notIncluded.map((feature) => (
                                                 <div key={feature} className="flex items-start gap-3 opacity-40">
-                                                    <div className="p-0.5 rounded-full bg-slate-800 text-slate-500">
+                                                    <div className="p-0.5 rounded-full bg-cad-surface text-slate-500">
                                                         <X className="w-3 h-3" />
                                                     </div>
                                                     <span className="text-sm text-slate-500 font-medium">{feature}</span>
@@ -172,7 +172,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
                                                 plan.popular 
                                                 ? 'bg-cad-accent text-cad-dark hover:bg-sky-400 shadow-lg shadow-cad-accent/20' 
                                                 : plan.current 
-                                                ? 'bg-white/5 text-slate-400 cursor-default'
+                                                ? 'bg-cad-surface/30 text-slate-400 cursor-default'
                                                 : 'bg-white text-black hover:bg-slate-200'
                                             }`}
                                         >
@@ -185,21 +185,21 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
                     </div>
 
                     {/* FAQ Section */}
-                    <div className="max-w-3xl mx-auto text-left border-t border-white/5 pt-16">
-                        <h3 className="text-2xl font-bold text-white mb-8 text-center flex items-center justify-center gap-2">
+                    <div className="max-w-3xl mx-auto text-left border-t border-cad-border pt-16">
+                        <h3 className="text-2xl font-bold text-cad-text mb-8 text-center flex items-center justify-center gap-2">
                             <HelpCircle className="w-6 h-6 text-cad-muted" /> Frequently Asked Questions
                         </h3>
                         <div className="space-y-4">
                             {faqs.map((faq, idx) => (
                                 <div 
                                     key={idx} 
-                                    className="bg-white/5 rounded-2xl overflow-hidden border border-white/5 transition-all"
+                                    className="bg-cad-surface/30 rounded-2xl overflow-hidden border border-cad-border transition-all"
                                 >
                                     <button 
                                         onClick={() => toggleFaq(idx)}
-                                        className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
+                                        className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-cad-surface/30 transition-colors"
                                     >
-                                        <span className="font-bold text-white text-sm md:text-base">{faq.q}</span>
+                                        <span className="font-bold text-cad-text text-sm md:text-base">{faq.q}</span>
                                         {openFaq === idx ? <ChevronUp className="w-5 h-5 text-cad-accent" /> : <ChevronDown className="w-5 h-5 text-slate-500" />}
                                     </button>
                                     {openFaq === idx && (
@@ -212,7 +212,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
                         </div>
                     </div>
 
-                    <div className="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-center gap-8 text-slate-500 text-sm">
+                    <div className="mt-16 pt-8 border-t border-cad-border flex flex-col md:flex-row items-center justify-center gap-8 text-slate-500 text-sm">
                         <div className="flex items-center gap-2">
                             <Building2 className="w-5 h-5" /> Enterprise Plans available
                         </div>

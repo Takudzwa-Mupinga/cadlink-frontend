@@ -1,23 +1,48 @@
 
-import React, { useState } from 'react';
-import { User, Bell, Shield, CreditCard, Monitor, Cpu, HardDrive, Check, ToggleLeft, ToggleRight, Save, Lock, Sun, Moon, Layers, Github, Hash, Cloud, Database, Link as LinkIcon, ExternalLink, Zap, Globe } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Bell, Shield, CreditCard, Monitor, Cpu, HardDrive, Check, ToggleLeft, ToggleRight, Save, Lock, Sun, Moon, Layers, Github, Hash, Cloud, Database, Link as LinkIcon, ExternalLink, Zap, Globe, Loader2, MapPin, DollarSign, Briefcase, Link2, FileText } from 'lucide-react';
 import PricingModal from './PricingModal';
 import { useCurrency } from '../contexts/CurrencyContext';
+import { useCurrentUser } from '../contexts/UserContext';
+import { updateProfile, updateDesignerProfile } from '../services/api';
 import { SUPPORTED_CURRENCIES, CurrencyCode } from '../lib/currency';
 
 interface SettingsProps {
   theme?: 'dark' | 'light' | 'system';
   onSetTheme?: (t: 'dark' | 'light' | 'system') => void;
+  onLogout?: () => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme }) => {
+const CAD_SKILLS = [
+  'AutoCAD', 'Revit', 'SolidWorks', 'Fusion 360',
+  'SketchUp', 'Blender', 'Rhino', 'Civil 3D',
+  'Navisworks', 'BIM 360', 'ArchiCAD', '3ds Max',
+];
+
+const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme, onLogout }) => {
   const { currency, setCurrency, format } = useCurrency();
+  const { profile, designerProfile, email: userEmail, firstName: ctxFirst, lastName: ctxLast, role, refetch } = useCurrentUser();
+  const isDesigner = role === 'DESIGNER';
   const [activeSection, setActiveSection] = useState('general');
   const [showPricing, setShowPricing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Profile fields
+  const [firstName, setFirstName] = useState(ctxFirst || '');
+  const [lastName, setLastName] = useState(ctxLast || '');
+  const [bio, setBio] = useState(profile?.bio || '');
+  const [location, setLocation] = useState(profile?.location || designerProfile?.location || '');
+  // Designer-only fields
+  const [headline, setHeadline] = useState(designerProfile?.headline || '');
+  const [hourlyRate, setHourlyRate] = useState(designerProfile?.hourlyRate?.toString() || '');
+  const [yearsExperience, setYearsExperience] = useState(designerProfile?.yearsExperience?.toString() || '');
+  const [linkedinUrl, setLinkedinUrl] = useState(designerProfile?.linkedinUrl || '');
+  const [cvUrl, setCvUrl] = useState(designerProfile?.cvUrl || '');
+  const [photoUrl, setPhotoUrl] = useState(designerProfile?.photoUrl || '');
+  const [selectedSkills, setSelectedSkills] = useState<string[]>(designerProfile?.skills ?? profile?.skills ?? []);
+
   const [settings, setSettings] = useState({
-      displayName: 'Takudzwa Mupinga',
-      email: 'takudzwam@cadlink.com',
-      title: 'Senior Mechanical Engineer',
       publicProfile: true,
       gpuEnabled: true,
       highTextures: 'High (4K)',
@@ -25,6 +50,23 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme }) => 
       desktopNotifs: true,
       marketingEmails: false
   });
+
+  useEffect(() => {
+    setFirstName(ctxFirst || '');
+    setLastName(ctxLast || '');
+    setBio(profile?.bio || '');
+    setLocation(profile?.location || designerProfile?.location || '');
+    setHeadline(designerProfile?.headline || '');
+    setHourlyRate(designerProfile?.hourlyRate?.toString() || '');
+    setYearsExperience(designerProfile?.yearsExperience?.toString() || '');
+    setLinkedinUrl(designerProfile?.linkedinUrl || '');
+    setCvUrl(designerProfile?.cvUrl || '');
+    setPhotoUrl(designerProfile?.photoUrl || '');
+    setSelectedSkills(designerProfile?.skills ?? profile?.skills ?? []);
+  }, [profile, designerProfile, ctxFirst, ctxLast]);
+
+  const toggleSkill = (skill: string) =>
+    setSelectedSkills(prev => prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]);
 
   const [integrations, setIntegrations] = useState([
       { id: 'autodesk', name: 'Autodesk Cloud', icon: Layers, connected: true, desc: 'Sync Revit families and AutoCAD blocks.' },
@@ -36,9 +78,38 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme }) => 
 
   const [saved, setSaved] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      await updateProfile({
+        firstName,
+        lastName,
+        bio: bio || undefined,
+        location: location || undefined,
+        skills: isDesigner ? selectedSkills : undefined,
+      });
+      if (isDesigner) {
+        await updateDesignerProfile({
+          headline: headline || undefined,
+          bio: bio || undefined,
+          location: location || undefined,
+          hourlyRate: hourlyRate ? parseFloat(hourlyRate) : undefined,
+          yearsExperience: yearsExperience ? parseInt(yearsExperience) : undefined,
+          linkedinUrl: linkedinUrl || undefined,
+          cvUrl: cvUrl || undefined,
+          photoUrl: photoUrl || undefined,
+          skills: selectedSkills,
+        });
+      }
+      refetch();
       setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (err: any) {
+      setSaveError(err?.message ?? 'Failed to save. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const updateSetting = (key: string, value: any) => {
@@ -84,41 +155,100 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme }) => 
       case 'general':
         return (
           <div className="space-y-8 animate-in fade-in duration-300">
+            {/* Basic info — all roles */}
             <div>
               <h3 className="text-lg font-bold text-cad-text mb-6 flex items-center gap-2">
-                  <User className="w-5 h-5 text-cad-accent" /> Profile Information
+                <User className="w-5 h-5 text-cad-accent" /> Profile Information
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Display Name</label>
-                  <input 
-                    type="text" 
-                    value={settings.displayName} 
-                    onChange={(e) => updateSetting('displayName', e.target.value)}
-                    className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors" 
-                  />
+                  <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">First Name</label>
+                  <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)}
+                    className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Last Name</label>
+                  <input type="text" value={lastName} onChange={e => setLastName(e.target.value)}
+                    className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Email Address</label>
-                  <input 
-                    type="email" 
-                    value={settings.email}
-                    onChange={(e) => updateSetting('email', e.target.value)}
-                    className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors" 
-                  />
+                  <input type="email" value={userEmail || ''} readOnly
+                    className="w-full bg-cad-surface/40 border border-cad-border rounded-xl px-4 py-3 text-slate-500 outline-none font-medium cursor-not-allowed" />
+                </div>
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-cad-muted uppercase tracking-wider mb-2"><MapPin className="w-3 h-3" /> Location</label>
+                  <input type="text" value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. Cape Town, ZA"
+                    className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
                 </div>
                 <div className="md:col-span-2">
-                   <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Professional Title</label>
-                   <input 
-                        type="text" 
-                        value={settings.title}
-                        onChange={(e) => updateSetting('title', e.target.value)}
-                        className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors" 
-                   />
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-cad-muted uppercase tracking-wider mb-2"><FileText className="w-3 h-3" /> Bio</label>
+                  <textarea value={bio} onChange={e => setBio(e.target.value)} rows={3} placeholder="A short bio visible on your public profile…"
+                    className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors resize-none placeholder-slate-600" />
                 </div>
               </div>
             </div>
-            
+
+            {/* Designer-only fields */}
+            {isDesigner && (
+              <>
+                <div className="pt-6 border-t border-cad-border">
+                  <h3 className="text-lg font-bold text-cad-text mb-6 flex items-center gap-2">
+                    <Briefcase className="w-5 h-5 text-cad-accent" /> Professional Details
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Headline</label>
+                      <input type="text" value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g. BIM Specialist & Revit Expert"
+                        className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-1.5 text-xs font-bold text-cad-muted uppercase tracking-wider mb-2"><DollarSign className="w-3 h-3" /> Hourly Rate ($)</label>
+                      <input type="number" min="0" value={hourlyRate} onChange={e => setHourlyRate(e.target.value)} placeholder="e.g. 75"
+                        className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Years of Experience</label>
+                      <input type="number" min="0" value={yearsExperience} onChange={e => setYearsExperience(e.target.value)} placeholder="e.g. 5"
+                        className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-1.5 text-xs font-bold text-cad-muted uppercase tracking-wider mb-2"><Link2 className="w-3 h-3" /> LinkedIn URL</label>
+                      <input type="url" value={linkedinUrl} onChange={e => setLinkedinUrl(e.target.value)} placeholder="https://linkedin.com/in/…"
+                        className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-1.5 text-xs font-bold text-cad-muted uppercase tracking-wider mb-2"><FileText className="w-3 h-3" /> CV / Resume URL</label>
+                      <input type="url" value={cvUrl} onChange={e => setCvUrl(e.target.value)} placeholder="Google Drive, Cloudinary…"
+                        className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="flex items-center gap-1.5 text-xs font-bold text-cad-muted uppercase tracking-wider mb-2"><User className="w-3 h-3" /> Profile Photo URL</label>
+                      <input type="url" value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="https://…"
+                        className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-cad-border">
+                  <h3 className="text-lg font-bold text-cad-text mb-2">Software Skills</h3>
+                  <p className="text-sm text-cad-muted mb-4">{selectedSkills.length} selected</p>
+                  <div className="flex flex-wrap gap-2">
+                    {CAD_SKILLS.map(skill => (
+                      <button key={skill} type="button" onClick={() => toggleSkill(skill)}
+                        className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
+                          selectedSkills.includes(skill)
+                            ? 'bg-cad-accent/20 border-cad-accent text-cad-accent'
+                            : 'bg-cad-surface/30 border-cad-border text-slate-400 hover:border-white/30'
+                        }`}>
+                        {skill}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
             <div className="pt-8 border-t border-cad-border">
                <h3 className="text-lg font-bold text-cad-text mb-6">Preferences</h3>
                <div className="flex items-center justify-between p-5 bg-cad-panel rounded-2xl border border-cad-border mb-4">
@@ -379,7 +509,7 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme }) => 
                                 <div className="mb-4">
                                     <h4 className="text-lg font-bold text-cad-text">{plan.name}</h4>
                                     <div className="flex items-baseline gap-1 mt-1">
-                                        <span className="text-2xl font-bold text-white">{(plan as any).isFree ? 'Free' : format(plan.price)}</span>
+                                        <span className="text-2xl font-bold text-cad-text">{(plan as any).isFree ? 'Free' : format(plan.price)}</span>
                                         <span className="text-xs text-cad-muted">{plan.period}</span>
                                     </div>
                                     <p className="text-xs text-cad-muted mt-2 h-8">{plan.description}</p>
@@ -396,7 +526,7 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme }) => 
                                     onClick={() => setShowPricing(true)}
                                     className={`w-full py-2.5 rounded-lg text-xs font-bold transition-all ${
                                         plan.current 
-                                        ? 'bg-white/5 text-slate-400 cursor-default' 
+                                        ? 'bg-cad-surface/30 text-slate-400 cursor-default' 
                                         : plan.popular
                                         ? 'bg-cad-accent text-cad-dark hover:bg-sky-400 shadow-lg'
                                         : 'bg-white text-black hover:bg-slate-200'
@@ -468,7 +598,7 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme }) => 
 
       <div className="flex-1 flex flex-col md:flex-row gap-8 overflow-hidden">
         {/* Sidebar Nav */}
-        <div className="w-full md:w-72 flex flex-col gap-2">
+        <div className="w-full md:w-72 flex flex-col gap-2 overflow-y-auto custom-scrollbar">
           <button 
             onClick={() => setActiveSection('general')}
             className={`flex items-center gap-3 px-5 py-4 rounded-xl text-left transition-all ${activeSection === 'general' ? 'bg-cad-accent text-cad-dark font-bold shadow-lg shadow-cad-accent/20' : 'text-cad-muted hover:text-cad-text hover:bg-cad-panel font-medium'}`}
@@ -499,26 +629,44 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme }) => 
           >
             <CreditCard className="w-5 h-5" /> Billing
           </button>
-          <button 
+          <button
              onClick={() => setActiveSection('security')}
              className={`flex items-center gap-3 px-5 py-4 rounded-xl text-left transition-all ${activeSection === 'security' ? 'bg-cad-accent text-cad-dark font-bold shadow-lg shadow-cad-accent/20' : 'text-cad-muted hover:text-cad-text hover:bg-cad-panel font-medium'}`}
           >
             <Shield className="w-5 h-5" /> Security
           </button>
+
+          <div className="mt-4 pt-4 border-t border-cad-border">
+            <button
+              onClick={onLogout}
+              className="w-full flex items-center gap-3 px-5 py-4 rounded-xl text-left text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all font-medium"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Sign out
+            </button>
+          </div>
         </div>
 
         {/* Content Area */}
         <div className="flex-1 glass-panel rounded-3xl border border-cad-border p-8 md:p-10 overflow-y-auto custom-scrollbar shadow-2xl">
             {renderSection()}
             
-            <div className="mt-10 pt-8 border-t border-cad-border flex justify-end">
-                 <button 
-                    onClick={handleSave}
-                    className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-all shadow-lg active:scale-95 ${saved ? 'bg-green-500 text-white' : 'bg-cad-accent text-cad-dark hover:bg-violet-400'}`}
-                 >
-                    {saved ? <Check className="w-5 h-5" /> : <Save className="w-5 h-5" />}
-                    {saved ? 'Saved!' : 'Save Changes'}
-                 </button>
+            <div className="mt-10 pt-8 border-t border-cad-border space-y-3">
+                 {saveError && (
+                   <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2">{saveError}</p>
+                 )}
+                 <div className="flex justify-end">
+                   <button
+                      onClick={handleSave}
+                      disabled={isSaving}
+                      className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-all shadow-lg active:scale-95 disabled:opacity-60 ${saved ? 'bg-green-500 text-cad-text' : 'bg-cad-accent text-cad-dark hover:bg-violet-400'}`}
+                   >
+                      {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : saved ? <Check className="w-5 h-5" /> : <Save className="w-5 h-5" />}
+                      {isSaving ? 'Saving…' : saved ? 'Saved!' : 'Save Changes'}
+                   </button>
+                 </div>
             </div>
         </div>
       </div>
