@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CADLink</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Applies saved theme before first paint to prevent flash -->
+    <script>
+      (function () {
+        var t = localStorage.getItem('theme');
+        var dark = t === 'dark' || ((t === 'system' || !t) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (dark) document.documentElement.classList.add('dark');
+      })();
+    </script>
+    <style>
+      :root {
+        --bg-primary: #fafafa;
+        --text-primary: #09090b;
+      }
+      .dark {
+        --bg-primary: #09090b;
+        --text-primary: #f4f4f5;
+        color-scheme: dark;
+      }
+
+      body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        height: 100dvh;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      /* Subtle Noise Texture */
+      .bg-noise {
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+      }
+
+      /* Refined Scrollbar */
+      ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1); 
+        border-radius: 20px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(139, 92, 246, 0.5); 
+      }
+      
+      /* Professional Glass Panels - Higher Contrast */
+      .glass-panel {
+        background: rgba(15, 15, 17, 0.75);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      }
+      
+      .glass-card {
+        background: rgba(39, 39, 42, 0.4);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+      
+      .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+      }
+
+      ::-moz-selection {
+        background: rgba(139, 92, 246, 0.3);
+        color: white;
+      }
+
+      ::selection {
+        background: rgba(139, 92, 246, 0.3);
+        color: white;
+      }
+      
+      /* 3D View Cube CSS */
+      .scene-3d { perspective: 600px; }
+      .cube-3d {
+        width: 100%; height: 100%; position: relative;
+        transform-style: preserve-3d; transition: transform 0.5s ease;
+      }
+      .cube-face {
+        position: absolute; width: 40px; height: 40px;
+        background: rgba(139, 92, 246, 0.15);
+        border: 1px solid rgba(139, 92, 246, 0.6);
+        color: white; font-size: 8px; font-weight: bold;
+        display: flex; align-items: center; justify-content: center;
+        text-transform: uppercase; backdrop-filter: blur(4px); cursor: pointer;
+      }
+      .cube-face:hover { background: rgba(139, 92, 246, 0.5); }
+      .face-front  { transform: rotateY(0deg) translateZ(20px); }
+      .face-right  { transform: rotateY(90deg) translateZ(20px); }
+      .face-back   { transform: rotateY(180deg) translateZ(20px); }
+      .face-left   { transform: rotateY(-90deg) translateZ(20px); }
+      .face-top    { transform: rotateX(90deg) translateZ(20px); }
+      .face-bottom { transform: rotateX(-90deg) translateZ(20px); }
+    </style>
+  <script type="module" crossorigin src="/assets/index-DbSkyrZS.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-c4UY7r2M.css">
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
