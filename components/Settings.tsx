@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
-import { User, Bell, Shield, CreditCard, Monitor, Cpu, HardDrive, Check, ToggleLeft, ToggleRight, Save, Lock, Sun, Moon, Layers, Github, Hash, Cloud, Database, Link as LinkIcon, ExternalLink, Zap, Globe, Loader2, MapPin, DollarSign, Briefcase, Link2, FileText } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Bell, Shield, CreditCard, Monitor, Cpu, HardDrive, Check, ToggleLeft, ToggleRight, Sun, Moon, Layers, Github, Hash, Cloud, Database, Link as LinkIcon, ExternalLink, Zap, Globe } from 'lucide-react';
 import PricingModal from './PricingModal';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCurrentUser } from '../contexts/UserContext';
-import { updateProfile, updateDesignerProfile } from '../services/api';
 import { SUPPORTED_CURRENCIES, CurrencyCode } from '../lib/currency';
 
 interface SettingsProps {
@@ -13,34 +12,12 @@ interface SettingsProps {
   onLogout?: () => void;
 }
 
-const CAD_SKILLS = [
-  'AutoCAD', 'Revit', 'SolidWorks', 'Fusion 360',
-  'SketchUp', 'Blender', 'Rhino', 'Civil 3D',
-  'Navisworks', 'BIM 360', 'ArchiCAD', '3ds Max',
-];
-
 const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme, onLogout }) => {
   const { currency, setCurrency, format } = useCurrency();
-  const { profile, designerProfile, email: userEmail, firstName: ctxFirst, lastName: ctxLast, role, refetch } = useCurrentUser();
+  const { role } = useCurrentUser();
   const isDesigner = role === 'DESIGNER';
   const [activeSection, setActiveSection] = useState('general');
   const [showPricing, setShowPricing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-
-  // Profile fields
-  const [firstName, setFirstName] = useState(ctxFirst || '');
-  const [lastName, setLastName] = useState(ctxLast || '');
-  const [bio, setBio] = useState(profile?.bio || '');
-  const [location, setLocation] = useState(profile?.location || designerProfile?.location || '');
-  // Designer-only fields
-  const [headline, setHeadline] = useState(designerProfile?.headline || '');
-  const [hourlyRate, setHourlyRate] = useState(designerProfile?.hourlyRate?.toString() || '');
-  const [yearsExperience, setYearsExperience] = useState(designerProfile?.yearsExperience?.toString() || '');
-  const [linkedinUrl, setLinkedinUrl] = useState(designerProfile?.linkedinUrl || '');
-  const [cvUrl, setCvUrl] = useState(designerProfile?.cvUrl || '');
-  const [photoUrl, setPhotoUrl] = useState(designerProfile?.photoUrl || '');
-  const [selectedSkills, setSelectedSkills] = useState<string[]>(designerProfile?.skills ?? profile?.skills ?? []);
 
   const [settings, setSettings] = useState({
       publicProfile: true,
@@ -51,23 +28,6 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme, onLog
       marketingEmails: false
   });
 
-  useEffect(() => {
-    setFirstName(ctxFirst || '');
-    setLastName(ctxLast || '');
-    setBio(profile?.bio || '');
-    setLocation(profile?.location || designerProfile?.location || '');
-    setHeadline(designerProfile?.headline || '');
-    setHourlyRate(designerProfile?.hourlyRate?.toString() || '');
-    setYearsExperience(designerProfile?.yearsExperience?.toString() || '');
-    setLinkedinUrl(designerProfile?.linkedinUrl || '');
-    setCvUrl(designerProfile?.cvUrl || '');
-    setPhotoUrl(designerProfile?.photoUrl || '');
-    setSelectedSkills(designerProfile?.skills ?? profile?.skills ?? []);
-  }, [profile, designerProfile, ctxFirst, ctxLast]);
-
-  const toggleSkill = (skill: string) =>
-    setSelectedSkills(prev => prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]);
-
   const [integrations, setIntegrations] = useState([
       { id: 'autodesk', name: 'Autodesk Cloud', icon: Layers, connected: true, desc: 'Sync Revit families and AutoCAD blocks.' },
       { id: 'github', name: 'GitHub', icon: Github, connected: false, desc: 'Version control for scripts and plugins.' },
@@ -75,42 +35,6 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme, onLog
       { id: 'drive', name: 'Google Drive', icon: Cloud, connected: false, desc: 'Backup project files automatically.' },
       { id: 'notion', name: 'Notion', icon: Database, connected: false, desc: 'Export project milestones to Notion.' },
   ]);
-
-  const [saved, setSaved] = useState(false);
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    setSaveError(null);
-    try {
-      await updateProfile({
-        firstName,
-        lastName,
-        bio: bio || undefined,
-        location: location || undefined,
-        skills: isDesigner ? selectedSkills : undefined,
-      });
-      if (isDesigner) {
-        await updateDesignerProfile({
-          headline: headline || undefined,
-          bio: bio || undefined,
-          location: location || undefined,
-          hourlyRate: hourlyRate ? parseFloat(hourlyRate) : undefined,
-          yearsExperience: yearsExperience ? parseInt(yearsExperience) : undefined,
-          linkedinUrl: linkedinUrl || undefined,
-          cvUrl: cvUrl || undefined,
-          photoUrl: photoUrl || undefined,
-          skills: selectedSkills,
-        });
-      }
-      refetch();
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    } catch (err: any) {
-      setSaveError(err?.message ?? 'Failed to save. Please try again.');
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const updateSetting = (key: string, value: any) => {
       setSettings(prev => ({ ...prev, [key]: value }));
@@ -155,99 +79,19 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme, onLog
       case 'general':
         return (
           <div className="space-y-8 animate-in fade-in duration-300">
-            {/* Basic info — all roles */}
-            <div>
-              <h3 className="text-lg font-bold text-cad-text mb-6 flex items-center gap-2">
-                <User className="w-5 h-5 text-cad-accent" /> Profile Information
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">First Name</label>
-                  <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)}
-                    className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Last Name</label>
-                  <input type="text" value={lastName} onChange={e => setLastName(e.target.value)}
-                    className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Email Address</label>
-                  <input type="email" value={userEmail || ''} readOnly
-                    className="w-full bg-cad-surface/40 border border-cad-border rounded-xl px-4 py-3 text-slate-500 outline-none font-medium cursor-not-allowed" />
-                </div>
-                <div>
-                  <label className="flex items-center gap-1.5 text-xs font-bold text-cad-muted uppercase tracking-wider mb-2"><MapPin className="w-3 h-3" /> Location</label>
-                  <input type="text" value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. Cape Town, ZA"
-                    className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="flex items-center gap-1.5 text-xs font-bold text-cad-muted uppercase tracking-wider mb-2"><FileText className="w-3 h-3" /> Bio</label>
-                  <textarea value={bio} onChange={e => setBio(e.target.value)} rows={3} placeholder="A short bio visible on your public profile…"
-                    className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors resize-none placeholder-slate-600" />
-                </div>
+            {/* Profile details are edited on the Profile page (single source of truth) */}
+            <div className="flex items-start gap-4 p-5 bg-cad-panel rounded-2xl border border-cad-border">
+              <div className="p-2.5 bg-cad-accent/10 rounded-xl text-cad-accent border border-cad-accent/10 shrink-0">
+                <User className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-cad-text">Your {isDesigner ? 'designer ' : ''}profile</h3>
+                <p className="text-sm text-cad-muted mt-1">
+                  Your name, photo, bio{isDesigner ? ', skills, rate and links' : ''} are managed on your{' '}
+                  <span className="font-bold text-cad-text">Profile</span> page. Head there to make changes.
+                </p>
               </div>
             </div>
-
-            {/* Designer-only fields */}
-            {isDesigner && (
-              <>
-                <div className="pt-6 border-t border-cad-border">
-                  <h3 className="text-lg font-bold text-cad-text mb-6 flex items-center gap-2">
-                    <Briefcase className="w-5 h-5 text-cad-accent" /> Professional Details
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Headline</label>
-                      <input type="text" value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g. BIM Specialist & Revit Expert"
-                        className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
-                    </div>
-                    <div>
-                      <label className="flex items-center gap-1.5 text-xs font-bold text-cad-muted uppercase tracking-wider mb-2"><DollarSign className="w-3 h-3" /> Hourly Rate ($)</label>
-                      <input type="number" min="0" value={hourlyRate} onChange={e => setHourlyRate(e.target.value)} placeholder="e.g. 75"
-                        className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Years of Experience</label>
-                      <input type="number" min="0" value={yearsExperience} onChange={e => setYearsExperience(e.target.value)} placeholder="e.g. 5"
-                        className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
-                    </div>
-                    <div>
-                      <label className="flex items-center gap-1.5 text-xs font-bold text-cad-muted uppercase tracking-wider mb-2"><Link2 className="w-3 h-3" /> LinkedIn URL</label>
-                      <input type="url" value={linkedinUrl} onChange={e => setLinkedinUrl(e.target.value)} placeholder="https://linkedin.com/in/…"
-                        className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
-                    </div>
-                    <div>
-                      <label className="flex items-center gap-1.5 text-xs font-bold text-cad-muted uppercase tracking-wider mb-2"><FileText className="w-3 h-3" /> CV / Resume URL</label>
-                      <input type="url" value={cvUrl} onChange={e => setCvUrl(e.target.value)} placeholder="Google Drive, Cloudinary…"
-                        className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="flex items-center gap-1.5 text-xs font-bold text-cad-muted uppercase tracking-wider mb-2"><User className="w-3 h-3" /> Profile Photo URL</label>
-                      <input type="url" value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="https://…"
-                        className="w-full bg-cad-surface border border-cad-border rounded-xl px-4 py-3 text-cad-text focus:border-cad-accent outline-none font-medium transition-colors placeholder-slate-600" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-6 border-t border-cad-border">
-                  <h3 className="text-lg font-bold text-cad-text mb-2">Software Skills</h3>
-                  <p className="text-sm text-cad-muted mb-4">{selectedSkills.length} selected</p>
-                  <div className="flex flex-wrap gap-2">
-                    {CAD_SKILLS.map(skill => (
-                      <button key={skill} type="button" onClick={() => toggleSkill(skill)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
-                          selectedSkills.includes(skill)
-                            ? 'bg-cad-accent/20 border-cad-accent text-cad-accent'
-                            : 'bg-cad-surface/30 border-cad-border text-slate-400 hover:border-white/30'
-                        }`}>
-                        {skill}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
 
             <div className="pt-8 border-t border-cad-border">
                <h3 className="text-lg font-bold text-cad-text mb-6">Preferences</h3>
@@ -652,22 +496,6 @@ const Settings: React.FC<SettingsProps> = ({ theme = 'system', onSetTheme, onLog
         {/* Content Area */}
         <div className="flex-1 glass-panel rounded-3xl border border-cad-border p-8 md:p-10 overflow-y-auto custom-scrollbar shadow-2xl">
             {renderSection()}
-            
-            <div className="mt-10 pt-8 border-t border-cad-border space-y-3">
-                 {saveError && (
-                   <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2">{saveError}</p>
-                 )}
-                 <div className="flex justify-end">
-                   <button
-                      onClick={handleSave}
-                      disabled={isSaving}
-                      className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-all shadow-lg active:scale-95 disabled:opacity-60 ${saved ? 'bg-green-500 text-cad-text' : 'bg-cad-accent text-cad-dark hover:bg-violet-400'}`}
-                   >
-                      {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : saved ? <Check className="w-5 h-5" /> : <Save className="w-5 h-5" />}
-                      {isSaving ? 'Saving…' : saved ? 'Saved!' : 'Save Changes'}
-                   </button>
-                 </div>
-            </div>
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ArrowRight, Loader2, Building2, MapPin, Globe, Users, Briefcase } from 'lucide-react';
-import { updateClientProfile } from '../services/api';
+import { ArrowRight, Loader2, Building2, MapPin, Globe, Briefcase } from 'lucide-react';
+import { updateClientProfile, updateProfile } from '../services/api';
+import ImageUpload from './ImageUpload';
 
 const COMPANY_SIZES = ['1–10', '11–50', '51–200', '200+'];
 const INDUSTRIES = [
@@ -45,6 +46,12 @@ const ClientOnboarding: React.FC<Props> = ({ onComplete }) => {
         website: website || undefined,
         photoUrl: photoUrl || undefined,
       });
+
+      // Mirror the logo onto the base profile's avatarUrl — that's the field
+      // the sidebar, header and chips actually render for every role.
+      if (photoUrl) {
+        await updateProfile({ avatarUrl: photoUrl, displayName: companyName || undefined });
+      }
       onComplete();
     } catch (err: any) {
       setError(err.message ?? 'Failed to save profile. Please try again.');
@@ -201,14 +208,14 @@ const ClientOnboarding: React.FC<Props> = ({ onComplete }) => {
               </div>
 
               <div className="space-y-3">
-                <div className="relative group">
-                  <Users className="absolute left-4 top-4 w-5 h-5 text-slate-500 group-focus-within:text-cad-accent transition-colors" />
-                  <input
-                    type="url"
-                    placeholder="Company logo / photo URL"
+                <div className="bg-cad-surface/30 border border-cad-border rounded-xl p-4">
+                  <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-3">Company logo</p>
+                  <ImageUpload
                     value={photoUrl}
-                    onChange={(e) => setPhotoUrl(e.target.value)}
-                    className="w-full bg-cad-surface/50 border border-cad-border rounded-xl pl-12 pr-4 py-4 text-cad-text focus:outline-none focus:border-cad-accent transition-all placeholder-slate-500 font-medium"
+                    onChange={(url) => setPhotoUrl(url ?? '')}
+                    shape="square"
+                    label="Upload logo"
+                    fallback={(companyName || 'C').slice(0, 1).toUpperCase()}
                   />
                 </div>
                 <div className="relative group">

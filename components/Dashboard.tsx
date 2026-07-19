@@ -247,7 +247,7 @@ const Dashboard: React.FC<DashboardProps> = ({ timerState, onToggleTimer, onProj
                 <PlatformPillars onNavigate={onNavigate} />
                 <OnboardingChecklist />
 
-                {!isClient ? (
+                {(
                     <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                         {/* LEFT COLUMN (2/3) */}
                         <div className="xl:col-span-2 space-y-8">
@@ -414,10 +414,6 @@ const Dashboard: React.FC<DashboardProps> = ({ timerState, onToggleTimer, onProj
                                 </div>
                             </div>
                         </div>
-                    </div>
-                ) : (
-                    <div className="flex items-center justify-center h-64 text-slate-500">
-                        Client Dashboard View (Same Structure as before)
                     </div>
                 )}
             </div>

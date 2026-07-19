@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { getMyProfile, getMyDesignerProfile, getMyStats, ProfileResponse, DesignerProfilePayload, DesignerStats } from '../services/api';
+import { getMyProfile, getMyDesignerProfile, getMyClientProfile, getMyStats, ProfileResponse, DesignerProfilePayload, ClientProfilePayload, DesignerStats } from '../services/api';
 
 interface UserContextValue {
   profile: ProfileResponse | null;
   designerProfile: DesignerProfilePayload | null;
+  clientProfile: ClientProfilePayload | null;
   stats: DesignerStats | null;
   isLoading: boolean;
   email: string;
@@ -16,6 +17,7 @@ interface UserContextValue {
 const UserContext = createContext<UserContextValue>({
   profile: null,
   designerProfile: null,
+  clientProfile: null,
   stats: null,
   isLoading: true,
   email: '',
@@ -28,6 +30,7 @@ const UserContext = createContext<UserContextValue>({
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [designerProfile, setDesignerProfile] = useState<DesignerProfilePayload | null>(null);
+  const [clientProfile, setClientProfile] = useState<ClientProfilePayload | null>(null);
   const [stats, setStats] = useState<DesignerStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState(localStorage.getItem('email') ?? '');
@@ -44,10 +47,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       const isDesigner = currentRole === 'DESIGNER';
-      const [base, designer, statsResult] = await Promise.allSettled([
+      const isClient = currentRole === 'CLIENT';
+      const [base, designer, statsResult, client] = await Promise.allSettled([
         getMyProfile(),
         isDesigner ? getMyDesignerProfile() : Promise.resolve(null),
         isDesigner ? getMyStats() : Promise.resolve(null),
+        isClient ? getMyClientProfile() : Promise.resolve(null),
       ]);
 
       if (base.status === 'fulfilled') {
@@ -55,6 +60,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       if (designer.status === 'fulfilled' && designer.value) setDesignerProfile(designer.value);
       if (statsResult.status === 'fulfilled' && statsResult.value) setStats(statsResult.value);
+      if (client.status === 'fulfilled' && client.value) setClientProfile(client.value);
     } finally {
       setIsLoading(false);
     }
@@ -68,6 +74,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <UserContext.Provider value={{
       profile,
       designerProfile,
+      clientProfile,
       stats,
       isLoading,
       email,

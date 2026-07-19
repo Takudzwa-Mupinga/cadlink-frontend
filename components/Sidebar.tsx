@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { Briefcase, Users, Settings, Package, User, LayoutDashboard, Globe2, Calendar, MessageCircle, FolderKanban, Box } from 'lucide-react';
-import { useCurrentUser } from '../contexts/UserContext';
 
 interface SidebarProps {
   activeTab: string;
@@ -12,10 +11,6 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isCollapsed, toggleCollapse }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const { profile, email, role, firstName, lastName } = useCurrentUser();
-  const displayName = [firstName, lastName].filter(Boolean).join(' ') || profile?.displayName || email || 'User';
-  const initials = displayName.slice(0, 2).toUpperCase();
-  const accountLabel = role === 'DESIGNER' ? 'Designer' : role === 'CLIENT' ? 'Client' : role === 'ADMIN' ? 'Admin' : 'Free Account';
 
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -141,22 +136,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isCollapsed,
             </span>
           </button>
           
-          <div className="pt-3 mt-1 px-2 flex items-center gap-3">
-             <div className="relative">
-                {profile?.avatarUrl ? (
-                  <img src={profile.avatarUrl} alt="avatar" className="w-8 h-8 rounded-lg object-cover shadow-lg" />
-                ) : (
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shadow-lg">
-                    {initials}
-                  </div>
-                )}
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-cad-dark rounded-full"></div>
-             </div>
-             <div className="overflow-hidden">
-                 <p className="text-xs font-bold text-cad-text truncate">{displayName}</p>
-                 <p className="text-[10px] text-cad-muted truncate">{accountLabel}</p>
-             </div>
-          </div>
         </div>
       </div>
     </>

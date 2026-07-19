@@ -161,6 +161,7 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onNavigate }) => {
     const [activeContractId, setActiveContractId] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
     const [processingId, setProcessingId] = useState<string | null>(null);
+    const [actionError, setActionError] = useState<string | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [readyToStart, setReadyToStart] = useState<ApiJobApplication[]>([]);
 
@@ -206,16 +207,20 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onNavigate }) => {
                         updateLocalMilestone(contractId, milestoneId, 'approve');
                         setTimeout(() => { setFunnelMilestone(null); setFunnelStep(0); }, 1500);
                     }, 3000);
-                } catch {
+                } catch (err: any) {
                     setFunnelMilestone(null);
                     setFunnelStep(0);
+                    setActionError(err?.message ?? 'Failed to approve the milestone. Please try again.');
                 }
             }
         } else {
             setProcessingId(milestoneId);
+            setActionError(null);
             try {
                 await updateMilestoneStatus(contractId, milestoneId, newApiStatus);
                 updateLocalMilestone(contractId, milestoneId, action);
+            } catch (err: any) {
+                setActionError(err?.message ?? 'Failed to update the milestone. Please try again.');
             } finally {
                 setProcessingId(null);
             }
@@ -238,9 +243,12 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onNavigate }) => {
 
     const handleCompleteProject = async (contractId: string) => {
         setProcessingId(contractId);
+        setActionError(null);
         try {
             await completeProject(contractId);
             setContracts(prev => prev.map(c => c.id === contractId ? { ...c, status: 'Completed' } : c));
+        } catch (err: any) {
+            setActionError(err?.message ?? 'Failed to complete the project. Please try again.');
         } finally {
             setProcessingId(null);
         }
@@ -257,6 +265,12 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onNavigate }) => {
     return (
         <div className="p-8 lg:p-12 h-full overflow-y-auto custom-scrollbar bg-cad-dark">
             <div className="max-w-7xl mx-auto space-y-10 animate-in fade-in duration-500 pb-20">
+                {actionError && (
+                    <div className="flex items-center justify-between gap-4 px-4 py-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl">
+                        <span>{actionError}</span>
+                        <button onClick={() => setActionError(null)} className="text-red-400/70 hover:text-red-300 font-bold shrink-0">✕</button>
+                    </div>
+                )}
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>

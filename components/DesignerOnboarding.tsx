@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import {
-  ArrowRight, Loader2, User, MapPin, FileText,
+  ArrowRight, Loader2, MapPin, FileText,
   Wrench, GraduationCap, Link2, DollarSign, Briefcase,
 } from 'lucide-react';
 import { updateProfile, updateDesignerProfile, EducationEntry } from '../services/api';
 import { useCurrentUser } from '../contexts/UserContext';
+import ImageUpload from './ImageUpload';
 
 const CAD_SKILLS = [
   'AutoCAD', 'Revit', 'SolidWorks', 'Fusion 360',
@@ -81,6 +82,7 @@ const DesignerOnboarding: React.FC<Props> = ({ onComplete }) => {
         bio,
         location,
         skills: selectedSkills,
+        avatarUrl: photoUrl || undefined,
       });
 
       // Save designer-specific fields
@@ -236,10 +238,14 @@ const DesignerOnboarding: React.FC<Props> = ({ onComplete }) => {
                 <textarea
                   placeholder="e.g. BIM specialist with 5 years experience in Revit and AutoCAD, focused on residential and commercial projects."
                   value={bio}
-                  onChange={(e) => setBio(e.target.value)}
+                  onChange={(e) => setBio(e.target.value.slice(0, 220))}
+                  maxLength={220}
                   rows={5}
                   className="w-full bg-cad-surface/50 border border-cad-border rounded-xl pl-12 pr-4 py-4 text-cad-text focus:outline-none focus:border-cad-accent transition-all placeholder-slate-500 font-medium resize-none"
                 />
+                <p className={`absolute bottom-3 right-4 text-xs font-medium ${bio.length >= 220 ? 'text-amber-400' : 'text-slate-500'}`}>
+                  {bio.length}/220
+                </p>
               </div>
 
               <div className="flex gap-3">
@@ -380,14 +386,14 @@ const DesignerOnboarding: React.FC<Props> = ({ onComplete }) => {
               </div>
 
               <div className="space-y-3">
-                <div className="relative group">
-                  <User className="absolute left-4 top-4 w-5 h-5 text-slate-500 group-focus-within:text-cad-accent transition-colors" />
-                  <input
-                    type="url"
-                    placeholder="Profile photo URL"
+                <div className="bg-cad-surface/30 border border-cad-border rounded-xl p-4">
+                  <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-3">Profile photo</p>
+                  <ImageUpload
                     value={photoUrl}
-                    onChange={(e) => setPhotoUrl(e.target.value)}
-                    className="w-full bg-cad-surface/50 border border-cad-border rounded-xl pl-12 pr-4 py-4 text-cad-text focus:outline-none focus:border-cad-accent transition-all placeholder-slate-500 font-medium"
+                    onChange={(url) => setPhotoUrl(url ?? '')}
+                    shape="circle"
+                    label="Upload photo"
+                    fallback={(firstName || 'D').slice(0, 1).toUpperCase()}
                   />
                 </div>
                 <div className="relative group">

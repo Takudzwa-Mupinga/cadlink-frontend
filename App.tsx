@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
+import { imageSrc } from './services/api';
 import Dashboard from './components/Dashboard';
 import JobMarket from './components/JobMarket';
 import Network from './components/Network';
@@ -29,7 +30,12 @@ import { HelpCircle } from 'lucide-react';
 import { UserProvider, useCurrentUser } from './contexts/UserContext';
 
 const AppInner: React.FC = () => {
-  const { profile, email: ctxEmail, firstName, lastName, refetch: refetchUser } = useCurrentUser();
+  const { profile, clientProfile, role: ctxRole, email: ctxEmail, firstName, lastName, refetch: refetchUser } = useCurrentUser();
+  const chipName =
+    (ctxRole === 'CLIENT'
+      ? clientProfile?.companyName || profile?.displayName
+      : [firstName, lastName].filter(Boolean).join(' ') || profile?.displayName)
+    || ctxEmail || localStorage.getItem('email') || '';
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState<'designer' | 'client' | null>(null);
 
@@ -344,6 +350,7 @@ const AppInner: React.FC = () => {
         onComplete={() => {
           setShowOnboarding(null);
           setActiveTab('market');
+          refetchUser();
           addToast('success', 'Profile ready! Browse open contracts below.');
         }}
       />
@@ -356,6 +363,7 @@ const AppInner: React.FC = () => {
         onComplete={() => {
           setShowOnboarding(null);
           setActiveTab('market');
+          refetchUser();
           addToast('success', 'Account ready! Post your first contract below.');
         }}
       />
@@ -419,14 +427,14 @@ const AppInner: React.FC = () => {
           className="fixed top-4 right-5 z-[50] flex items-center gap-2.5 px-3 py-2 rounded-xl bg-cad-panel border border-cad-border hover:border-cad-accent transition-all shadow-sm group"
         >
           {profile?.avatarUrl ? (
-            <img src={profile.avatarUrl} alt="avatar" className="w-7 h-7 rounded-lg object-cover shrink-0" />
+            <img src={imageSrc(profile.avatarUrl)} alt="avatar" className="w-7 h-7 rounded-lg object-cover shrink-0" />
           ) : (
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cad-accent to-blue-600 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
-              {(ctxEmail || localStorage.getItem('email') || 'U')[0].toUpperCase()}
+              {(chipName || 'U')[0].toUpperCase()}
             </div>
           )}
           <span className="text-xs font-medium text-cad-muted group-hover:text-cad-text transition-colors max-w-[120px] truncate hidden sm:block">
-            {[firstName, lastName].filter(Boolean).join(' ') || profile?.displayName || ctxEmail || localStorage.getItem('email') || ''}
+            {chipName}
           </span>
         </button>
       </main>

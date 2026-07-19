@@ -70,6 +70,7 @@ export interface ProfilePayload {
   location?: string;
   website?: string;
   skills?: string[];
+  avatarUrl?: string;
 }
 
 export interface ProfileResponse extends ProfilePayload {
@@ -161,6 +162,12 @@ export function updateClientProfile(payload: ClientProfilePayload): Promise<Clie
     method: 'PUT',
     headers: authHeaders(),
     body: JSON.stringify(payload),
+  });
+}
+
+export function getMyClientProfile(): Promise<ClientProfilePayload & { id?: string }> {
+  return request('/api/client-profile/me', {
+    headers: authHeaders(),
   });
 }
 
@@ -374,4 +381,33 @@ export function listDesigners(): Promise<TalentCard[]> {
   return request<TalentCard[]>('/api/designer-profile/all', {
     headers: authHeaders(),
   });
+}
+
+// ── Images ────────────────────────────────────────────────────────────────────
+
+// Upload an image via multipart. NOTE: we deliberately do NOT set Content-Type —
+// the browser must set it to multipart/form-data with the correct boundary.
+export function uploadImage(file: File): Promise<{ id: string; url: string }> {
+  const form = new FormData();
+  form.append('file', file);
+  return fetch(`${BASE_URL}/api/images`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: form,
+  }).then(async (res) => {
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error((body as any).message ?? `Upload failed: ${res.status}`);
+    }
+    return res.json() as Promise<{ id: string; url: string }>;
+  });
+}
+
+// Resolve a stored image reference to a loadable <img src>.
+// Our uploads are stored as relative "/api/images/{id}" so the value is
+// host-independent; prefix the API base at render time. Absolute URLs
+// (legacy pasted links) pass through untouched.
+export function imageSrc(url?: string | null): string | undefined {
+  if (!url) return undefined;
+  return url.startsWith('/api/') ? `${BASE_URL}${url}` : url;
 }

@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { MapPin, Mail, Link as LinkIcon, Edit2, Save, Award, Briefcase, Star, Clock, CheckCircle2, X, Upload, Loader2, AlertCircle } from 'lucide-react';
+import { MapPin, Mail, Link as LinkIcon, Edit2, Save, Award, Briefcase, Star, Clock, CheckCircle2, X, Upload, Loader2, AlertCircle, Building2 } from 'lucide-react';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCurrentUser } from '../contexts/UserContext';
-import { updateProfile, updateDesignerProfile } from '../services/api';
+import { updateProfile, updateDesignerProfile, updateClientProfile, imageSrc } from '../services/api';
+import ImageUpload from './ImageUpload';
 
 const SKILL_SUGGESTIONS = ['AutoCAD', 'Revit', 'SolidWorks', 'Fusion 360', 'CATIA', 'SketchUp', 'ArchiCAD', 'Rhino', 'Blender', '3ds Max', 'Civil 3D', 'Inventor', 'ANSYS', 'MATLAB'];
+const INDUSTRIES = ['Architecture', 'Civil Engineering', 'Mechanical Engineering', 'Construction', 'Real Estate', 'Manufacturing', 'Interior Design', 'Other'];
+const COMPANY_SIZES = ['1–10', '11–50', '51–200', '200+'];
 
 interface CompletenessItem { label: string; done: boolean; points: number; }
 
@@ -26,7 +29,7 @@ function computeCompleteness(fields: {
 
 const Profile: React.FC = () => {
     const { format, symbol } = useCurrency();
-    const { profile, designerProfile, stats, email, role: userRole, firstName, lastName, refetch } = useCurrentUser();
+    const { profile, designerProfile, clientProfile, stats, email, role: userRole, firstName, lastName, refetch } = useCurrentUser();
 
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -40,15 +43,27 @@ const Profile: React.FC = () => {
     const [editRate, setEditRate] = useState('');
     const [editLocation, setEditLocation] = useState('');
     const [editSkills, setEditSkills] = useState<string[]>([]);
+    const [editAvatarUrl, setEditAvatarUrl] = useState<string | undefined>(undefined);
+    const [editYears, setEditYears] = useState('');
+    const [editLinkedin, setEditLinkedin] = useState('');
+    const [editCv, setEditCv] = useState('');
+    // Client-only edit fields
+    const [editCompanyName, setEditCompanyName] = useState('');
+    const [editIndustry, setEditIndustry] = useState('');
+    const [editCompanySize, setEditCompanySize] = useState('');
+    const [editTypicalHire, setEditTypicalHire] = useState('');
+    const [editWebsite, setEditWebsite] = useState('');
     const [newSkill, setNewSkill] = useState('');
 
     // Derived display values from real API data
-    const displayName = [firstName, lastName].filter(Boolean).join(' ') || profile?.displayName || email;
+    const displayName = userRole === 'CLIENT'
+        ? (clientProfile?.companyName || profile?.displayName || email)
+        : ([firstName, lastName].filter(Boolean).join(' ') || profile?.displayName || email);
     const displayHeadline = designerProfile?.headline || '';
     const displayBio = profile?.bio || designerProfile?.bio || '';
     const displayRate = designerProfile?.hourlyRate;
     const displaySkills: string[] = (designerProfile?.skills ?? profile?.skills ?? []) as string[];
-    const displayLocation = profile?.location || '';
+    const displayLocation = profile?.location || clientProfile?.location || '';
     const displayRating = designerProfile?.userRating;
 
     const handleStartEdit = () => {
@@ -59,6 +74,15 @@ const Profile: React.FC = () => {
         setEditRate(displayRate?.toString() ?? '');
         setEditLocation(displayLocation);
         setEditSkills([...displaySkills]);
+        setEditAvatarUrl(profile?.avatarUrl);
+        setEditYears(designerProfile?.yearsExperience?.toString() ?? '');
+        setEditLinkedin(designerProfile?.linkedinUrl ?? '');
+        setEditCv(designerProfile?.cvUrl ?? '');
+        setEditCompanyName(clientProfile?.companyName ?? '');
+        setEditIndustry(clientProfile?.industry ?? '');
+        setEditCompanySize(clientProfile?.companySize ?? '');
+        setEditTypicalHire(clientProfile?.typicalHire ?? '');
+        setEditWebsite(clientProfile?.website ?? '');
         setSaveError('');
         setIsEditing(true);
     };
@@ -73,12 +97,30 @@ const Profile: React.FC = () => {
                 bio: editBio,
                 location: editLocation,
                 skills: editSkills,
+                avatarUrl: editAvatarUrl,
+                // Keep the base displayName in sync with the company name for clients
+                // (the sidebar/chip resolve off companyName, but this keeps them aligned).
+                displayName: userRole === 'CLIENT' ? (editCompanyName || undefined) : undefined,
             });
             if (userRole === 'DESIGNER') {
                 await updateDesignerProfile({
                     headline: editHeadline,
                     hourlyRate: parseFloat(editRate) || undefined,
                     skills: editSkills,
+                    yearsExperience: editYears ? parseInt(editYears) : undefined,
+                    linkedinUrl: editLinkedin || undefined,
+                    cvUrl: editCv || undefined,
+                });
+            }
+            if (userRole === 'CLIENT') {
+                await updateClientProfile({
+                    companyName: editCompanyName || undefined,
+                    industry: editIndustry || undefined,
+                    companySize: editCompanySize || undefined,
+                    typicalHire: editTypicalHire || undefined,
+                    website: editWebsite || undefined,
+                    location: editLocation || undefined,
+                    photoUrl: editAvatarUrl || undefined,
                 });
             }
             await refetch();
@@ -151,8 +193,18 @@ const Profile: React.FC = () => {
                             {/* Avatar */}
                             <div className="relative -mt-20">
                                 <div className="p-1.5 bg-cad-dark rounded-3xl shadow-2xl">
-                                    {profile?.avatarUrl ? (
-                                        <img src={profile.avatarUrl} alt="Profile" className="w-36 h-36 rounded-2xl object-cover" />
+                                    {isEditing ? (
+                                        <div className="w-36 h-36 rounded-2xl bg-cad-surface flex items-center justify-center p-3">
+                                            <ImageUpload
+                                                value={editAvatarUrl}
+                                                onChange={setEditAvatarUrl}
+                                                shape="square"
+                                                label="Upload"
+                                                fallback={(firstName?.[0] ?? email?.[0] ?? '?').toUpperCase()}
+                                            />
+                                        </div>
+                                    ) : profile?.avatarUrl ? (
+                                        <img src={imageSrc(profile.avatarUrl)} alt="Profile" className="w-36 h-36 rounded-2xl object-cover" />
                                     ) : (
                                         <div className="w-36 h-36 rounded-2xl bg-cad-surface flex items-center justify-center text-4xl font-bold text-cad-accent">
                                             {(firstName?.[0] ?? email?.[0] ?? '?').toUpperCase()}
@@ -167,11 +219,15 @@ const Profile: React.FC = () => {
                                     <div className="space-y-1 w-full">
                                         {isEditing ? (
                                             <div className="space-y-3 max-w-md">
+                                                {userRole === 'CLIENT' && (
+                                                    <input type="text" placeholder="Company name" value={editCompanyName} onChange={e => setEditCompanyName(e.target.value)}
+                                                        className="w-full bg-cad-surface/50 border border-cad-border rounded-xl px-4 py-2 text-lg font-bold text-cad-text focus:border-cad-accent outline-none" />
+                                                )}
                                                 <div className="grid grid-cols-2 gap-2">
                                                     <input type="text" placeholder="First name" value={editFirstName} onChange={e => setEditFirstName(e.target.value)}
-                                                        className="bg-cad-surface/50 border border-cad-border rounded-xl px-4 py-2 text-lg font-bold text-cad-text focus:border-cad-accent outline-none" />
+                                                        className="bg-cad-surface/50 border border-cad-border rounded-xl px-4 py-2 text-sm text-cad-text focus:border-cad-accent outline-none" />
                                                     <input type="text" placeholder="Last name" value={editLastName} onChange={e => setEditLastName(e.target.value)}
-                                                        className="bg-cad-surface/50 border border-cad-border rounded-xl px-4 py-2 text-lg font-bold text-cad-text focus:border-cad-accent outline-none" />
+                                                        className="bg-cad-surface/50 border border-cad-border rounded-xl px-4 py-2 text-sm text-cad-text focus:border-cad-accent outline-none" />
                                                 </div>
                                                 {userRole === 'DESIGNER' && (
                                                     <input type="text" placeholder="Headline (e.g. Senior Mechanical Engineer)" value={editHeadline} onChange={e => setEditHeadline(e.target.value)}
@@ -183,9 +239,14 @@ const Profile: React.FC = () => {
                                         ) : (
                                             <>
                                                 <h1 className="text-4xl font-bold text-cad-text tracking-tight">{displayName}</h1>
-                                                {displayHeadline && (
+                                                {userRole === 'DESIGNER' && displayHeadline && (
                                                     <p className="text-xl text-cad-muted flex items-center gap-2 font-medium">
                                                         <Briefcase className="w-5 h-5 text-cad-accent" /> {displayHeadline}
+                                                    </p>
+                                                )}
+                                                {userRole === 'CLIENT' && (clientProfile?.industry || clientProfile?.companySize) && (
+                                                    <p className="text-xl text-cad-muted flex items-center gap-2 font-medium">
+                                                        <Building2 className="w-5 h-5 text-cad-accent" /> {[clientProfile?.industry, clientProfile?.companySize && `${clientProfile.companySize} employees`].filter(Boolean).join(' · ')}
                                                     </p>
                                                 )}
                                             </>
@@ -231,10 +292,10 @@ const Profile: React.FC = () => {
                                     <span className="flex items-center gap-2 bg-cad-surface/30 px-3 py-1.5 rounded-lg border border-cad-border">
                                         <Mail className="w-4 h-4 text-cad-accent"/> {email}
                                     </span>
-                                    {profile?.website && (
-                                        <span className="flex items-center gap-2 bg-cad-surface/30 px-3 py-1.5 rounded-lg border border-cad-border hover:text-cad-text cursor-pointer transition-colors">
-                                            <LinkIcon className="w-4 h-4 text-cad-accent"/> {profile.website}
-                                        </span>
+                                    {(profile?.website || clientProfile?.website) && (
+                                        <a href={profile?.website || clientProfile?.website} target="_blank" rel="noreferrer" className="flex items-center gap-2 bg-cad-surface/30 px-3 py-1.5 rounded-lg border border-cad-border hover:text-cad-text cursor-pointer transition-colors">
+                                            <LinkIcon className="w-4 h-4 text-cad-accent"/> {profile?.website || clientProfile?.website}
+                                        </a>
                                     )}
                                 </div>
                             </div>
@@ -313,7 +374,62 @@ const Profile: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Skills */}
+                        {/* Company Details — client only */}
+                        {userRole === 'CLIENT' && (
+                            <div className="glass-panel p-6 rounded-2xl border border-cad-border">
+                                <h3 className="font-bold text-cad-text text-lg mb-4">Company Details</h3>
+                                {isEditing ? (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Industry</label>
+                                            <select value={editIndustry} onChange={e => setEditIndustry(e.target.value)}
+                                                className="w-full bg-cad-surface/50 border border-cad-border rounded-xl px-4 py-2 text-sm text-cad-text focus:border-cad-accent outline-none">
+                                                <option value="">Select…</option>
+                                                {INDUSTRIES.map(i => <option key={i} value={i}>{i}</option>)}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Company size</label>
+                                            <select value={editCompanySize} onChange={e => setEditCompanySize(e.target.value)}
+                                                className="w-full bg-cad-surface/50 border border-cad-border rounded-xl px-4 py-2 text-sm text-cad-text focus:border-cad-accent outline-none">
+                                                <option value="">Select…</option>
+                                                {COMPANY_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Typical hire</label>
+                                            <input type="text" value={editTypicalHire} onChange={e => setEditTypicalHire(e.target.value)} placeholder="e.g. Revit drafter for residential"
+                                                className="w-full bg-cad-surface/50 border border-cad-border rounded-xl px-4 py-2 text-sm text-cad-text focus:border-cad-accent outline-none" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Website</label>
+                                            <input type="url" value={editWebsite} onChange={e => setEditWebsite(e.target.value)} placeholder="https://…"
+                                                className="w-full bg-cad-surface/50 border border-cad-border rounded-xl px-4 py-2 text-sm text-cad-text focus:border-cad-accent outline-none" />
+                                        </div>
+                                    </div>
+                                ) : (clientProfile?.industry || clientProfile?.companySize || clientProfile?.typicalHire || clientProfile?.website) ? (
+                                    <div className="space-y-3 text-sm">
+                                        {clientProfile?.industry && (
+                                            <div className="flex justify-between gap-3"><span className="text-cad-muted">Industry</span><span className="text-cad-text font-medium text-right">{clientProfile.industry}</span></div>
+                                        )}
+                                        {clientProfile?.companySize && (
+                                            <div className="flex justify-between gap-3"><span className="text-cad-muted">Company size</span><span className="text-cad-text font-medium text-right">{clientProfile.companySize}</span></div>
+                                        )}
+                                        {clientProfile?.typicalHire && (
+                                            <div className="flex justify-between gap-3"><span className="text-cad-muted">Typical hire</span><span className="text-cad-text font-medium text-right">{clientProfile.typicalHire}</span></div>
+                                        )}
+                                        {clientProfile?.website && (
+                                            <a href={clientProfile.website} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-cad-accent hover:underline pt-1"><LinkIcon className="w-4 h-4"/> Website</a>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p className="text-slate-500 text-sm">No company details yet. Click Edit Profile to add them.</p>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Skills — designer only */}
+                        {userRole === 'DESIGNER' && (
                         <div className="glass-panel p-6 rounded-2xl border border-cad-border">
                             <h3 className="font-bold text-cad-text text-lg mb-4">Software Skills</h3>
 
@@ -355,6 +471,7 @@ const Profile: React.FC = () => {
                                 <p className="text-slate-500 text-sm">No skills added yet. Click Edit Profile to add your software skills.</p>
                             )}
                         </div>
+                        )}
                     </div>
 
                     {/* Right Column */}
@@ -363,8 +480,11 @@ const Profile: React.FC = () => {
                         <div className="glass-panel p-8 rounded-2xl border border-cad-border">
                             <h3 className="font-bold text-cad-text mb-4 text-lg">About Me</h3>
                             {isEditing ? (
-                                <textarea value={editBio} onChange={e => setEditBio(e.target.value)} rows={6} placeholder="Tell clients about your background, experience, and what makes you stand out…"
-                                    className="w-full bg-cad-surface/50 border border-cad-border rounded-xl p-4 text-slate-300 focus:border-cad-accent outline-none leading-relaxed text-base" />
+                                <div>
+                                    <textarea value={editBio} onChange={e => setEditBio(e.target.value.slice(0, 220))} maxLength={220} rows={6} placeholder="Tell clients about your background, experience, and what makes you stand out…"
+                                        className="w-full bg-cad-surface/50 border border-cad-border rounded-xl p-4 text-slate-300 focus:border-cad-accent outline-none leading-relaxed text-base" />
+                                    <p className={`mt-1 text-right text-xs font-medium ${editBio.length >= 220 ? 'text-amber-400' : 'text-slate-500'}`}>{editBio.length}/220</p>
+                                </div>
                             ) : displayBio ? (
                                 <p className="text-slate-300 leading-relaxed text-lg">{displayBio}</p>
                             ) : (
@@ -372,17 +492,62 @@ const Profile: React.FC = () => {
                             )}
                         </div>
 
-                        {/* Portfolio placeholder */}
-                        <div className="glass-panel p-8 rounded-2xl border border-cad-border">
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="font-bold text-cad-text text-lg">My Portfolio</h3>
+                        {/* Experience & Links — designer only */}
+                        {userRole === 'DESIGNER' && (
+                            <div className="glass-panel p-8 rounded-2xl border border-cad-border">
+                                <h3 className="font-bold text-cad-text mb-4 text-lg">Experience &amp; Links</h3>
+                                {isEditing ? (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">Years of experience</label>
+                                            <input type="number" min="0" value={editYears} onChange={e => setEditYears(e.target.value)} placeholder="e.g. 6"
+                                                className="w-full bg-cad-surface/50 border border-cad-border rounded-xl px-4 py-2 text-sm text-cad-text focus:border-cad-accent outline-none" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">LinkedIn URL</label>
+                                            <input type="url" value={editLinkedin} onChange={e => setEditLinkedin(e.target.value)} placeholder="https://linkedin.com/in/…"
+                                                className="w-full bg-cad-surface/50 border border-cad-border rounded-xl px-4 py-2 text-sm text-cad-text focus:border-cad-accent outline-none" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-cad-muted uppercase tracking-wider mb-2">CV / Resume URL</label>
+                                            <input type="url" value={editCv} onChange={e => setEditCv(e.target.value)} placeholder="https://…"
+                                                className="w-full bg-cad-surface/50 border border-cad-border rounded-xl px-4 py-2 text-sm text-cad-text focus:border-cad-accent outline-none" />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3 text-sm">
+                                        <div className="flex items-center gap-2 text-slate-300">
+                                            <Clock className="w-4 h-4 text-cad-accent" />
+                                            {designerProfile?.yearsExperience != null ? `${designerProfile.yearsExperience} years of experience` : 'Experience not set'}
+                                        </div>
+                                        {designerProfile?.linkedinUrl && (
+                                            <a href={designerProfile.linkedinUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-cad-accent hover:underline">
+                                                <LinkIcon className="w-4 h-4" /> LinkedIn
+                                            </a>
+                                        )}
+                                        {designerProfile?.cvUrl && (
+                                            <a href={designerProfile.cvUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-cad-accent hover:underline">
+                                                <LinkIcon className="w-4 h-4" /> View CV
+                                            </a>
+                                        )}
+                                    </div>
+                                )}
                             </div>
-                            <div className="flex flex-col items-center justify-center py-12 text-slate-500 border-2 border-dashed border-cad-border rounded-xl">
-                                <Upload className="w-8 h-8 mb-3 opacity-40"/>
-                                <p className="font-medium">Portfolio uploads coming soon</p>
-                                <p className="text-xs mt-1 text-slate-600">You'll be able to attach project files, images, and case studies.</p>
+                        )}
+
+                        {/* Portfolio placeholder — designer only */}
+                        {userRole === 'DESIGNER' && (
+                            <div className="glass-panel p-8 rounded-2xl border border-cad-border">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="font-bold text-cad-text text-lg">My Portfolio</h3>
+                                </div>
+                                <div className="flex flex-col items-center justify-center py-12 text-slate-500 border-2 border-dashed border-cad-border rounded-xl">
+                                    <Upload className="w-8 h-8 mb-3 opacity-40"/>
+                                    <p className="font-medium">Portfolio uploads coming soon</p>
+                                    <p className="text-xs mt-1 text-slate-600">You'll be able to attach project files, images, and case studies.</p>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>

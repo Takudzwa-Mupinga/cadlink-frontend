@@ -6,7 +6,7 @@ import { generateCoverLetter, enhanceServiceDescription, conductInterviewTurn } 
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCurrentUser } from '../contexts/UserContext';
 import {
-  listDesigners, TalentCard,
+  listDesigners, TalentCard, imageSrc,
   ApiJob, ApiJobApplication, ApiJobType, ApiExperienceLevel, ApiApplicationStatus,
   listOpenJobs, postJob as apiPostJob, listMyJobs,
   applyToJob, listApplicationsForJob, updateApplicationStatus, listMyApplications,
@@ -36,6 +36,10 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
   const [proposals, setProposals] = useState<ApiJobApplication[]>([]);
   const [isLoadingProposals, setIsLoadingProposals] = useState(false);
   const [isSubmittingProposal, setIsSubmittingProposal] = useState(false);
+  const [proposalError, setProposalError] = useState<string | null>(null);
+  const [postJobError, setPostJobError] = useState<string | null>(null);
+  const [proposalActionError, setProposalActionError] = useState<string | null>(null);
+  const [createProjectError, setCreateProjectError] = useState<string | null>(null);
   const [viewingDesignerProfile, setViewingDesignerProfile] = useState<DesignerProfilePayload | null>(null);
   const [isLoadingDesignerProfile, setIsLoadingDesignerProfile] = useState(false);
   const [myApplications, setMyApplications] = useState<ApiJobApplication[]>([]);
@@ -248,6 +252,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
   const handleApply = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedJob || isSubmittingProposal) return;
+    setProposalError(null);
     setIsSubmittingProposal(true);
     try {
       await applyToJob(selectedJob.id, {
@@ -262,8 +267,8 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
         setCoverLetter(''); setProposalCvUrl(''); setProposalAvailability('');
         if (onStartProject) onStartProject(selectedJob.title);
       }, 2000);
-    } catch {
-      // silently ignore — could add toast here
+    } catch (err: any) {
+      setProposalError(err?.message ?? 'Failed to submit your proposal. Please try again.');
     } finally {
       setIsSubmittingProposal(false);
     }
@@ -318,6 +323,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
   // --- Post Job Handlers ---
   const handlePostJob = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPostJobError(null);
     const budgetDisplay = newJobPricingModel === 'FIXED'
       ? newJobBudgetFixed
       : `${newJobBudgetHourlyMin}–${newJobBudgetHourlyMax}/hr`;
@@ -339,8 +345,8 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
       setJobs(prev => [apiJobToJob(created), ...prev]);
       setIsPostingJob(false);
       resetPostJobForm();
-    } catch {
-      // could add error toast here
+    } catch (err: any) {
+      setPostJobError(err?.message ?? 'Failed to post the contract. Please try again.');
     }
   };
 
@@ -398,6 +404,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
 
   // Load proposals when client opens a job
   useEffect(() => {
+    setProposalActionError(null);
     if (!viewingProposals) { setProposals([]); return; }
     setIsLoadingProposals(true);
     listApplicationsForJob(viewingProposals.id)
@@ -790,12 +797,12 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {filteredDesigners.map(designer => {
                                 const name = designer.displayName || designer.email.split('@')[0];
-                                const initials = name.slice(0, 2).toUpperCase();
+                                const initials = name.slice(0, 1).toUpperCase();
                                 return (
                                     <div key={designer.userId} onClick={() => setSelectedDesigner(designer)} className="glass-card rounded-2xl overflow-hidden hover:border-cad-accent/30 transition-all group cursor-pointer border border-cad-border hover:-translate-y-1">
                                         <div className="h-36 bg-gradient-to-br from-cad-surface to-cad-panel relative flex items-center justify-center">
                                             {designer.avatarUrl ? (
-                                                <img src={designer.avatarUrl} className="w-20 h-20 rounded-2xl object-cover border-2 border-cad-border shadow-lg" alt={name} />
+                                                <img src={imageSrc(designer.avatarUrl)} className="w-20 h-20 rounded-2xl object-cover border-2 border-cad-border shadow-lg" alt={name} />
                                             ) : (
                                                 <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cad-accent to-blue-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
                                                     {initials}
@@ -906,6 +913,9 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
                         )}
                     </div>
 
+                    {proposalError && !isClient && (
+                        <p className="px-6 py-3 text-sm text-red-400 bg-red-500/10 border-t border-red-500/20">{proposalError}</p>
+                    )}
                     <div className="p-6 border-t border-cad-border bg-cad-surface flex justify-between items-center">
                         {!isClient ? (
                             <>
@@ -913,7 +923,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
                                     <Bot className="w-4 h-4" /> Practice Interview
                                 </button>
                                 <div className="flex gap-3">
-                                    <button onClick={() => setSelectedJob(null)} className="px-5 py-2.5 rounded-xl text-sm font-bold text-cad-muted hover:text-cad-text hover:bg-cad-panel">Cancel</button>
+                                    <button onClick={() => { setSelectedJob(null); setProposalError(null); }} className="px-5 py-2.5 rounded-xl text-sm font-bold text-cad-muted hover:text-cad-text hover:bg-cad-panel">Cancel</button>
                                     <button onClick={handleApply} className="px-8 py-2.5 bg-cad-accent text-cad-dark rounded-xl text-sm font-bold hover:bg-violet-400 shadow-lg shadow-cad-accent/20 active:scale-95 transition-all">
                                         {proposalSent ? 'Sent!' : 'Submit Proposal'}
                                     </button>
@@ -1106,6 +1116,9 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
                 </>}
 
                 {/* Footer nav */}
+                {postJobError && (
+                    <p className="mt-4 px-4 py-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl">{postJobError}</p>
+                )}
                 <div className="pt-4 border-t border-cad-border flex justify-between items-center">
                   <button type="button"
                     onClick={() => postJobStep > 1 ? setPostJobStep(s => (s - 1) as 1|2|3) : (setIsPostingJob(false), resetPostJobForm())}
@@ -1216,6 +1229,9 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
               </div>
 
               <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4">
+                {proposalActionError && (
+                  <p className="px-4 py-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl">{proposalActionError}</p>
+                )}
                 {isLoadingProposals ? (
                   <div className="flex items-center justify-center py-16 text-cad-muted gap-3">
                     <Loader2 className="w-5 h-5 animate-spin" /> Loading proposals...
@@ -1228,7 +1244,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
                   </div>
                 ) : proposals.map(p => {
                   const name = p.applicantDisplayName || p.applicantEmail?.split('@')[0] || 'Applicant';
-                  const initials = name.slice(0, 2).toUpperCase();
+                  const initials = name.slice(0, 1).toUpperCase();
                   const statusColors: Record<string, string> = {
                     SUBMITTED: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
                     REVIEWED: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
@@ -1276,12 +1292,17 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
                         <div className="flex gap-3 mt-4 pt-4 border-t border-cad-border">
                           <button
                             onClick={async () => {
-                              const updated = await updateApplicationStatus(p.id, 'ACCEPTED');
-                              setProposals(prev => prev.map(x => x.id === p.id ? updated : x));
-                              setAcceptedApp(updated);
-                              setCreateProjectTitle(viewingProposals?.title ?? '');
-                              setCreateProjectBudget(viewingProposals?.budget ?? '');
-                              setViewingProposals(null);
+                              try {
+                                setProposalActionError(null);
+                                const updated = await updateApplicationStatus(p.id, 'ACCEPTED');
+                                setProposals(prev => prev.map(x => x.id === p.id ? updated : x));
+                                setAcceptedApp(updated);
+                                setCreateProjectTitle(viewingProposals?.title ?? '');
+                                setCreateProjectBudget(viewingProposals?.budget ?? '');
+                                setViewingProposals(null);
+                              } catch (err: any) {
+                                setProposalActionError(err?.message ?? 'Failed to accept the proposal. Please try again.');
+                              }
                             }}
                             className="flex-1 py-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/20 rounded-xl text-xs font-bold transition-colors"
                           >
@@ -1289,8 +1310,13 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
                           </button>
                           <button
                             onClick={async () => {
-                              const updated = await updateApplicationStatus(p.id, 'REJECTED');
-                              setProposals(prev => prev.map(x => x.id === p.id ? updated : x));
+                              try {
+                                setProposalActionError(null);
+                                const updated = await updateApplicationStatus(p.id, 'REJECTED');
+                                setProposals(prev => prev.map(x => x.id === p.id ? updated : x));
+                              } catch (err: any) {
+                                setProposalActionError(err?.message ?? 'Failed to reject the proposal. Please try again.');
+                              }
                             }}
                             className="flex-1 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-bold transition-colors"
                           >
@@ -1319,7 +1345,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
             </div>
             <div className="px-6 pb-6 overflow-y-auto custom-scrollbar">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cad-accent to-blue-600 flex items-center justify-center text-2xl font-bold text-white -mt-8 mb-3 border-4 border-cad-panel">
-                {(viewingDesignerProfile.displayName || 'D').slice(0, 2).toUpperCase()}
+                {(viewingDesignerProfile.displayName || 'D').slice(0, 1).toUpperCase()}
               </div>
               <h3 className="text-lg font-bold text-cad-text">{viewingDesignerProfile.displayName || 'Designer'}</h3>
               {viewingDesignerProfile.headline && <p className="text-sm text-cad-accent mt-0.5">{viewingDesignerProfile.headline}</p>}
@@ -1358,7 +1384,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
       {selectedDesigner && (() => {
         const d = selectedDesigner;
         const name = d.displayName || d.email.split('@')[0];
-        const initials = name.slice(0, 2).toUpperCase();
+        const initials = name.slice(0, 1).toUpperCase();
         return (
           <div className="fixed inset-0 z-[150] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="w-full max-w-lg bg-cad-panel rounded-2xl border border-cad-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -1374,7 +1400,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
                 {/* Avatar overlapping banner */}
                 <div className="absolute -bottom-10 left-6">
                   {d.avatarUrl ? (
-                    <img src={d.avatarUrl} className="w-20 h-20 rounded-2xl object-cover border-4 border-cad-panel shadow-lg" alt={name} />
+                    <img src={imageSrc(d.avatarUrl)} className="w-20 h-20 rounded-2xl object-cover border-4 border-cad-panel shadow-lg" alt={name} />
                   ) : (
                     <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cad-accent to-blue-600 flex items-center justify-center text-2xl font-bold text-white border-4 border-cad-panel shadow-lg">
                       {initials}
@@ -1507,6 +1533,9 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
                 </div>
               </div>
 
+              {createProjectError && (
+                <p className="px-4 py-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl">{createProjectError}</p>
+              )}
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => {
@@ -1523,6 +1552,7 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
                   disabled={!createProjectTitle.trim() || isCreatingProject}
                   onClick={async () => {
                     if (!acceptedApp || !createProjectTitle.trim()) return;
+                    setCreateProjectError(null);
                     setIsCreatingProject(true);
                     try {
                       await createProject({
@@ -1536,6 +1566,8 @@ const JobMarket: React.FC<JobMarketProps> = ({ onStartProject, onNavigate }) => 
                       setCreateProjectBudget('');
                       setCreateProjectDeadline('');
                       onNavigate?.('projects');
+                    } catch (err: any) {
+                      setCreateProjectError(err?.message ?? 'Failed to create the project. Please try again.');
                     } finally {
                       setIsCreatingProject(false);
                     }

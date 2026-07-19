@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Mail, Lock, ArrowRight, User, Loader2 } from 'lucide-react';
 import { login, register } from '../services/api';
 
@@ -20,6 +20,18 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onRegisterDesigner, onRegisterClie
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<Role>('DESIGNER');
   const [error, setError] = useState<string | null>(null);
+
+  // Deep link from the marketing site (designlynk.co.za):
+  // ?signup=designer | ?signup=client opens the signup form with the role preselected.
+  useEffect(() => {
+    const signup = new URLSearchParams(window.location.search).get('signup');
+    if (signup === null) return;
+    setIsLogin(false);
+    if (signup.toLowerCase() === 'client') setRole('CLIENT');
+    else if (signup.toLowerCase() === 'designer') setRole('DESIGNER');
+    // Clean the param so a refresh after logging in doesn't reopen signup.
+    window.history.replaceState(null, '', window.location.pathname);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

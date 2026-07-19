@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Star, MessageSquare, UserPlus, X, MapPin, Briefcase, Search, Filter, UserCheck, Loader2, DollarSign } from 'lucide-react';
-import { TalentCard, listDesigners } from '../services/api';
+import { Star, MessageSquare, UserPlus, X, MapPin, Briefcase, Search, UserCheck, Loader2, GraduationCap, ExternalLink, FileText } from 'lucide-react';
+import { TalentCard, DesignerProfilePayload, listDesigners, getDesignerProfileByUserId, imageSrc } from '../services/api';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCurrentUser } from '../contexts/UserContext';
 
@@ -15,7 +15,19 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
   const [designers, setDesigners] = useState<TalentCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDesigner, setSelectedDesigner] = useState<TalentCard | null>(null);
+  const [fullProfile, setFullProfile] = useState<DesignerProfilePayload | null>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Fetch the richer DesignerProfile (education, links, full bio) when a card opens.
+  useEffect(() => {
+    if (!selectedDesigner) { setFullProfile(null); return; }
+    setIsLoadingProfile(true);
+    getDesignerProfileByUserId(selectedDesigner.userId)
+      .then(setFullProfile)
+      .catch(() => setFullProfile(null))
+      .finally(() => setIsLoadingProfile(false));
+  }, [selectedDesigner]);
 
   // Connection state — local-only for now, pending backend
   const [connectionStatus, setConnectionStatus] = useState<Record<string, 'none' | 'pending' | 'connected'>>({});
@@ -90,7 +102,7 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map(designer => {
               const name = designer.displayName || designer.email.split('@')[0];
-              const initials = name.slice(0, 2).toUpperCase();
+              const initials = name.slice(0, 1).toUpperCase();
               const status = connectionStatus[designer.userId] || 'none';
               return (
                 <div
@@ -107,7 +119,7 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
                     {/* Avatar */}
                     <div className="relative -mt-10 mb-3">
                       {designer.avatarUrl ? (
-                        <img src={designer.avatarUrl} alt={name} className="w-20 h-20 rounded-2xl border-4 border-[#131b2e] object-cover shadow-lg group-hover:scale-105 transition-transform duration-300" />
+                        <img src={imageSrc(designer.avatarUrl)} alt={name} className="w-20 h-20 rounded-2xl border-4 border-[#131b2e] object-cover shadow-lg group-hover:scale-105 transition-transform duration-300" />
                       ) : (
                         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cad-accent to-blue-600 flex items-center justify-center text-xl font-bold text-white border-4 border-[#131b2e] shadow-lg">
                           {initials}
@@ -197,11 +209,11 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
         {selectedDesigner && (() => {
           const d = selectedDesigner;
           const name = d.displayName || d.email.split('@')[0];
-          const initials = name.slice(0, 2).toUpperCase();
+          const initials = name.slice(0, 1).toUpperCase();
           const status = connectionStatus[d.userId] || 'none';
           return (
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-              <div className="glass-panel w-full max-w-2xl rounded-3xl border border-cad-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95">
+              <div className="glass-panel w-full max-w-4xl rounded-3xl border border-cad-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95">
 
                 {/* Banner */}
                 <div className="relative h-40 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex-shrink-0">
@@ -214,7 +226,7 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
                   </button>
                   <div className="absolute -bottom-12 left-8">
                     {d.avatarUrl ? (
-                      <img src={d.avatarUrl} alt={name} className="w-24 h-24 rounded-2xl border-4 border-[#141b2d] object-cover shadow-xl" />
+                      <img src={imageSrc(d.avatarUrl)} alt={name} className="w-24 h-24 rounded-2xl border-4 border-[#141b2d] object-cover shadow-xl" />
                     ) : (
                       <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-cad-accent to-blue-600 flex items-center justify-center text-2xl font-bold text-white border-4 border-[#141b2d] shadow-xl">
                         {initials}
@@ -263,51 +275,104 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
                     </div>
                   </div>
 
-                  {/* Bio */}
-                  {d.bio && (
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">About</p>
-                      <p className="text-sm text-cad-muted leading-relaxed">{d.bio}</p>
-                    </div>
-                  )}
+                  {/* Two-column detail */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Left (2/3): About + Education + Portfolio */}
+                    <div className="md:col-span-2 space-y-6">
+                      {(fullProfile?.bio || d.bio) && (
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">About</p>
+                          <p className="text-sm text-cad-muted leading-relaxed">{fullProfile?.bio || d.bio}</p>
+                        </div>
+                      )}
 
-                  {/* Skills */}
-                  {d.skills && d.skills.length > 0 && (
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Software Skills ({d.skills.length})</p>
-                      <div className="flex flex-wrap gap-2">
-                        {d.skills.map(skill => (
-                          <span key={skill} className="text-xs px-3 py-1 rounded-lg bg-sky-900/20 border border-sky-500/15 text-sky-300 font-medium">{skill}</span>
-                        ))}
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Education</p>
+                        {isLoadingProfile ? (
+                          <div className="flex items-center gap-2 text-slate-500 text-xs"><Loader2 className="w-3.5 h-3.5 animate-spin"/> Loading…</div>
+                        ) : fullProfile?.education && fullProfile.education.length > 0 ? (
+                          <div className="space-y-2">
+                            {fullProfile.education.map((e, i) => (
+                              <div key={i} className="flex items-start gap-3 p-3 bg-cad-surface/40 rounded-xl border border-cad-border">
+                                <GraduationCap className="w-4 h-4 text-cad-accent mt-0.5 shrink-0" />
+                                <div>
+                                  <p className="text-sm font-bold text-cad-text">{e.qualification || 'Qualification'}</p>
+                                  <p className="text-xs text-cad-muted">{e.institution}{e.yearCompleted ? ` · ${e.yearCompleted}` : ''}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-slate-500">No education listed.</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Portfolio</p>
+                        <div className="flex flex-col items-center justify-center py-8 text-slate-500 border-2 border-dashed border-cad-border rounded-xl">
+                          <Briefcase className="w-6 h-6 mb-2 opacity-40"/>
+                          <p className="text-xs font-medium">Portfolio coming soon</p>
+                        </div>
                       </div>
                     </div>
-                  )}
 
-                  {/* Stats row — only show fields that exist */}
-                  {(d.hourlyRate != null || d.yearsExperience != null || d.userRating != null) && (
-                    <div className="grid grid-cols-3 gap-3">
-                      {d.hourlyRate != null && (
-                        <div className="bg-cad-surface rounded-xl p-3 border border-cad-border text-center">
-                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Rate</p>
-                          <p className="text-sm font-bold text-cad-text">{format(d.hourlyRate)}/hr</p>
+                    {/* Right (1/3): Skills + Links + Stats */}
+                    <div className="space-y-6">
+                      {d.skills && d.skills.length > 0 && (
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Software Skills ({d.skills.length})</p>
+                          <div className="flex flex-wrap gap-2">
+                            {d.skills.map(skill => (
+                              <span key={skill} className="text-xs px-3 py-1 rounded-lg bg-sky-900/20 border border-sky-500/15 text-sky-300 font-medium">{skill}</span>
+                            ))}
+                          </div>
                         </div>
                       )}
-                      {d.yearsExperience != null && (
-                        <div className="bg-cad-surface rounded-xl p-3 border border-cad-border text-center">
-                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Experience</p>
-                          <p className="text-sm font-bold text-cad-text">{d.yearsExperience}y</p>
+
+                      {(fullProfile?.linkedinUrl || fullProfile?.cvUrl) && (
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Links</p>
+                          <div className="space-y-2">
+                            {fullProfile?.linkedinUrl && (
+                              <a href={fullProfile.linkedinUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-cad-accent hover:underline">
+                                <ExternalLink className="w-4 h-4"/> LinkedIn
+                              </a>
+                            )}
+                            {fullProfile?.cvUrl && (
+                              <a href={fullProfile.cvUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-cad-accent hover:underline">
+                                <FileText className="w-4 h-4"/> View CV
+                              </a>
+                            )}
+                          </div>
                         </div>
                       )}
-                      {d.userRating != null && (
-                        <div className="bg-cad-surface rounded-xl p-3 border border-cad-border text-center">
-                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Rating</p>
-                          <p className="text-sm font-bold text-cad-text flex items-center justify-center gap-1">
-                            <Star className="w-3 h-3 fill-amber-400 text-amber-400"/>{d.userRating.toFixed(1)}
-                          </p>
+
+                      {(d.hourlyRate != null || d.yearsExperience != null || d.userRating != null) && (
+                        <div className="grid grid-cols-3 md:grid-cols-1 gap-3">
+                          {d.hourlyRate != null && (
+                            <div className="bg-cad-surface rounded-xl p-3 border border-cad-border text-center md:flex md:items-center md:justify-between md:text-left">
+                              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1 md:mb-0">Rate</p>
+                              <p className="text-sm font-bold text-cad-text">{format(d.hourlyRate)}/hr</p>
+                            </div>
+                          )}
+                          {d.yearsExperience != null && (
+                            <div className="bg-cad-surface rounded-xl p-3 border border-cad-border text-center md:flex md:items-center md:justify-between md:text-left">
+                              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1 md:mb-0">Experience</p>
+                              <p className="text-sm font-bold text-cad-text">{d.yearsExperience}y</p>
+                            </div>
+                          )}
+                          {d.userRating != null && (
+                            <div className="bg-cad-surface rounded-xl p-3 border border-cad-border text-center md:flex md:items-center md:justify-between md:text-left">
+                              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1 md:mb-0">Rating</p>
+                              <p className="text-sm font-bold text-cad-text flex items-center justify-center gap-1">
+                                <Star className="w-3 h-3 fill-amber-400 text-amber-400"/>{d.userRating.toFixed(1)}
+                              </p>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
-                  )}
+                  </div>
 
                 </div>
               </div>
