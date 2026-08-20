@@ -384,6 +384,38 @@ export function listDesigners(): Promise<TalentCard[]> {
   });
 }
 
+// ── Connections ─────────────────────────────────────────────────────────────
+
+export type ApiConnectionStatus = 'PENDING' | 'ACCEPTED';
+
+export interface ApiConnection {
+  id: string;
+  status: ApiConnectionStatus;
+  direction: 'INCOMING' | 'OUTGOING'; // relative to the current user
+  otherUserId: string;
+  otherUserName?: string;
+  otherUserEmail?: string;
+  otherAvatarUrl?: string;
+  otherHeadline?: string;
+  createdAt?: string;
+}
+
+export function listConnections(): Promise<ApiConnection[]> {
+  return request<ApiConnection[]>('/api/connections', { headers: authHeaders() });
+}
+
+export function sendConnectionRequest(addresseeId: string): Promise<ApiConnection> {
+  return request<ApiConnection>(`/api/connections/${addresseeId}`, { method: 'POST', headers: authHeaders() });
+}
+
+export function acceptConnection(connectionId: string): Promise<ApiConnection> {
+  return request<ApiConnection>(`/api/connections/${connectionId}/accept`, { method: 'POST', headers: authHeaders() });
+}
+
+export function removeConnection(connectionId: string): Promise<void> {
+  return request<void>(`/api/connections/${connectionId}`, { method: 'DELETE', headers: authHeaders() });
+}
+
 // ── Images ────────────────────────────────────────────────────────────────────
 
 // Upload an image via multipart. NOTE: we deliberately do NOT set Content-Type —

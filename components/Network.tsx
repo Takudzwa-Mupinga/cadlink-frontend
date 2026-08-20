@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Star, MessageSquare, UserPlus, X, MapPin, Briefcase, Search, UserCheck, Loader2, GraduationCap, ExternalLink, FileText } from 'lucide-react';
-import { TalentCard, DesignerProfilePayload, listDesigners, getDesignerProfileByUserId, imageSrc } from '../services/api';
+import { Star, MessageSquare, UserPlus, X, MapPin, Briefcase, Search, UserCheck, Loader2, GraduationCap, ExternalLink, FileText, Clock, Check } from 'lucide-react';
+import { TalentCard, DesignerProfilePayload, ApiConnection, listDesigners, getDesignerProfileByUserId, listConnections, sendConnectionRequest, acceptConnection, removeConnection, imageSrc } from '../services/api';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCurrentUser } from '../contexts/UserContext';
 
@@ -29,15 +29,19 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
       .finally(() => setIsLoadingProfile(false));
   }, [selectedDesigner]);
 
-  // Connection state — local-only for now, pending backend
-  const [connectionStatus, setConnectionStatus] = useState<Record<string, 'none' | 'pending' | 'connected'>>({});
-  const [loadingId, setLoadingId] = useState<string | null>(null);
+  // Connection state (real, from backend)
+  const [connections, setConnections] = useState<ApiConnection[]>([]);
+  const [actionId, setActionId] = useState<string | null>(null);
+  const [view, setView] = useState<'discover' | 'requests' | 'network'>('discover');
+  const [connError, setConnError] = useState<string | null>(null);
+  const refreshConnections = () => listConnections().then(setConnections).catch(() => {});
 
   useEffect(() => {
     listDesigners()
       .then(setDesigners)
       .catch(() => {})
       .finally(() => setIsLoading(false));
+    refreshConnections();
   }, []);
 
   const filtered = designers
@@ -53,15 +57,42 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
       );
     });
 
-  const handleConnect = (userId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const current = connectionStatus[userId] || 'none';
-    if (current !== 'none') return; // pending/connected states are sticky
-    setLoadingId(userId);
-    setTimeout(() => {
-      setConnectionStatus(prev => ({ ...prev, [userId]: 'pending' }));
-      setLoadingId(null);
-    }, 600);
+  // Map each counterpart user -> their connection record, plus filtered lists.
+  const connByUser: Record<string, ApiConnection> = {};
+  connections.forEach(c => { connByUser[c.otherUserId] = c; });
+  const incoming = connections.filter(c => c.status === 'PENDING' && c.direction === 'INCOMING');
+  const accepted = connections.filter(c => c.status === 'ACCEPTED');
+
+  const runAction = async (busyId: string, fn: () => Promise<any>, fallback: string) => {
+    setActionId(busyId); setConnError(null);
+    try { await fn(); await refreshConnections(); }
+    catch (err: any) { setConnError(err?.message ?? fallback); }
+    finally { setActionId(null); }
+  };
+  const handleConnect = (userId: string, e?: React.MouseEvent) => { e?.stopPropagation(); runAction(userId, () => sendConnectionRequest(userId), 'Could not send request.'); };
+  const handleAccept = (connectionId: string, e?: React.MouseEvent) => { e?.stopPropagation(); runAction(connectionId, () => acceptConnection(connectionId), 'Could not accept request.'); };
+  const handleRemove = (connectionId: string, e?: React.MouseEvent) => { e?.stopPropagation(); runAction(connectionId, () => removeConnection(connectionId), 'Could not update connection.'); };
+
+  // Renders the right connection button given the caller's relationship to a user.
+  const renderConnect = (userId: string, conn: ApiConnection | undefined, big = false) => {
+    const size = big ? 'px-4 py-2 text-xs' : 'py-2 text-xs';
+    const cls = `flex items-center justify-center gap-1.5 font-bold rounded-xl transition-all border ${size}`;
+    if (!conn) {
+      return <button onClick={(e) => handleConnect(userId, e)} disabled={actionId === userId}
+        className={`${cls} bg-cad-surface/30 hover:bg-cad-accent hover:text-cad-dark text-cad-text border-cad-border disabled:opacity-60`}>
+        {actionId === userId ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserPlus className="w-3.5 h-3.5" />} Connect</button>;
+    }
+    if (conn.status === 'ACCEPTED') {
+      return <button disabled className={`${cls} bg-green-500/10 text-green-400 border-green-500/20 cursor-default`}>
+        <UserCheck className="w-3.5 h-3.5" /> Connected</button>;
+    }
+    if (conn.direction === 'INCOMING') {
+      return <button onClick={(e) => handleAccept(conn.id, e)} disabled={actionId === conn.id}
+        className={`${cls} bg-cad-accent text-cad-dark border-cad-accent hover:bg-violet-400 disabled:opacity-60`}>
+        {actionId === conn.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />} Accept</button>;
+    }
+    return <button disabled className={`${cls} bg-yellow-500/10 text-yellow-400 border-yellow-500/20 cursor-default`}>
+      <Clock className="w-3.5 h-3.5" /> Pending</button>;
   };
 
   return (
@@ -88,8 +119,27 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
           </div>
         </div>
 
-        {/* Grid */}
-        {isLoading ? (
+        {/* View tabs */}
+        <div className="flex items-center gap-2 border-b border-cad-border">
+          {([
+            { key: 'discover', label: 'Discover', count: 0 },
+            { key: 'requests', label: 'Requests', count: incoming.length },
+            { key: 'network', label: 'My Network', count: accepted.length },
+          ] as const).map(t => (
+            <button key={t.key} onClick={() => setView(t.key)}
+              className={`relative px-4 py-2 text-sm font-bold transition-colors ${view === t.key ? 'text-cad-accent' : 'text-cad-muted hover:text-cad-text'}`}>
+              {t.label}{t.count > 0 && <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-cad-accent/20 text-cad-accent">{t.count}</span>}
+              {view === t.key && <span className="absolute left-0 right-0 -bottom-px h-0.5 bg-cad-accent rounded-full"></span>}
+            </button>
+          ))}
+        </div>
+
+        {connError && (
+          <p className="px-4 py-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl">{connError}</p>
+        )}
+
+        {/* Discover grid */}
+        {view === 'discover' && (isLoading ? (
           <div className="flex items-center justify-center py-24 text-cad-muted gap-3">
             <Loader2 className="w-5 h-5 animate-spin" /> Loading network...
           </div>
@@ -103,7 +153,7 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
             {filtered.map(designer => {
               const name = designer.displayName || designer.email.split('@')[0];
               const initials = name.slice(0, 1).toUpperCase();
-              const status = connectionStatus[designer.userId] || 'none';
+              const conn = connByUser[designer.userId];
               return (
                 <div
                   key={designer.userId}
@@ -173,24 +223,7 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
 
                     {/* Actions */}
                     <div className="mt-auto grid grid-cols-2 gap-2 pt-3 border-t border-cad-border">
-                      <button
-                        onClick={(e) => handleConnect(designer.userId, e)}
-                        disabled={status !== 'none'}
-                        className={`flex items-center justify-center gap-1.5 font-bold py-2 rounded-xl transition-all border text-xs ${
-                          status === 'connected'
-                            ? 'bg-green-500/10 text-green-400 border-green-500/20 cursor-default'
-                            : status === 'pending'
-                            ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 cursor-default'
-                            : 'bg-cad-surface/30 hover:bg-cad-accent hover:text-cad-dark text-cad-text border-cad-border'
-                        }`}
-                      >
-                        {loadingId === designer.userId
-                          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          : status === 'connected'
-                          ? <UserCheck className="w-3.5 h-3.5" />
-                          : <UserPlus className="w-3.5 h-3.5" />}
-                        {status === 'connected' ? 'Connected' : status === 'pending' ? 'Pending' : 'Connect'}
-                      </button>
+                      {renderConnect(designer.userId, conn)}
                       <button
                         onClick={(e) => { e.stopPropagation(); onMessage?.(designer.userId); }}
                         className="flex items-center justify-center gap-1.5 bg-cad-surface/30 hover:bg-cad-surface/50 text-cad-text font-bold py-2 rounded-xl transition-all border border-cad-border text-xs"
@@ -203,6 +236,72 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
               );
             })}
           </div>
+        ))}
+
+        {/* Requests view */}
+        {view === 'requests' && (
+          incoming.length === 0 ? (
+            <div className="text-center py-24 text-cad-muted"><p className="font-medium">No pending requests.</p></div>
+          ) : (
+            <div className="space-y-3 max-w-2xl">
+              {incoming.map(c => (
+                <div key={c.id} className="flex items-center gap-4 p-4 glass-card rounded-2xl border border-cad-border">
+                  {c.otherAvatarUrl ? (
+                    <img src={imageSrc(c.otherAvatarUrl)} alt={c.otherUserName} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cad-accent to-blue-600 flex items-center justify-center text-sm font-bold text-white shrink-0">{(c.otherUserName || c.otherUserEmail || '?').slice(0, 1).toUpperCase()}</div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-cad-text truncate">{c.otherUserName || c.otherUserEmail}</p>
+                    {c.otherHeadline && <p className="text-xs text-cad-muted truncate">{c.otherHeadline}</p>}
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button onClick={() => handleAccept(c.id)} disabled={actionId === c.id}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-cad-accent text-cad-dark hover:bg-violet-400 disabled:opacity-60">
+                      {actionId === c.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />} Accept
+                    </button>
+                    <button onClick={() => handleRemove(c.id)} disabled={actionId === c.id}
+                      className="px-4 py-2 rounded-xl text-xs font-bold border border-cad-border text-slate-400 hover:text-red-400 hover:border-red-400/30">
+                      Decline
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        )}
+
+        {/* My Network view */}
+        {view === 'network' && (
+          accepted.length === 0 ? (
+            <div className="text-center py-24 text-cad-muted"><p className="font-medium">No connections yet.</p><p className="text-sm mt-1">Connect with people from the Discover tab.</p></div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {accepted.map(c => (
+                <div key={c.id} className="flex items-center gap-4 p-4 glass-card rounded-2xl border border-cad-border">
+                  {c.otherAvatarUrl ? (
+                    <img src={imageSrc(c.otherAvatarUrl)} alt={c.otherUserName} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cad-accent to-blue-600 flex items-center justify-center text-sm font-bold text-white shrink-0">{(c.otherUserName || c.otherUserEmail || '?').slice(0, 1).toUpperCase()}</div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-cad-text truncate">{c.otherUserName || c.otherUserEmail}</p>
+                    {c.otherHeadline && <p className="text-xs text-cad-muted truncate">{c.otherHeadline}</p>}
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button onClick={() => onMessage?.(c.otherUserId)}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-cad-surface/30 border border-cad-border text-cad-text hover:bg-cad-surface/50">
+                      <MessageSquare className="w-3.5 h-3.5" /> Message
+                    </button>
+                    <button onClick={() => handleRemove(c.id)} disabled={actionId === c.id}
+                      className="px-3 py-2 rounded-xl text-xs font-bold border border-cad-border text-slate-400 hover:text-red-400 hover:border-red-400/30">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
         )}
 
         {/* Designer Detail Modal */}
@@ -210,7 +309,6 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
           const d = selectedDesigner;
           const name = d.displayName || d.email.split('@')[0];
           const initials = name.slice(0, 1).toUpperCase();
-          const status = connectionStatus[d.userId] || 'none';
           return (
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
               <div className="glass-panel w-full max-w-4xl rounded-3xl border border-cad-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95">
@@ -253,19 +351,7 @@ const Network: React.FC<NetworkProps> = ({ onMessage }) => {
                       </div>
                     </div>
                     <div className="flex gap-2 shrink-0">
-                      <button
-                        onClick={(e) => handleConnect(d.userId, e)}
-                        disabled={status !== 'none'}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 ${
-                          status === 'connected'
-                            ? 'bg-green-500/10 text-green-400 border-green-500/20 cursor-default'
-                            : status === 'pending'
-                            ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 cursor-default'
-                            : 'bg-cad-accent text-cad-dark border-cad-accent hover:bg-violet-400'
-                        }`}
-                      >
-                        {status === 'connected' ? <><UserCheck className="w-3.5 h-3.5"/>Connected</> : status === 'pending' ? 'Request Sent' : <><UserPlus className="w-3.5 h-3.5"/>Connect</>}
-                      </button>
+                      {renderConnect(d.userId, connByUser[d.userId], true)}
                       <button
                         onClick={() => { onMessage?.(d.userId); setSelectedDesigner(null); }}
                         className="px-4 py-2 rounded-xl text-xs font-bold bg-cad-surface border border-cad-border text-cad-text hover:bg-cad-surface/80 transition-colors flex items-center gap-1.5"
