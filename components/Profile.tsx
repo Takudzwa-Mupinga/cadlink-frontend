@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { MapPin, Mail, Link as LinkIcon, Edit2, Save, Award, Briefcase, Star, Clock, CheckCircle2, X, Upload, Loader2, AlertCircle, Building2 } from 'lucide-react';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCurrentUser } from '../contexts/UserContext';
-import { updateProfile, updateDesignerProfile, updateClientProfile, imageSrc } from '../services/api';
+import { updateProfile, updateDesignerProfile, updateClientProfile, uploadImage, imageSrc } from '../services/api';
 import ImageUpload from './ImageUpload';
+import ImageCropModal from './ImageCropModal';
 
 const SKILL_SUGGESTIONS = ['AutoCAD', 'Revit', 'SolidWorks', 'Fusion 360', 'CATIA', 'SketchUp', 'ArchiCAD', 'Rhino', 'Blender', '3ds Max', 'Civil 3D', 'Inventor', 'ANSYS', 'MATLAB'];
 const INDUSTRIES = ['Architecture', 'Civil Engineering', 'Mechanical Engineering', 'Construction', 'Real Estate', 'Manufacturing', 'Interior Design', 'Other'];
@@ -44,6 +45,10 @@ const Profile: React.FC = () => {
     const [editLocation, setEditLocation] = useState('');
     const [editSkills, setEditSkills] = useState<string[]>([]);
     const [editAvatarUrl, setEditAvatarUrl] = useState<string | undefined>(undefined);
+    const [editBannerUrl, setEditBannerUrl] = useState<string | undefined>(undefined);
+    const bannerInputRef = useRef<HTMLInputElement>(null);
+    const [bannerCropSrc, setBannerCropSrc] = useState<string | null>(null);
+    const [isBannerUploading, setIsBannerUploading] = useState(false);
     const [editYears, setEditYears] = useState('');
     const [editLinkedin, setEditLinkedin] = useState('');
     const [editCv, setEditCv] = useState('');
@@ -75,6 +80,7 @@ const Profile: React.FC = () => {
         setEditLocation(displayLocation);
         setEditSkills([...displaySkills]);
         setEditAvatarUrl(profile?.avatarUrl);
+        setEditBannerUrl(profile?.bannerUrl);
         setEditYears(designerProfile?.yearsExperience?.toString() ?? '');
         setEditLinkedin(designerProfile?.linkedinUrl ?? '');
         setEditCv(designerProfile?.cvUrl ?? '');
@@ -98,6 +104,7 @@ const Profile: React.FC = () => {
                 location: editLocation,
                 skills: editSkills,
                 avatarUrl: editAvatarUrl,
+                bannerUrl: editBannerUrl ?? '',
                 // Keep the base displayName in sync with the company name for clients
                 // (the sidebar/chip resolve off companyName, but this keeps them aligned).
                 displayName: userRole === 'CLIENT' ? (editCompanyName || undefined) : undefined,
@@ -146,6 +153,31 @@ const Profile: React.FC = () => {
         : computeCompleteness({ firstName, lastName, headline: displayHeadline, bio: displayBio, rate: displayRate?.toString() ?? '', skills: displaySkills, location: displayLocation });
     const savedScore = designerProfile?.profileCompleteness ?? liveCompleteness.score;
 
+    // Banner (cover photo) — live preview while editing, saved value otherwise
+    const displayBanner = imageSrc(isEditing ? editBannerUrl : profile?.bannerUrl);
+    const pickBanner = () => bannerInputRef.current?.click();
+    const handleBannerFile = (file?: File) => {
+        if (bannerInputRef.current) bannerInputRef.current.value = '';
+        if (!file) return;
+        if (!['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(file.type)) { setSaveError('Banner must be PNG, JPEG, WEBP or GIF.'); return; }
+        if (file.size > 15 * 1024 * 1024) { setSaveError('Banner image must be under 15 MB.'); return; }
+        setBannerCropSrc(URL.createObjectURL(file));
+    };
+    const closeBannerCrop = () => { if (bannerCropSrc) URL.revokeObjectURL(bannerCropSrc); setBannerCropSrc(null); };
+    const handleBannerCropConfirm = async (blob: Blob) => {
+        setIsBannerUploading(true);
+        try {
+            const f = new File([blob], 'banner.jpg', { type: 'image/jpeg' });
+            const { url } = await uploadImage(f);
+            setEditBannerUrl(url);
+        } catch (e: any) {
+            setSaveError(e?.message ?? 'Failed to upload banner. Please try again.');
+        } finally {
+            setIsBannerUploading(false);
+            closeBannerCrop();
+        }
+    };
+
     return (
         <div className="h-full overflow-y-auto custom-scrollbar p-6 md:p-10">
             <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
@@ -183,9 +215,29 @@ const Profile: React.FC = () => {
 
                 {/* Header Card */}
                 <div className="glass-panel rounded-3xl overflow-hidden relative border border-cad-border shadow-2xl">
-                    <div className="h-64 bg-gradient-to-r from-blue-900 via-slate-800 to-indigo-900 relative">
-                        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30"></div>
+                    <div className="h-64 relative bg-gradient-to-r from-blue-900 via-slate-800 to-indigo-900"
+                        style={displayBanner ? { backgroundImage: `url(${displayBanner})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+                        {!displayBanner && <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30"></div>}
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0B1121] to-transparent"></div>
+                        {isEditing && (
+                            <div className="absolute top-4 right-4 flex gap-2 z-10">
+                                <button type="button" onClick={pickBanner} disabled={isBannerUploading}
+                                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 hover:bg-black/70 border border-white/15 text-white text-xs font-bold backdrop-blur-sm transition-colors disabled:opacity-60">
+                                    {isBannerUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                                    {editBannerUrl ? 'Change banner' : 'Add banner'}
+                                </button>
+                                {editBannerUrl && (
+                                    <button type="button" onClick={() => setEditBannerUrl(undefined)}
+                                        className="px-3 py-2 rounded-xl bg-black/50 hover:bg-black/70 border border-white/15 text-white text-xs font-bold backdrop-blur-sm transition-colors">
+                                        Remove
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                        <input ref={bannerInputRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" onChange={e => handleBannerFile(e.target.files?.[0])} />
+                        {bannerCropSrc && (
+                            <ImageCropModal src={bannerCropSrc} shape="rect" aspect={4} outputWidth={1200} onCancel={closeBannerCrop} onConfirm={handleBannerCropConfirm} />
+                        )}
                     </div>
 
                     <div className="px-8 md:px-12 pb-10">

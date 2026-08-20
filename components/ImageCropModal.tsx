@@ -5,11 +5,11 @@ import { Loader2, ZoomIn } from 'lucide-react';
 interface Props {
   src: string;                 // local object URL of the picked file
   shape?: 'round' | 'rect';
+  aspect?: number;             // width/height of the crop box (1 = square, 4 = wide banner)
+  outputWidth?: number;        // exported width in px; height derived from aspect
   onCancel: () => void;
   onConfirm: (blob: Blob) => void | Promise<void>;
 }
-
-const OUTPUT_SIZE = 512; // normalize every upload to a small square
 
 function createImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -20,21 +20,21 @@ function createImage(url: string): Promise<HTMLImageElement> {
   });
 }
 
-// Draw the selected region onto a fixed-size square canvas and export a JPEG blob.
-async function getCroppedBlob(src: string, area: Area): Promise<Blob> {
+// Draw the selected region onto a fixed-size canvas and export a JPEG blob.
+async function getCroppedBlob(src: string, area: Area, outW: number, outH: number): Promise<Blob> {
   const image = await createImage(src);
   const canvas = document.createElement('canvas');
-  canvas.width = OUTPUT_SIZE;
-  canvas.height = OUTPUT_SIZE;
+  canvas.width = outW;
+  canvas.height = outH;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas not supported');
-  ctx.drawImage(image, area.x, area.y, area.width, area.height, 0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
+  ctx.drawImage(image, area.x, area.y, area.width, area.height, 0, 0, outW, outH);
   return new Promise((resolve, reject) => {
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Failed to render crop'))), 'image/jpeg', 0.9);
   });
 }
 
-const ImageCropModal: React.FC<Props> = ({ src, shape = 'round', onCancel, onConfirm }) => {
+const ImageCropModal: React.FC<Props> = ({ src, shape = 'round', aspect = 1, outputWidth = 512, onCancel, onConfirm }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [areaPixels, setAreaPixels] = useState<Area | null>(null);
@@ -46,7 +46,8 @@ const ImageCropModal: React.FC<Props> = ({ src, shape = 'round', onCancel, onCon
     if (!areaPixels) return;
     setIsSaving(true);
     try {
-      const blob = await getCroppedBlob(src, areaPixels);
+      const outH = Math.round(outputWidth / aspect);
+      const blob = await getCroppedBlob(src, areaPixels, outputWidth, outH);
       await onConfirm(blob);
     } finally {
       setIsSaving(false);
@@ -66,7 +67,7 @@ const ImageCropModal: React.FC<Props> = ({ src, shape = 'round', onCancel, onCon
             image={src}
             crop={crop}
             zoom={zoom}
-            aspect={1}
+            aspect={aspect}
             cropShape={shape}
             showGrid={false}
             onCropChange={setCrop}

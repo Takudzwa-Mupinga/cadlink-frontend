@@ -71,6 +71,7 @@ export interface ProfilePayload {
   website?: string;
   skills?: string[];
   avatarUrl?: string;
+  bannerUrl?: string;
 }
 
 export interface ProfileResponse extends ProfilePayload {
