@@ -416,6 +416,69 @@ export function removeConnection(connectionId: string): Promise<void> {
   return request<void>(`/api/connections/${connectionId}`, { method: 'DELETE', headers: authHeaders() });
 }
 
+// ── Notifications ───────────────────────────────────────────────────────────
+
+export type ApiNotificationType = 'MESSAGE' | 'ORDER' | 'REVIEW' | 'SYSTEM';
+
+export interface ApiNotification {
+  id: string;
+  userId?: string;
+  type: ApiNotificationType;
+  content: string;
+  read: boolean;        // Jackson serializes the isRead() getter as "read"
+  createdAt: string;
+}
+
+export function listNotifications(): Promise<ApiNotification[]> {
+  return request<ApiNotification[]>('/api/notifications', { headers: authHeaders() });
+}
+
+export function notificationUnreadCount(): Promise<{ count: number }> {
+  return request<{ count: number }>('/api/notifications/unread-count', { headers: authHeaders() });
+}
+
+export function markNotificationRead(id: string): Promise<void> {
+  return request<void>(`/api/notifications/${id}/read`, { method: 'PUT', headers: authHeaders() });
+}
+
+export function markAllNotificationsRead(): Promise<void> {
+  return request<void>('/api/notifications/read-all', { method: 'PUT', headers: authHeaders() });
+}
+
+export function deleteNotification(id: string): Promise<void> {
+  return request<void>(`/api/notifications/${id}`, { method: 'DELETE', headers: authHeaders() });
+}
+
+// ── Reviews & ratings ───────────────────────────────────────────────────────
+
+export interface ApiReview {
+  id: string;
+  projectId: string;
+  raterId: string;
+  raterName?: string;
+  raterAvatarUrl?: string;
+  rateeId: string;
+  stars: number;
+  comment?: string;
+  createdAt: string;
+}
+
+export function createReview(projectId: string, stars: number, comment?: string): Promise<ApiReview> {
+  return request<ApiReview>('/api/reviews', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ projectId, stars, comment }),
+  });
+}
+
+export function listUserReviews(userId: string): Promise<ApiReview[]> {
+  return request<ApiReview[]>(`/api/reviews/user/${userId}`, { headers: authHeaders() });
+}
+
+export function canReviewProject(projectId: string): Promise<{ canReview: boolean }> {
+  return request<{ canReview: boolean }>(`/api/reviews/can-review/${projectId}`, { headers: authHeaders() });
+}
+
 // ── Images ────────────────────────────────────────────────────────────────────
 
 // Upload an image via multipart. NOTE: we deliberately do NOT set Content-Type —

@@ -4,6 +4,9 @@ import { login, register } from '../services/api';
 
 type Role = 'DESIGNER' | 'CLIENT';
 
+// Legal docs are served from the marketing site.
+const LEGAL_BASE = 'https://designlynk.co.za/legal';
+
 interface AuthProps {
   onLogin: (role: string) => void;
   onRegisterDesigner: (role: string) => void;
@@ -20,6 +23,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onRegisterDesigner, onRegisterClie
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<Role>('DESIGNER');
   const [error, setError] = useState<string | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Deep link from the marketing site (designlynk.co.za):
   // ?signup=designer | ?signup=client opens the signup form with the role preselected.
@@ -40,6 +44,12 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onRegisterDesigner, onRegisterClie
 
     if (!isLogin && password !== confirmPassword) {
       setError('Passwords do not match.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!isLogin && !acceptedTerms) {
+      setError('Please accept the Terms & Conditions and Community Guidelines, and acknowledge the Privacy Policy, to continue.');
       setIsLoading(false);
       return;
     }
@@ -210,6 +220,25 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onRegisterDesigner, onRegisterClie
               )}
             </div>
 
+            {!isLogin && (
+              <label className="flex items-start gap-3 text-xs text-slate-400 leading-relaxed cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-cad-accent shrink-0"
+                />
+                <span>
+                  I agree to the{' '}
+                  <a href={`${LEGAL_BASE}/terms-and-conditions.html`} target="_blank" rel="noreferrer" className="text-cad-accent hover:underline font-medium">Terms &amp; Conditions</a>
+                  {' '}and{' '}
+                  <a href={`${LEGAL_BASE}/community-guidelines.html`} target="_blank" rel="noreferrer" className="text-cad-accent hover:underline font-medium">Community Guidelines</a>
+                  , and acknowledge the{' '}
+                  <a href={`${LEGAL_BASE}/privacy-policy.html`} target="_blank" rel="noreferrer" className="text-cad-accent hover:underline font-medium">Privacy Policy</a>.
+                </span>
+              </label>
+            )}
+
             {isLogin && (
               <div className="flex justify-end">
                 <button type="button" className="text-sm font-bold text-cad-accent hover:text-cad-text transition-colors">
@@ -224,7 +253,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onRegisterDesigner, onRegisterClie
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || (!isLogin && !acceptedTerms)}
               className="w-full bg-cad-accent hover:bg-sky-400 text-cad-dark font-bold py-4 rounded-xl shadow-lg shadow-cad-accent/20 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? (

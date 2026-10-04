@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Mail, Link as LinkIcon, Edit2, Save, Award, Briefcase, Star, Clock, CheckCircle2, X, Upload, Loader2, AlertCircle, Building2 } from 'lucide-react';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCurrentUser } from '../contexts/UserContext';
-import { updateProfile, updateDesignerProfile, updateClientProfile, uploadImage, imageSrc } from '../services/api';
+import { updateProfile, updateDesignerProfile, updateClientProfile, uploadImage, imageSrc, listUserReviews, ApiReview } from '../services/api';
 import ImageUpload from './ImageUpload';
 import ImageCropModal from './ImageCropModal';
 
@@ -59,6 +59,13 @@ const Profile: React.FC = () => {
     const [editTypicalHire, setEditTypicalHire] = useState('');
     const [editWebsite, setEditWebsite] = useState('');
     const [newSkill, setNewSkill] = useState('');
+    const [reviews, setReviews] = useState<ApiReview[]>([]);
+
+    useEffect(() => {
+        if (profile?.userId) {
+            listUserReviews(profile.userId).then(setReviews).catch(() => {});
+        }
+    }, [profile?.userId]);
 
     // Derived display values from real API data
     const displayName = userRole === 'CLIENT'
@@ -586,6 +593,44 @@ const Profile: React.FC = () => {
                                 )}
                             </div>
                         )}
+
+                        {/* Reviews — all roles receive them */}
+                        <div className="glass-panel p-8 rounded-2xl border border-cad-border">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="font-bold text-cad-text text-lg">Reviews</h3>
+                                {reviews.length > 0 && (
+                                    <div className="flex items-center gap-1.5">
+                                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                                        <span className="font-bold text-cad-text">{(reviews.reduce((a, r) => a + r.stars, 0) / reviews.length).toFixed(1)}</span>
+                                        <span className="text-xs text-slate-500">({reviews.length})</span>
+                                    </div>
+                                )}
+                            </div>
+                            {reviews.length === 0 ? (
+                                <p className="text-slate-500 text-sm">No reviews yet. Reviews appear here after a completed project.</p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {reviews.map(r => (
+                                        <div key={r.id} className="border-b border-cad-border last:border-0 pb-4 last:pb-0">
+                                            <div className="flex items-center gap-3 mb-1.5">
+                                                {r.raterAvatarUrl ? (
+                                                    <img src={imageSrc(r.raterAvatarUrl)} alt={r.raterName} className="w-8 h-8 rounded-lg object-cover" />
+                                                ) : (
+                                                    <div className="w-8 h-8 rounded-lg bg-cad-surface flex items-center justify-center text-xs font-bold text-cad-accent">{(r.raterName ?? '?').slice(0, 1).toUpperCase()}</div>
+                                                )}
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-bold text-cad-text truncate">{r.raterName ?? 'User'}</p>
+                                                    <div className="flex gap-0.5">
+                                                        {[1, 2, 3, 4, 5].map(s => <Star key={s} className={`w-3 h-3 ${s <= r.stars ? 'fill-amber-400 text-amber-400' : 'text-slate-600'}`} />)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {r.comment && <p className="text-sm text-slate-400 leading-relaxed">{r.comment}</p>}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
                         {/* Portfolio placeholder — designer only */}
                         {userRole === 'DESIGNER' && (

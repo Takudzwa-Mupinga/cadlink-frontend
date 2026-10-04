@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
-import { imageSrc } from './services/api';
+import { imageSrc, notificationUnreadCount } from './services/api';
 import Dashboard from './components/Dashboard';
 import JobMarket from './components/JobMarket';
 import Network from './components/Network';
@@ -26,7 +26,7 @@ import HelpModal from './components/HelpModal';
 import ShortcutsModal from './components/ShortcutsModal';
 import OnboardingTour from './components/OnboardingTour';
 import { ToastNotification } from './types';
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, Bell } from 'lucide-react';
 import { UserProvider, useCurrentUser } from './contexts/UserContext';
 
 const AppInner: React.FC = () => {
@@ -43,6 +43,20 @@ const AppInner: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const [unreadNotif, setUnreadNotif] = useState(0);
+
+  // Poll the unread-notification count; also refetches on tab change so the
+  // badge clears quickly after visiting the Notifications screen.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let active = true;
+    const load = () => notificationUnreadCount()
+      .then(r => { if (active) setUnreadNotif(r.count); })
+      .catch(() => {});
+    load();
+    const t = setInterval(load, 60000);
+    return () => { active = false; clearInterval(t); };
+  }, [isAuthenticated, activeTab]);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [dmTarget, setDmTarget] = useState<string | null>(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -406,6 +420,15 @@ const AppInner: React.FC = () => {
 
       {/* MAIN CONTENT */}
       <main
+        // Auto-collapse the sidebar when the pointer moves away from it into
+        // the content area (desktop only — on mobile the sidebar is an overlay
+        // with its own backdrop-to-close). Keyed off pointer movement, not
+        // clicks, so it never shifts the layout mid-interaction (e.g. typing).
+        onMouseEnter={() => {
+          if (!isSidebarCollapsed && window.innerWidth >= 768) {
+            setIsSidebarCollapsed(true);
+          }
+        }}
         className={`flex-1 relative h-full overflow-hidden bg-transparent transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] z-10 ${
           isSidebarCollapsed ? 'ml-0' : 'ml-0 md:ml-72'
         }`}
@@ -421,22 +444,37 @@ const AppInner: React.FC = () => {
           <HelpCircle className="w-5 h-5" />
         </button>
 
-        {/* PROFILE CHIP */}
-        <button
-          onClick={() => setActiveTab('profile')}
-          className="fixed top-4 right-5 z-[50] flex items-center gap-2.5 px-3 py-2 rounded-xl bg-cad-panel border border-cad-border hover:border-cad-accent transition-all shadow-sm group"
-        >
-          {profile?.avatarUrl ? (
-            <img src={imageSrc(profile.avatarUrl)} alt="avatar" className="w-7 h-7 rounded-lg object-cover shrink-0" />
-          ) : (
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cad-accent to-blue-600 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
-              {(chipName || 'U')[0].toUpperCase()}
-            </div>
-          )}
-          <span className="text-xs font-medium text-cad-muted group-hover:text-cad-text transition-colors max-w-[120px] truncate hidden sm:block">
-            {chipName}
-          </span>
-        </button>
+        {/* TOP-RIGHT CHROME: notifications bell + profile chip */}
+        <div className="fixed top-4 right-5 z-[50] flex items-center gap-3">
+          <button
+            onClick={() => setActiveTab('notifications')}
+            title="Notifications"
+            className="relative w-10 h-10 rounded-xl bg-cad-panel border border-cad-border hover:border-cad-accent transition-all shadow-sm flex items-center justify-center text-cad-muted hover:text-cad-text"
+          >
+            <Bell className="w-5 h-5" />
+            {unreadNotif > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-cad-accent text-cad-dark text-[10px] font-bold flex items-center justify-center shadow">
+                {unreadNotif > 9 ? '9+' : unreadNotif}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('profile')}
+            className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-cad-panel border border-cad-border hover:border-cad-accent transition-all shadow-sm group"
+          >
+            {profile?.avatarUrl ? (
+              <img src={imageSrc(profile.avatarUrl)} alt="avatar" className="w-7 h-7 rounded-lg object-cover shrink-0" />
+            ) : (
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cad-accent to-blue-600 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
+                {(chipName || 'U')[0].toUpperCase()}
+              </div>
+            )}
+            <span className="text-xs font-medium text-cad-muted group-hover:text-cad-text transition-colors max-w-[120px] truncate hidden sm:block">
+              {chipName}
+            </span>
+          </button>
+        </div>
       </main>
 
       <CommandPalette

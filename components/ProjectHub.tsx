@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { CheckCircle2, Clock, FileText, MessageSquare, Upload, Video, AlertCircle, Download, Calendar, Check, Loader2, Wallet, Building2, Plus, X } from 'lucide-react';
+import { CheckCircle2, Clock, FileText, MessageSquare, Upload, Video, AlertCircle, Download, Calendar, Check, Loader2, Wallet, Building2, Plus, X, Star } from 'lucide-react';
 import { Milestone, ProjectContract } from '../types';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCurrentUser } from '../contexts/UserContext';
 import {
     listMyProjects, createProject, listReadyToStart,
-    updateMilestoneStatus, completeProject,
+    updateMilestoneStatus, completeProject, createReview, canReviewProject,
     ApiProject, ApiJobApplication, ApiMilestoneStatus,
 } from '../services/api';
 
@@ -171,6 +171,43 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onNavigate }) => {
 
     const activeContract = contracts.find(c => c.id === activeContractId) ?? contracts[0];
 
+    // ---- Reviews ----
+    const [reviewStars, setReviewStars] = useState(5);
+    const [reviewComment, setReviewComment] = useState('');
+    const [reviewSubmitting, setReviewSubmitting] = useState(false);
+    const [reviewError, setReviewError] = useState<string | null>(null);
+    const [canReview, setCanReview] = useState(false);
+    const [reviewDone, setReviewDone] = useState(false);
+
+    useEffect(() => {
+        setReviewError(null);
+        setReviewDone(false);
+        setReviewStars(5);
+        setReviewComment('');
+        if (activeContract && activeContract.status === 'Completed') {
+            canReviewProject(activeContract.id)
+                .then(r => setCanReview(r.canReview))
+                .catch(() => setCanReview(false));
+        } else {
+            setCanReview(false);
+        }
+    }, [activeContract?.id, activeContract?.status]);
+
+    const handleSubmitReview = async () => {
+        if (!activeContract) return;
+        setReviewSubmitting(true);
+        setReviewError(null);
+        try {
+            await createReview(activeContract.id, reviewStars, reviewComment.trim() || undefined);
+            setCanReview(false);
+            setReviewDone(true);
+        } catch (err: any) {
+            setReviewError(err?.message ?? 'Failed to submit review. Please try again.');
+        } finally {
+            setReviewSubmitting(false);
+        }
+    };
+
     const loadProjects = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -327,6 +364,45 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onNavigate }) => {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Main Info */}
                         <div className="lg:col-span-2 space-y-8">
+                            {/* Review prompt — only for a completed project you haven't reviewed */}
+                            {activeContract.status === 'Completed' && (canReview || reviewDone) && (
+                                <div className="rounded-2xl border border-cad-border bg-cad-panel p-6">
+                                    {reviewDone ? (
+                                        <div className="flex items-center gap-3 text-green-400">
+                                            <CheckCircle2 className="w-5 h-5" />
+                                            <span className="font-bold">Thanks for your review!</span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <h4 className="font-bold text-cad-text mb-1">Leave a review</h4>
+                                            <p className="text-sm text-cad-muted mb-4">How did this project go? Your rating helps the community.</p>
+                                            <div className="flex gap-1 mb-4">
+                                                {[1, 2, 3, 4, 5].map(s => (
+                                                    <button key={s} type="button" onClick={() => setReviewStars(s)} className="p-1 active:scale-90 transition-transform">
+                                                        <Star className={`w-7 h-7 ${s <= reviewStars ? 'fill-amber-400 text-amber-400' : 'text-slate-600'}`} />
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <textarea
+                                                value={reviewComment}
+                                                onChange={e => setReviewComment(e.target.value)}
+                                                rows={3}
+                                                placeholder="Share a few words about the collaboration (optional)…"
+                                                className="w-full bg-cad-surface/50 border border-cad-border rounded-xl p-3 text-sm text-cad-text focus:border-cad-accent outline-none resize-none mb-3"
+                                            />
+                                            {reviewError && <p className="text-sm text-red-400 mb-3">{reviewError}</p>}
+                                            <button
+                                                onClick={handleSubmitReview}
+                                                disabled={reviewSubmitting}
+                                                className="px-5 py-2.5 rounded-xl bg-cad-accent text-cad-dark text-sm font-bold hover:bg-sky-400 transition-colors disabled:opacity-50 flex items-center gap-2"
+                                            >
+                                                {reviewSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Star className="w-4 h-4" />} Submit review
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+
                             {/* Contract Card */}
                             <div className="relative rounded-2xl overflow-hidden border border-cad-border bg-cad-panel shadow-2xl p-8 group">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-500/10 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-500/20 transition-colors duration-700"></div>
